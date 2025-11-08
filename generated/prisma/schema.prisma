@@ -1,0 +1,33 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+model Source {
+  id          String   @id // "beergirl-calendar" など
+  name        String
+  url         String
+  description String?
+  events      Event[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id        String   @id // sourceId:url のハッシュなど
+  sourceId  String
+  source    Source   @relation(fields: [sourceId], references: [id])
+  title     String
+  url       String
+  createdAt DateTime @default(now())
+}
+
+model LineSubscriber {
+  userId    String   @id
+  createdAt DateTime @default(now())
+}
