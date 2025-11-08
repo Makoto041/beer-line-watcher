@@ -3,20 +3,18 @@
  * for Docker builds.
  */
 import "./src/env.js";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
 
-  /**
-   * If you are using `appDir` then you must comment the below `i18n` config out.
-   *
-   * @see https://github.com/vercel/next.js/issues/41980
-   */
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en",
-  },
+  // Set workspace root to silence lockfile warning
+  outputFileTracingRoot: resolve(__dirname, "../../"),
 };
 
 export default config;

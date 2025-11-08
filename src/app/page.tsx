@@ -6,10 +6,11 @@ export const dynamic = "force-dynamic";
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { source?: string; q?: string };
+  searchParams?: Promise<{ source?: string; q?: string }>;
 }) {
-  const source = searchParams?.source ?? "";
-  const q = searchParams?.q ?? "";
+  const params = await searchParams;
+  const source = params?.source ?? "";
+  const q = params?.q ?? "";
 
   const where: Prisma.EventWhereInput = {};
   if (source) where.sourceId = source;
