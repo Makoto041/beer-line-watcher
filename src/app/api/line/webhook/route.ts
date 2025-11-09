@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { WebhookEvent } from "@line/bot-sdk";
+import { prisma } from "@/server/db";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -20,38 +21,187 @@ function verifySignature(body: string, signature: string): boolean {
   return hash === signature;
 }
 
+// Reply to LINE messages
+async function replyMessage(replyToken: string, text: string) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.error("LINE_CHANNEL_ACCESS_TOKEN not set");
+    return;
+  }
+
+  await fetch("https://api.line.me/v2/bot/message/reply", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      replyToken,
+      messages: [{ type: "text", text }],
+    }),
+  }).catch((error) => {
+    console.error("Reply message error:", error);
+  });
+}
+
 export async function POST(request: Request) {
   try {
     const signature = request.headers.get("x-line-signature");
+    const body = await request.text();
+
+    console.log("LINE webhook received", {
+      hasSignature: !!signature,
+      bodyLength: body.length,
+      hasChannelSecret: !!process.env.LINE_CHANNEL_SECRET,
+    });
+
+    // If no signature or channel secret, log but return 200
     if (!signature) {
-      return new NextResponse("No signature", { status: 400 });
+      console.warn("No x-line-signature header");
+      return new NextResponse("OK", { status: 200 });
     }
 
-    const body = await request.text();
+    if (!process.env.LINE_CHANNEL_SECRET) {
+      console.error("LINE_CHANNEL_SECRET not configured");
+      return new NextResponse("OK", { status: 200 });
+    }
 
     // Verify signature
     if (!verifySignature(body, signature)) {
-      return new NextResponse("Invalid signature", { status: 401 });
+      console.error("Signature verification failed");
+      return new NextResponse("OK", { status: 200 });
     }
 
     const payload = JSON.parse(body);
     const events: WebhookEvent[] = payload.events || [];
 
+    console.log("Processing events", { count: events.length });
+
     // Process events
     for (const event of events) {
-      if (event.type === "follow") {
-        // User followed the bot - add to subscribers
-        const userId = event.source.userId;
+      const source = event.source;
+
+      // 1. User followed the bot (1-on-1)
+      if (event.type === "follow" && source.type === "user") {
+        const userId = source.userId;
         if (userId) {
-          // TODO: Add to database
+          await prisma.lineSubscriber.upsert({
+            where: { userId },
+            update: {},
+            create: { userId },
+          });
           console.log("New follower:", userId);
         }
-      } else if (event.type === "unfollow") {
-        // User unfollowed - remove from subscribers
-        const userId = event.source.userId;
+      }
+
+      // 2. User unfollowed the bot (1-on-1)
+      else if (event.type === "unfollow" && source.type === "user") {
+        const userId = source.userId;
         if (userId) {
-          // TODO: Remove from database
+          await prisma.lineSubscriber
+            .delete({
+              where: { userId },
+            })
+            .catch(() => {
+              // Ignore if already deleted
+            });
           console.log("Unfollower:", userId);
+        }
+      }
+
+      // 3. Bot joined a group or room
+      else if (event.type === "join") {
+        const groupId = source.type === "group" ? source.groupId : undefined;
+        const roomId = source.type === "room" ? source.roomId : undefined;
+        const id = groupId || roomId;
+
+        if (id) {
+          await prisma.lineGroup.upsert({
+            where: { id },
+            update: {},
+            create: {
+              id,
+              type: source.type,
+            },
+          });
+          console.log("Bot joined group/room:", id, source.type);
+
+          // Send greeting
+          if (event.replyToken) {
+            await replyMessage(
+              event.replyToken,
+              "🍺 ビールイベント通知ボットが参加しました！\n新しいイベント情報をこのグループにお届けします。"
+            );
+          }
+        }
+      }
+
+      // 4. Bot left a group or room
+      else if (event.type === "leave") {
+        const groupId = source.type === "group" ? source.groupId : undefined;
+        const roomId = source.type === "room" ? source.roomId : undefined;
+        const id = groupId || roomId;
+
+        if (id) {
+          await prisma.lineGroup
+            .delete({
+              where: { id },
+            })
+            .catch(() => {
+              // Ignore if already deleted
+            });
+          console.log("Bot left group/room:", id);
+        }
+      }
+
+      // 5. Message in group (optional commands)
+      else if (
+        event.type === "message" &&
+        event.message.type === "text" &&
+        (source.type === "group" || source.type === "room")
+      ) {
+        const text = event.message.text.trim().toUpperCase();
+        const groupId = source.type === "group" ? source.groupId : undefined;
+        const roomId = source.type === "room" ? source.roomId : undefined;
+        const id = groupId || roomId;
+
+        if (!id) continue;
+
+        // STOP command - disable notifications
+        if (text === "STOP" || text === "停止") {
+          await prisma.lineGroup
+            .delete({
+              where: { id },
+            })
+            .catch(() => {
+              // Ignore if already deleted
+            });
+          if (event.replyToken) {
+            await replyMessage(
+              event.replyToken,
+              "このグループへの通知を停止しました。"
+            );
+          }
+          console.log("Group notifications stopped:", id);
+        }
+
+        // START command - enable notifications
+        else if (text === "START" || text === "開始") {
+          await prisma.lineGroup.upsert({
+            where: { id },
+            update: {},
+            create: {
+              id,
+              type: source.type,
+            },
+          });
+          if (event.replyToken) {
+            await replyMessage(
+              event.replyToken,
+              "このグループへの通知を再開しました。"
+            );
+          }
+          console.log("Group notifications started:", id);
         }
       }
     }

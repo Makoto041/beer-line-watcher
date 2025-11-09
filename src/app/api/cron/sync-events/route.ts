@@ -7,43 +7,70 @@ import { sendLineBroadcast } from "@/server/services/lineService";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  // 簡易認証（Vercel Cron からのみ叩く想定）
-  const url = new URL(request.url);
-  const token = url.searchParams.get("token");
-  if (!token || token !== process.env.CRON_SECRET) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+  try {
+    // 簡易認証（Vercel Cron からのみ叩く想定）
+    const url = new URL(request.url);
+    const token = url.searchParams.get("token");
+    if (!token || token !== process.env.CRON_SECRET) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
 
-  const allNewMessages: string[] = [];
+    console.log("Starting cron job...");
+    const allNewMessages: string[] = [];
 
-  // 1. ビール女子
-  {
-    const items = await crawlBeergirl();
-    const news = await upsertEventsAndGetNewOnes(items);
-    if (news.length) {
-      news.forEach((n) =>
+    // 1. ビール女子
+    console.log("Crawling beergirl...");
+    const beergirlItems = await crawlBeergirl();
+    console.log(`Beergirl found ${beergirlItems.length} items`);
+
+    const beergirlNews = await upsertEventsAndGetNewOnes(beergirlItems);
+    console.log(`Beergirl new events: ${beergirlNews.length}`);
+
+    if (beergirlNews.length) {
+      beergirlNews.forEach((n) =>
         allNewMessages.push(`🍺[ビール女子] ${n.title}\n${n.url}`)
       );
     }
-  }
 
-  // 2. Walkerplus
-  {
-    const items = await crawlWalkerplus();
-    const news = await upsertEventsAndGetNewOnes(items);
-    if (news.length) {
-      news.forEach((n) =>
+    // 2. Walkerplus
+    console.log("Crawling walkerplus...");
+    const walkerplusItems = await crawlWalkerplus();
+    console.log(`Walkerplus found ${walkerplusItems.length} items`);
+
+    const walkerplusNews = await upsertEventsAndGetNewOnes(walkerplusItems);
+    console.log(`Walkerplus new events: ${walkerplusNews.length}`);
+
+    if (walkerplusNews.length) {
+      walkerplusNews.forEach((n) =>
         allNewMessages.push(`🍷[Walkerplus] ${n.title}\n${n.url}`)
       );
     }
-  }
 
-  if (allNewMessages.length) {
-    const text = allNewMessages.join("\n\n");
-    await sendLineBroadcast(text);
-  }
+    if (allNewMessages.length) {
+      console.log(`Sending ${allNewMessages.length} new events to LINE...`);
+      const text = allNewMessages.join("\n\n");
+      await sendLineBroadcast(text);
+      console.log("LINE broadcast sent successfully");
+    } else {
+      console.log("No new events to send");
+    }
 
-  return NextResponse.json({
-    newCount: allNewMessages.length,
-  });
+    return NextResponse.json({
+      success: true,
+      newCount: allNewMessages.length,
+      crawled: {
+        beergirl: beergirlItems.length,
+        walkerplus: walkerplusItems.length,
+      },
+    });
+  } catch (error) {
+    console.error("Cron job error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
 }

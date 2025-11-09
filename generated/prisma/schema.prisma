@@ -31,3 +31,9 @@ model LineSubscriber {
   userId    String   @id
   createdAt DateTime @default(now())
 }
+
+model LineGroup {
+  id        String   @id // groupId or roomId
+  type      String // "group" or "room"
+  createdAt DateTime @default(now())
+}

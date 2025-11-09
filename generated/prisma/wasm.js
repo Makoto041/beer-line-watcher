@@ -115,6 +115,12 @@ exports.Prisma.LineSubscriberScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.LineGroupScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -134,7 +140,8 @@ exports.Prisma.NullsOrder = {
 exports.Prisma.ModelName = {
   Source: 'Source',
   Event: 'Event',
-  LineSubscriber: 'LineSubscriber'
+  LineSubscriber: 'LineSubscriber',
+  LineGroup: 'LineGroup'
 };
 /**
  * Create the Client
@@ -184,13 +191,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Source {\n  id          String   @id // \"beergirl-calendar\" など\n  name        String\n  url         String\n  description String?\n  events      Event[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n}\n\nmodel Event {\n  id        String   @id // sourceId:url のハッシュなど\n  sourceId  String\n  source    Source   @relation(fields: [sourceId], references: [id])\n  title     String\n  url       String\n  createdAt DateTime @default(now())\n}\n\nmodel LineSubscriber {\n  userId    String   @id\n  createdAt DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "d8c98520aa93ed9eb1e1f6b2bc002088d82f367696c42042bb77817883f8c334",
+  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Source {\n  id          String   @id // \"beergirl-calendar\" など\n  name        String\n  url         String\n  description String?\n  events      Event[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n}\n\nmodel Event {\n  id        String   @id // sourceId:url のハッシュなど\n  sourceId  String\n  source    Source   @relation(fields: [sourceId], references: [id])\n  title     String\n  url       String\n  createdAt DateTime @default(now())\n}\n\nmodel LineSubscriber {\n  userId    String   @id\n  createdAt DateTime @default(now())\n}\n\nmodel LineGroup {\n  id        String   @id // groupId or roomId\n  type      String // \"group\" or \"room\"\n  createdAt DateTime @default(now())\n}\n",
+  "inlineSchemaHash": "a75e63db7a2535830b9f0482cb01af28a268f4e0bb7c0e73680cfb35f2eb964d",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Source\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToSource\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source\",\"kind\":\"object\",\"type\":\"Source\",\"relationName\":\"EventToSource\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineSubscriber\":{\"fields\":[{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Source\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToSource\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source\",\"kind\":\"object\",\"type\":\"Source\",\"relationName\":\"EventToSource\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineSubscriber\":{\"fields\":[{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineGroup\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

@@ -143,6 +143,12 @@ exports.Prisma.LineSubscriberScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.LineGroupScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -162,7 +168,8 @@ exports.Prisma.NullsOrder = {
 exports.Prisma.ModelName = {
   Source: 'Source',
   Event: 'Event',
-  LineSubscriber: 'LineSubscriber'
+  LineSubscriber: 'LineSubscriber',
+  LineGroup: 'LineGroup'
 };
 
 /**
