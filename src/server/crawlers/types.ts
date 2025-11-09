@@ -5,4 +5,5 @@ export type CrawledItem = {
   title: string;
   url: string;
   sourceId: string;
+  eventDate?: Date; // イベント開催日（オプション）
 };
