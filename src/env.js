@@ -11,6 +11,9 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    LINE_CHANNEL_ACCESS_TOKEN: z.string().optional(),
+    LINE_CHANNEL_SECRET: z.string().optional(),
+    CRON_SECRET: z.string().optional(),
   },
 
   /**
@@ -29,6 +32,9 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    LINE_CHANNEL_ACCESS_TOKEN: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+    LINE_CHANNEL_SECRET: process.env.LINE_CHANNEL_SECRET,
+    CRON_SECRET: process.env.CRON_SECRET,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
