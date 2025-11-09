@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import type { WebhookEvent } from "@line/bot-sdk";
 import { prisma } from "@/server/db";
+import {
+  getThisWeeksEvents,
+  formatEventsForLine,
+} from "@/server/services/eventQueryService";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +46,26 @@ async function replyMessage(replyToken: string, text: string) {
   }).catch((error) => {
     console.error("Reply message error:", error);
   });
+}
+
+// Parse notification interval from message
+function parseNotificationInterval(text: string): number | null {
+  const normalizedText = text.replace(/\s/g, "").toLowerCase();
+
+  const patterns = [
+    { regex: /通知.*毎日|毎日.*通知|1日/, days: 1 },
+    { regex: /通知.*1週間|1週間.*通知|7日/, days: 7 },
+    { regex: /通知.*2週間|2週間.*通知|14日/, days: 14 },
+    { regex: /通知.*1ヶ月|1ヶ月.*通知|30日|1か月/, days: 30 },
+  ];
+
+  for (const pattern of patterns) {
+    if (pattern.regex.test(normalizedText)) {
+      return pattern.days;
+    }
+  }
+
+  return null;
 }
 
 export async function POST(request: Request) {
@@ -91,6 +115,20 @@ export async function POST(request: Request) {
             create: { userId },
           });
           console.log("New follower:", userId);
+
+          // Send welcome message with instructions
+          if (event.replyToken) {
+            await replyMessage(
+              event.replyToken,
+              "🍺 ビールイベント通知ボットへようこそ！\n\n" +
+                "【使い方】\n" +
+                "• 「今週のイベント」で今週のイベントを表示\n" +
+                "• 「通知 毎日」で毎日通知\n" +
+                "• 「通知 1週間」で週1回通知\n" +
+                "• 「通知 2週間」で2週間に1回通知\n" +
+                "• 「通知 1ヶ月」で月1回通知"
+            );
+          }
         }
       }
 
@@ -126,11 +164,17 @@ export async function POST(request: Request) {
           });
           console.log("Bot joined group/room:", id, source.type);
 
-          // Send greeting
+          // Send greeting with instructions
           if (event.replyToken) {
             await replyMessage(
               event.replyToken,
-              "🍺 ビールイベント通知ボットが参加しました！\n新しいイベント情報をこのグループにお届けします。"
+              "🍺 ビールイベント通知ボットが参加しました！\n" +
+                "新しいイベント情報をこのグループにお届けします。\n\n" +
+                "【コマンド】\n" +
+                "• 「今週のイベント」で今週のイベントを表示\n" +
+                "• 「通知 1週間」などで通知間隔を変更\n" +
+                "• 「停止」で通知を停止\n" +
+                "• 「開始」で通知を再開"
             );
           }
         }
@@ -154,21 +198,103 @@ export async function POST(request: Request) {
         }
       }
 
-      // 5. Message in group (optional commands)
+      // 5. Text message from user (1-on-1)
+      else if (
+        event.type === "message" &&
+        event.message.type === "text" &&
+        source.type === "user"
+      ) {
+        const text = event.message.text.trim();
+        const userId = source.userId;
+
+        if (!userId || !event.replyToken) continue;
+
+        // 今週のイベント
+        if (/今週.*イベント|イベント.*今週/.test(text)) {
+          console.log("User requested this week's events:", userId);
+          const events = await getThisWeeksEvents();
+          const message = formatEventsForLine(events);
+          await replyMessage(event.replyToken, message);
+        }
+        // 通知間隔の変更
+        else {
+          const notificationDays = parseNotificationInterval(text);
+          if (notificationDays) {
+            await prisma.lineSubscriber.update({
+              where: { userId },
+              data: { notificationDays },
+            });
+
+            const intervalText =
+              notificationDays === 1
+                ? "毎日"
+                : notificationDays === 7
+                  ? "1週間"
+                  : notificationDays === 14
+                    ? "2週間"
+                    : "1ヶ月";
+
+            await replyMessage(
+              event.replyToken,
+              `通知間隔を${intervalText}に設定しました。`
+            );
+            console.log(
+              `User ${userId} set notification interval to ${notificationDays} days`
+            );
+          }
+        }
+      }
+
+      // 6. Text message in group
       else if (
         event.type === "message" &&
         event.message.type === "text" &&
         (source.type === "group" || source.type === "room")
       ) {
-        const text = event.message.text.trim().toUpperCase();
+        const text = event.message.text.trim();
         const groupId = source.type === "group" ? source.groupId : undefined;
         const roomId = source.type === "room" ? source.roomId : undefined;
         const id = groupId || roomId;
 
-        if (!id) continue;
+        if (!id || !event.replyToken) continue;
+
+        // 今週のイベント
+        if (/今週.*イベント|イベント.*今週/.test(text)) {
+          console.log("Group requested this week's events:", id);
+          const events = await getThisWeeksEvents();
+          const message = formatEventsForLine(events);
+          await replyMessage(event.replyToken, message);
+        }
+        // 通知間隔の変更
+        else {
+          const notificationDays = parseNotificationInterval(text);
+          if (notificationDays) {
+            await prisma.lineGroup.update({
+              where: { id },
+              data: { notificationDays },
+            });
+
+            const intervalText =
+              notificationDays === 1
+                ? "毎日"
+                : notificationDays === 7
+                  ? "1週間"
+                  : notificationDays === 14
+                    ? "2週間"
+                    : "1ヶ月";
+
+            await replyMessage(
+              event.replyToken,
+              `通知間隔を${intervalText}に設定しました。`
+            );
+            console.log(
+              `Group ${id} set notification interval to ${notificationDays} days`
+            );
+          }
+        }
 
         // STOP command - disable notifications
-        if (text === "STOP" || text === "停止") {
+        if (/^(STOP|停止)$/i.test(text)) {
           await prisma.lineGroup
             .delete({
               where: { id },
@@ -176,17 +302,12 @@ export async function POST(request: Request) {
             .catch(() => {
               // Ignore if already deleted
             });
-          if (event.replyToken) {
-            await replyMessage(
-              event.replyToken,
-              "このグループへの通知を停止しました。"
-            );
-          }
+          await replyMessage(event.replyToken, "このグループへの通知を停止しました。");
           console.log("Group notifications stopped:", id);
         }
 
         // START command - enable notifications
-        else if (text === "START" || text === "開始") {
+        else if (/^(START|開始)$/i.test(text)) {
           await prisma.lineGroup.upsert({
             where: { id },
             update: {},
@@ -195,12 +316,7 @@ export async function POST(request: Request) {
               type: source.type,
             },
           });
-          if (event.replyToken) {
-            await replyMessage(
-              event.replyToken,
-              "このグループへの通知を再開しました。"
-            );
-          }
+          await replyMessage(event.replyToken, "このグループへの通知を再開しました。");
           console.log("Group notifications started:", id);
         }
       }
