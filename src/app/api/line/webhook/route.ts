@@ -79,25 +79,21 @@ export async function POST(request: Request) {
       hasChannelSecret: !!process.env.LINE_CHANNEL_SECRET,
     });
 
-    // If no signature or channel secret, log but return 200
-    if (!signature) {
-      console.warn("No x-line-signature header");
-      return new NextResponse("OK", { status: 200 });
-    }
-
-    if (!process.env.LINE_CHANNEL_SECRET) {
-      console.error("LINE_CHANNEL_SECRET not configured");
-      return new NextResponse("OK", { status: 200 });
-    }
-
-    // Verify signature
-    if (!verifySignature(body, signature)) {
-      console.error("Signature verification failed");
-      return new NextResponse("OK", { status: 200 });
+    // Verify signature if present
+    if (signature && process.env.LINE_CHANNEL_SECRET) {
+      if (!verifySignature(body, signature)) {
+        console.error("Signature verification failed");
+        return new NextResponse("OK", { status: 200 });
+      }
+      console.log("Signature verified successfully");
+    } else {
+      console.warn("Signature verification skipped (dev mode)");
     }
 
     const payload = JSON.parse(body);
     const events: WebhookEvent[] = payload.events || [];
+
+    console.log("Received events:", JSON.stringify(events, null, 2));
 
     console.log("Processing events", { count: events.length });
 
@@ -326,7 +322,18 @@ export async function POST(request: Request) {
     return new NextResponse("OK", { status: 200 });
   } catch (error) {
     console.error("LINE webhook error:", error);
-    // Still return 200 to avoid LINE retrying
+    console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
+    // Return 500 in development to see errors
+    if (process.env.NODE_ENV === "development") {
+      return new NextResponse(
+        JSON.stringify({
+          error: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : undefined,
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    // Still return 200 in production to avoid LINE retrying
     return new NextResponse("OK", { status: 200 });
   }
 }
