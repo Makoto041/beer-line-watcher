@@ -3311,39 +3311,69 @@ export namespace Prisma {
 
   export type AggregateLineSubscriber = {
     _count: LineSubscriberCountAggregateOutputType | null
+    _avg: LineSubscriberAvgAggregateOutputType | null
+    _sum: LineSubscriberSumAggregateOutputType | null
     _min: LineSubscriberMinAggregateOutputType | null
     _max: LineSubscriberMaxAggregateOutputType | null
   }
 
+  export type LineSubscriberAvgAggregateOutputType = {
+    notificationDays: number | null
+  }
+
+  export type LineSubscriberSumAggregateOutputType = {
+    notificationDays: number | null
+  }
+
   export type LineSubscriberMinAggregateOutputType = {
     userId: string | null
+    notificationDays: number | null
+    lastNotifiedAt: Date | null
     createdAt: Date | null
   }
 
   export type LineSubscriberMaxAggregateOutputType = {
     userId: string | null
+    notificationDays: number | null
+    lastNotifiedAt: Date | null
     createdAt: Date | null
   }
 
   export type LineSubscriberCountAggregateOutputType = {
     userId: number
+    notificationDays: number
+    lastNotifiedAt: number
     createdAt: number
     _all: number
   }
 
 
+  export type LineSubscriberAvgAggregateInputType = {
+    notificationDays?: true
+  }
+
+  export type LineSubscriberSumAggregateInputType = {
+    notificationDays?: true
+  }
+
   export type LineSubscriberMinAggregateInputType = {
     userId?: true
+    notificationDays?: true
+    lastNotifiedAt?: true
     createdAt?: true
   }
 
   export type LineSubscriberMaxAggregateInputType = {
     userId?: true
+    notificationDays?: true
+    lastNotifiedAt?: true
     createdAt?: true
   }
 
   export type LineSubscriberCountAggregateInputType = {
     userId?: true
+    notificationDays?: true
+    lastNotifiedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -3386,6 +3416,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: LineSubscriberAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LineSubscriberSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: LineSubscriberMinAggregateInputType
@@ -3416,14 +3458,20 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: LineSubscriberCountAggregateInputType | true
+    _avg?: LineSubscriberAvgAggregateInputType
+    _sum?: LineSubscriberSumAggregateInputType
     _min?: LineSubscriberMinAggregateInputType
     _max?: LineSubscriberMaxAggregateInputType
   }
 
   export type LineSubscriberGroupByOutputType = {
     userId: string
+    notificationDays: number
+    lastNotifiedAt: Date | null
     createdAt: Date
     _count: LineSubscriberCountAggregateOutputType | null
+    _avg: LineSubscriberAvgAggregateOutputType | null
+    _sum: LineSubscriberSumAggregateOutputType | null
     _min: LineSubscriberMinAggregateOutputType | null
     _max: LineSubscriberMaxAggregateOutputType | null
   }
@@ -3444,31 +3492,41 @@ export namespace Prisma {
 
   export type LineSubscriberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     userId?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["lineSubscriber"]>
 
   export type LineSubscriberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     userId?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["lineSubscriber"]>
 
   export type LineSubscriberSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     userId?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["lineSubscriber"]>
 
   export type LineSubscriberSelectScalar = {
     userId?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }
 
-  export type LineSubscriberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "createdAt", ExtArgs["result"]["lineSubscriber"]>
+  export type LineSubscriberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "notificationDays" | "lastNotifiedAt" | "createdAt", ExtArgs["result"]["lineSubscriber"]>
 
   export type $LineSubscriberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "LineSubscriber"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       userId: string
+      notificationDays: number
+      lastNotifiedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["lineSubscriber"]>
     composites: {}
@@ -3894,6 +3952,8 @@ export namespace Prisma {
    */
   interface LineSubscriberFieldRefs {
     readonly userId: FieldRef<"LineSubscriber", 'String'>
+    readonly notificationDays: FieldRef<"LineSubscriber", 'Int'>
+    readonly lastNotifiedAt: FieldRef<"LineSubscriber", 'DateTime'>
     readonly createdAt: FieldRef<"LineSubscriber", 'DateTime'>
   }
     
@@ -4267,45 +4327,75 @@ export namespace Prisma {
 
   export type AggregateLineGroup = {
     _count: LineGroupCountAggregateOutputType | null
+    _avg: LineGroupAvgAggregateOutputType | null
+    _sum: LineGroupSumAggregateOutputType | null
     _min: LineGroupMinAggregateOutputType | null
     _max: LineGroupMaxAggregateOutputType | null
+  }
+
+  export type LineGroupAvgAggregateOutputType = {
+    notificationDays: number | null
+  }
+
+  export type LineGroupSumAggregateOutputType = {
+    notificationDays: number | null
   }
 
   export type LineGroupMinAggregateOutputType = {
     id: string | null
     type: string | null
+    notificationDays: number | null
+    lastNotifiedAt: Date | null
     createdAt: Date | null
   }
 
   export type LineGroupMaxAggregateOutputType = {
     id: string | null
     type: string | null
+    notificationDays: number | null
+    lastNotifiedAt: Date | null
     createdAt: Date | null
   }
 
   export type LineGroupCountAggregateOutputType = {
     id: number
     type: number
+    notificationDays: number
+    lastNotifiedAt: number
     createdAt: number
     _all: number
   }
 
 
+  export type LineGroupAvgAggregateInputType = {
+    notificationDays?: true
+  }
+
+  export type LineGroupSumAggregateInputType = {
+    notificationDays?: true
+  }
+
   export type LineGroupMinAggregateInputType = {
     id?: true
     type?: true
+    notificationDays?: true
+    lastNotifiedAt?: true
     createdAt?: true
   }
 
   export type LineGroupMaxAggregateInputType = {
     id?: true
     type?: true
+    notificationDays?: true
+    lastNotifiedAt?: true
     createdAt?: true
   }
 
   export type LineGroupCountAggregateInputType = {
     id?: true
     type?: true
+    notificationDays?: true
+    lastNotifiedAt?: true
     createdAt?: true
     _all?: true
   }
@@ -4348,6 +4438,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: LineGroupAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: LineGroupSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: LineGroupMinAggregateInputType
@@ -4378,6 +4480,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: LineGroupCountAggregateInputType | true
+    _avg?: LineGroupAvgAggregateInputType
+    _sum?: LineGroupSumAggregateInputType
     _min?: LineGroupMinAggregateInputType
     _max?: LineGroupMaxAggregateInputType
   }
@@ -4385,8 +4489,12 @@ export namespace Prisma {
   export type LineGroupGroupByOutputType = {
     id: string
     type: string
+    notificationDays: number
+    lastNotifiedAt: Date | null
     createdAt: Date
     _count: LineGroupCountAggregateOutputType | null
+    _avg: LineGroupAvgAggregateOutputType | null
+    _sum: LineGroupSumAggregateOutputType | null
     _min: LineGroupMinAggregateOutputType | null
     _max: LineGroupMaxAggregateOutputType | null
   }
@@ -4408,28 +4516,36 @@ export namespace Prisma {
   export type LineGroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     type?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["lineGroup"]>
 
   export type LineGroupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     type?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["lineGroup"]>
 
   export type LineGroupSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     type?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }, ExtArgs["result"]["lineGroup"]>
 
   export type LineGroupSelectScalar = {
     id?: boolean
     type?: boolean
+    notificationDays?: boolean
+    lastNotifiedAt?: boolean
     createdAt?: boolean
   }
 
-  export type LineGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "createdAt", ExtArgs["result"]["lineGroup"]>
+  export type LineGroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "notificationDays" | "lastNotifiedAt" | "createdAt", ExtArgs["result"]["lineGroup"]>
 
   export type $LineGroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "LineGroup"
@@ -4437,6 +4553,8 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       type: string
+      notificationDays: number
+      lastNotifiedAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["lineGroup"]>
     composites: {}
@@ -4863,6 +4981,8 @@ export namespace Prisma {
   interface LineGroupFieldRefs {
     readonly id: FieldRef<"LineGroup", 'String'>
     readonly type: FieldRef<"LineGroup", 'String'>
+    readonly notificationDays: FieldRef<"LineGroup", 'Int'>
+    readonly lastNotifiedAt: FieldRef<"LineGroup", 'DateTime'>
     readonly createdAt: FieldRef<"LineGroup", 'DateTime'>
   }
     
@@ -5269,6 +5389,8 @@ export namespace Prisma {
 
   export const LineSubscriberScalarFieldEnum: {
     userId: 'userId',
+    notificationDays: 'notificationDays',
+    lastNotifiedAt: 'lastNotifiedAt',
     createdAt: 'createdAt'
   };
 
@@ -5278,6 +5400,8 @@ export namespace Prisma {
   export const LineGroupScalarFieldEnum: {
     id: 'id',
     type: 'type',
+    notificationDays: 'notificationDays',
+    lastNotifiedAt: 'lastNotifiedAt',
     createdAt: 'createdAt'
   };
 
@@ -5352,6 +5476,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -5478,11 +5616,15 @@ export namespace Prisma {
     OR?: LineSubscriberWhereInput[]
     NOT?: LineSubscriberWhereInput | LineSubscriberWhereInput[]
     userId?: StringFilter<"LineSubscriber"> | string
+    notificationDays?: IntFilter<"LineSubscriber"> | number
+    lastNotifiedAt?: DateTimeNullableFilter<"LineSubscriber"> | Date | string | null
     createdAt?: DateTimeFilter<"LineSubscriber"> | Date | string
   }
 
   export type LineSubscriberOrderByWithRelationInput = {
     userId?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
   }
 
@@ -5491,15 +5633,21 @@ export namespace Prisma {
     AND?: LineSubscriberWhereInput | LineSubscriberWhereInput[]
     OR?: LineSubscriberWhereInput[]
     NOT?: LineSubscriberWhereInput | LineSubscriberWhereInput[]
+    notificationDays?: IntFilter<"LineSubscriber"> | number
+    lastNotifiedAt?: DateTimeNullableFilter<"LineSubscriber"> | Date | string | null
     createdAt?: DateTimeFilter<"LineSubscriber"> | Date | string
   }, "userId">
 
   export type LineSubscriberOrderByWithAggregationInput = {
     userId?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: LineSubscriberCountOrderByAggregateInput
+    _avg?: LineSubscriberAvgOrderByAggregateInput
     _max?: LineSubscriberMaxOrderByAggregateInput
     _min?: LineSubscriberMinOrderByAggregateInput
+    _sum?: LineSubscriberSumOrderByAggregateInput
   }
 
   export type LineSubscriberScalarWhereWithAggregatesInput = {
@@ -5507,6 +5655,8 @@ export namespace Prisma {
     OR?: LineSubscriberScalarWhereWithAggregatesInput[]
     NOT?: LineSubscriberScalarWhereWithAggregatesInput | LineSubscriberScalarWhereWithAggregatesInput[]
     userId?: StringWithAggregatesFilter<"LineSubscriber"> | string
+    notificationDays?: IntWithAggregatesFilter<"LineSubscriber"> | number
+    lastNotifiedAt?: DateTimeNullableWithAggregatesFilter<"LineSubscriber"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"LineSubscriber"> | Date | string
   }
 
@@ -5516,12 +5666,16 @@ export namespace Prisma {
     NOT?: LineGroupWhereInput | LineGroupWhereInput[]
     id?: StringFilter<"LineGroup"> | string
     type?: StringFilter<"LineGroup"> | string
+    notificationDays?: IntFilter<"LineGroup"> | number
+    lastNotifiedAt?: DateTimeNullableFilter<"LineGroup"> | Date | string | null
     createdAt?: DateTimeFilter<"LineGroup"> | Date | string
   }
 
   export type LineGroupOrderByWithRelationInput = {
     id?: SortOrder
     type?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
   }
 
@@ -5531,16 +5685,22 @@ export namespace Prisma {
     OR?: LineGroupWhereInput[]
     NOT?: LineGroupWhereInput | LineGroupWhereInput[]
     type?: StringFilter<"LineGroup"> | string
+    notificationDays?: IntFilter<"LineGroup"> | number
+    lastNotifiedAt?: DateTimeNullableFilter<"LineGroup"> | Date | string | null
     createdAt?: DateTimeFilter<"LineGroup"> | Date | string
   }, "id">
 
   export type LineGroupOrderByWithAggregationInput = {
     id?: SortOrder
     type?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: LineGroupCountOrderByAggregateInput
+    _avg?: LineGroupAvgOrderByAggregateInput
     _max?: LineGroupMaxOrderByAggregateInput
     _min?: LineGroupMinOrderByAggregateInput
+    _sum?: LineGroupSumOrderByAggregateInput
   }
 
   export type LineGroupScalarWhereWithAggregatesInput = {
@@ -5549,6 +5709,8 @@ export namespace Prisma {
     NOT?: LineGroupScalarWhereWithAggregatesInput | LineGroupScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"LineGroup"> | string
     type?: StringWithAggregatesFilter<"LineGroup"> | string
+    notificationDays?: IntWithAggregatesFilter<"LineGroup"> | number
+    lastNotifiedAt?: DateTimeNullableWithAggregatesFilter<"LineGroup"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"LineGroup"> | Date | string
   }
 
@@ -5676,78 +5838,106 @@ export namespace Prisma {
 
   export type LineSubscriberCreateInput = {
     userId: string
+    notificationDays?: number
+    lastNotifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type LineSubscriberUncheckedCreateInput = {
     userId: string
+    notificationDays?: number
+    lastNotifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type LineSubscriberUpdateInput = {
     userId?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LineSubscriberUncheckedUpdateInput = {
     userId?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LineSubscriberCreateManyInput = {
     userId: string
+    notificationDays?: number
+    lastNotifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type LineSubscriberUpdateManyMutationInput = {
     userId?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LineSubscriberUncheckedUpdateManyInput = {
     userId?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LineGroupCreateInput = {
     id: string
     type: string
+    notificationDays?: number
+    lastNotifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type LineGroupUncheckedCreateInput = {
     id: string
     type: string
+    notificationDays?: number
+    lastNotifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type LineGroupUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LineGroupUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LineGroupCreateManyInput = {
     id: string
     type: string
+    notificationDays?: number
+    lastNotifiedAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type LineGroupUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LineGroupUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
+    notificationDays?: IntFieldUpdateOperationsInput | number
+    lastNotifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -5913,37 +6103,117 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type LineSubscriberCountOrderByAggregateInput = {
     userId?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type LineSubscriberAvgOrderByAggregateInput = {
+    notificationDays?: SortOrder
   }
 
   export type LineSubscriberMaxOrderByAggregateInput = {
     userId?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrder
     createdAt?: SortOrder
   }
 
   export type LineSubscriberMinOrderByAggregateInput = {
     userId?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type LineSubscriberSumOrderByAggregateInput = {
+    notificationDays?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type LineGroupCountOrderByAggregateInput = {
     id?: SortOrder
     type?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type LineGroupAvgOrderByAggregateInput = {
+    notificationDays?: SortOrder
   }
 
   export type LineGroupMaxOrderByAggregateInput = {
     id?: SortOrder
     type?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrder
     createdAt?: SortOrder
   }
 
   export type LineGroupMinOrderByAggregateInput = {
     id?: SortOrder
     type?: SortOrder
+    notificationDays?: SortOrder
+    lastNotifiedAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type LineGroupSumOrderByAggregateInput = {
+    notificationDays?: SortOrder
   }
 
   export type EventCreateNestedManyWithoutSourceInput = {
@@ -6012,6 +6282,18 @@ export namespace Prisma {
     upsert?: SourceUpsertWithoutEventsInput
     connect?: SourceWhereUniqueInput
     update?: XOR<XOR<SourceUpdateToOneWithWhereWithoutEventsInput, SourceUpdateWithoutEventsInput>, SourceUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -6121,6 +6403,58 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type EventCreateWithoutSourceInput = {

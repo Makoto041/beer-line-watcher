@@ -112,12 +112,16 @@ exports.Prisma.EventScalarFieldEnum = {
 
 exports.Prisma.LineSubscriberScalarFieldEnum = {
   userId: 'userId',
+  notificationDays: 'notificationDays',
+  lastNotifiedAt: 'lastNotifiedAt',
   createdAt: 'createdAt'
 };
 
 exports.Prisma.LineGroupScalarFieldEnum = {
   id: 'id',
   type: 'type',
+  notificationDays: 'notificationDays',
+  lastNotifiedAt: 'lastNotifiedAt',
   createdAt: 'createdAt'
 };
 
@@ -191,13 +195,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Source {\n  id          String   @id // \"beergirl-calendar\" など\n  name        String\n  url         String\n  description String?\n  events      Event[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n}\n\nmodel Event {\n  id        String   @id // sourceId:url のハッシュなど\n  sourceId  String\n  source    Source   @relation(fields: [sourceId], references: [id])\n  title     String\n  url       String\n  createdAt DateTime @default(now())\n}\n\nmodel LineSubscriber {\n  userId    String   @id\n  createdAt DateTime @default(now())\n}\n\nmodel LineGroup {\n  id        String   @id // groupId or roomId\n  type      String // \"group\" or \"room\"\n  createdAt DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "a75e63db7a2535830b9f0482cb01af28a268f4e0bb7c0e73680cfb35f2eb964d",
+  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Source {\n  id          String   @id // \"beergirl-calendar\" など\n  name        String\n  url         String\n  description String?\n  events      Event[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n}\n\nmodel Event {\n  id        String   @id // sourceId:url のハッシュなど\n  sourceId  String\n  source    Source   @relation(fields: [sourceId], references: [id])\n  title     String\n  url       String\n  createdAt DateTime @default(now())\n}\n\nmodel LineSubscriber {\n  userId           String    @id\n  notificationDays Int       @default(1) // 通知間隔（日数）: 1, 7, 14, 30\n  lastNotifiedAt   DateTime? // 最後に通知した日時\n  createdAt        DateTime  @default(now())\n}\n\nmodel LineGroup {\n  id               String    @id // groupId or roomId\n  type             String // \"group\" or \"room\"\n  notificationDays Int       @default(1) // 通知間隔（日数）: 1, 7, 14, 30\n  lastNotifiedAt   DateTime? // 最後に通知した日時\n  createdAt        DateTime  @default(now())\n}\n",
+  "inlineSchemaHash": "b7d99535ee34f246d3b5b94176b18080ded1ada090dd18827168f6964dca524f",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Source\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToSource\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source\",\"kind\":\"object\",\"type\":\"Source\",\"relationName\":\"EventToSource\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineSubscriber\":{\"fields\":[{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineGroup\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Source\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToSource\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source\",\"kind\":\"object\",\"type\":\"Source\",\"relationName\":\"EventToSource\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineSubscriber\":{\"fields\":[{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notificationDays\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"lastNotifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineGroup\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notificationDays\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"lastNotifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),
