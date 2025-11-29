@@ -12,7 +12,7 @@ export function extractDateFromText(text: string): Date | null {
   // Pattern: YYYY年MM月DD日
   const pattern1 = /(\d{4})年(\d{1,2})月(\d{1,2})日/;
   const match1 = text.match(pattern1);
-  if (match1) {
+  if (match1 && match1[1] && match1[2] && match1[3]) {
     const year = parseInt(match1[1]);
     const month = parseInt(match1[2]) - 1; // JavaScript months are 0-indexed
     const day = parseInt(match1[3]);
@@ -22,7 +22,7 @@ export function extractDateFromText(text: string): Date | null {
   // Pattern: MM月DD日
   const pattern2 = /(\d{1,2})月(\d{1,2})日/;
   const match2 = text.match(pattern2);
-  if (match2) {
+  if (match2 && match2[1] && match2[2]) {
     const month = parseInt(match2[1]) - 1;
     const day = parseInt(match2[2]);
     return new Date(currentYear, month, day);
@@ -31,7 +31,7 @@ export function extractDateFromText(text: string): Date | null {
   // Pattern: YYYY/MM/DD
   const pattern3 = /(\d{4})\/(\d{1,2})\/(\d{1,2})/;
   const match3 = text.match(pattern3);
-  if (match3) {
+  if (match3 && match3[1] && match3[2] && match3[3]) {
     const year = parseInt(match3[1]);
     const month = parseInt(match3[2]) - 1;
     const day = parseInt(match3[3]);
@@ -41,7 +41,7 @@ export function extractDateFromText(text: string): Date | null {
   // Pattern: MM/DD
   const pattern4 = /(\d{1,2})\/(\d{1,2})/;
   const match4 = text.match(pattern4);
-  if (match4) {
+  if (match4 && match4[1] && match4[2]) {
     const month = parseInt(match4[1]) - 1;
     const day = parseInt(match4[2]);
     return new Date(currentYear, month, day);
