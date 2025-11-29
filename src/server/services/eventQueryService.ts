@@ -7,6 +7,8 @@ export async function getUpcomingEvents(
   daysAhead: number = 30
 ): Promise<Array<{ title: string; url: string; sourceName: string }>> {
   const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
   const future = new Date();
   future.setDate(now.getDate() + daysAhead);
 
@@ -16,7 +18,8 @@ export async function getUpcomingEvents(
         // Events with future eventDate
         {
           eventDate: {
-            gte: now,
+            // eventDate は 0:00 固定で入るため、当日分も拾うよう「今日の開始時刻」基準で比較
+            gte: startOfToday,
             lte: future,
           },
         },
@@ -57,6 +60,8 @@ export async function getLatestEvents(
   limit: number = 20
 ): Promise<Array<{ title: string; url: string; sourceName: string }>> {
   const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
 
   const events = await prisma.event.findMany({
     where: {
@@ -64,7 +69,7 @@ export async function getLatestEvents(
         // Future events
         {
           eventDate: {
-            gte: now,
+            gte: startOfToday,
           },
         },
         // Recent events without date
