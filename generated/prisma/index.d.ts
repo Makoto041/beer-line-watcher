@@ -2262,6 +2262,7 @@ export namespace Prisma {
     sourceId: string | null
     title: string | null
     url: string | null
+    eventDate: Date | null
     createdAt: Date | null
   }
 
@@ -2270,6 +2271,7 @@ export namespace Prisma {
     sourceId: string | null
     title: string | null
     url: string | null
+    eventDate: Date | null
     createdAt: Date | null
   }
 
@@ -2278,6 +2280,7 @@ export namespace Prisma {
     sourceId: number
     title: number
     url: number
+    eventDate: number
     createdAt: number
     _all: number
   }
@@ -2288,6 +2291,7 @@ export namespace Prisma {
     sourceId?: true
     title?: true
     url?: true
+    eventDate?: true
     createdAt?: true
   }
 
@@ -2296,6 +2300,7 @@ export namespace Prisma {
     sourceId?: true
     title?: true
     url?: true
+    eventDate?: true
     createdAt?: true
   }
 
@@ -2304,6 +2309,7 @@ export namespace Prisma {
     sourceId?: true
     title?: true
     url?: true
+    eventDate?: true
     createdAt?: true
     _all?: true
   }
@@ -2385,6 +2391,7 @@ export namespace Prisma {
     sourceId: string
     title: string
     url: string
+    eventDate: Date | null
     createdAt: Date
     _count: EventCountAggregateOutputType | null
     _min: EventMinAggregateOutputType | null
@@ -2410,6 +2417,7 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    eventDate?: boolean
     createdAt?: boolean
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
@@ -2419,6 +2427,7 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    eventDate?: boolean
     createdAt?: boolean
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
@@ -2428,6 +2437,7 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    eventDate?: boolean
     createdAt?: boolean
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
@@ -2437,10 +2447,11 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    eventDate?: boolean
     createdAt?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceId" | "title" | "url" | "createdAt", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceId" | "title" | "url" | "eventDate" | "createdAt", ExtArgs["result"]["event"]>
   export type EventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }
@@ -2461,6 +2472,7 @@ export namespace Prisma {
       sourceId: string
       title: string
       url: string
+      eventDate: Date | null
       createdAt: Date
     }, ExtArgs["result"]["event"]>
     composites: {}
@@ -2890,6 +2902,7 @@ export namespace Prisma {
     readonly sourceId: FieldRef<"Event", 'String'>
     readonly title: FieldRef<"Event", 'String'>
     readonly url: FieldRef<"Event", 'String'>
+    readonly eventDate: FieldRef<"Event", 'DateTime'>
     readonly createdAt: FieldRef<"Event", 'DateTime'>
   }
     
@@ -5381,6 +5394,7 @@ export namespace Prisma {
     sourceId: 'sourceId',
     title: 'title',
     url: 'url',
+    eventDate: 'eventDate',
     createdAt: 'createdAt'
   };
 
@@ -5564,6 +5578,7 @@ export namespace Prisma {
     sourceId?: StringFilter<"Event"> | string
     title?: StringFilter<"Event"> | string
     url?: StringFilter<"Event"> | string
+    eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     source?: XOR<SourceScalarRelationFilter, SourceWhereInput>
   }
@@ -5573,6 +5588,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    eventDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     source?: SourceOrderByWithRelationInput
   }
@@ -5585,6 +5601,7 @@ export namespace Prisma {
     sourceId?: StringFilter<"Event"> | string
     title?: StringFilter<"Event"> | string
     url?: StringFilter<"Event"> | string
+    eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     source?: XOR<SourceScalarRelationFilter, SourceWhereInput>
   }, "id">
@@ -5594,6 +5611,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    eventDate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: EventCountOrderByAggregateInput
     _max?: EventMaxOrderByAggregateInput
@@ -5608,6 +5626,7 @@ export namespace Prisma {
     sourceId?: StringWithAggregatesFilter<"Event"> | string
     title?: StringWithAggregatesFilter<"Event"> | string
     url?: StringWithAggregatesFilter<"Event"> | string
+    eventDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Event"> | Date | string
   }
 
@@ -5785,6 +5804,7 @@ export namespace Prisma {
     id: string
     title: string
     url: string
+    eventDate?: Date | string | null
     createdAt?: Date | string
     source: SourceCreateNestedOneWithoutEventsInput
   }
@@ -5794,6 +5814,7 @@ export namespace Prisma {
     sourceId: string
     title: string
     url: string
+    eventDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -5801,6 +5822,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     source?: SourceUpdateOneRequiredWithoutEventsNestedInput
   }
@@ -5810,6 +5832,7 @@ export namespace Prisma {
     sourceId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -5818,6 +5841,7 @@ export namespace Prisma {
     sourceId: string
     title: string
     url: string
+    eventDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -5825,6 +5849,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -5833,6 +5858,7 @@ export namespace Prisma {
     sourceId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6074,6 +6100,17 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type SourceScalarRelationFilter = {
     is?: SourceWhereInput
     isNot?: SourceWhereInput
@@ -6084,6 +6121,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    eventDate?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -6092,6 +6130,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    eventDate?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -6100,7 +6139,22 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    eventDate?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -6112,17 +6166,6 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type LineSubscriberCountOrderByAggregateInput = {
@@ -6168,20 +6211,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type LineGroupCountOrderByAggregateInput = {
@@ -6276,6 +6305,10 @@ export namespace Prisma {
     connect?: SourceWhereUniqueInput
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type SourceUpdateOneRequiredWithoutEventsNestedInput = {
     create?: XOR<SourceCreateWithoutEventsInput, SourceUncheckedCreateWithoutEventsInput>
     connectOrCreate?: SourceCreateOrConnectWithoutEventsInput
@@ -6290,10 +6323,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -6416,6 +6445,20 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -6443,24 +6486,11 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
   export type EventCreateWithoutSourceInput = {
     id: string
     title: string
     url: string
+    eventDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -6468,6 +6498,7 @@ export namespace Prisma {
     id: string
     title: string
     url: string
+    eventDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -6505,6 +6536,7 @@ export namespace Prisma {
     sourceId?: StringFilter<"Event"> | string
     title?: StringFilter<"Event"> | string
     url?: StringFilter<"Event"> | string
+    eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
   }
 
@@ -6564,6 +6596,7 @@ export namespace Prisma {
     id: string
     title: string
     url: string
+    eventDate?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -6571,6 +6604,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6578,6 +6612,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6585,6 +6620,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

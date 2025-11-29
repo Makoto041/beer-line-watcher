@@ -5,6 +5,10 @@ import {
   getThisWeeksEvents,
   formatEventsForLine,
 } from "@/server/services/eventQueryService";
+import {
+  crawlAndGetNewEvents,
+  formatCrawlerResultsForLine,
+} from "@/server/services/crawlerService";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -205,8 +209,32 @@ export async function POST(request: Request) {
 
         if (!userId || !event.replyToken) continue;
 
+        // 最新情報取得
+        if (/最新.*情報.*取得|最新情報|情報.*取得/.test(text)) {
+          console.log("User requested latest info:", userId);
+          await replyMessage(event.replyToken, "🔄 最新情報を取得中です...");
+
+          const { newEvents, summary } = await crawlAndGetNewEvents();
+          const message = formatCrawlerResultsForLine(newEvents, summary);
+
+          // Send result as push message (can't use reply token twice)
+          const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+          if (token) {
+            await fetch("https://api.line.me/v2/bot/message/push", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                to: userId,
+                messages: [{ type: "text", text: message }],
+              }),
+            });
+          }
+        }
         // 今週のイベント
-        if (/今週.*イベント|イベント.*今週/.test(text)) {
+        else if (/今週.*イベント|イベント.*今週/.test(text)) {
           console.log("User requested this week's events:", userId);
           const events = await getThisWeeksEvents();
           const message = formatEventsForLine(events);
@@ -216,9 +244,11 @@ export async function POST(request: Request) {
         else {
           const notificationDays = parseNotificationInterval(text);
           if (notificationDays) {
-            await prisma.lineSubscriber.update({
+            // DBが初期化されていて follow 済みユーザー行が無い場合に備え upsert にする
+            await prisma.lineSubscriber.upsert({
               where: { userId },
-              data: { notificationDays },
+              update: { notificationDays },
+              create: { userId, notificationDays },
             });
 
             const intervalText =
@@ -254,8 +284,32 @@ export async function POST(request: Request) {
 
         if (!id || !event.replyToken) continue;
 
+        // 最新情報取得
+        if (/最新.*情報.*取得|最新情報|情報.*取得/.test(text)) {
+          console.log("Group requested latest info:", id);
+          await replyMessage(event.replyToken, "🔄 最新情報を取得中です...");
+
+          const { newEvents, summary } = await crawlAndGetNewEvents();
+          const message = formatCrawlerResultsForLine(newEvents, summary);
+
+          // Send result as push message
+          const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+          if (token) {
+            await fetch("https://api.line.me/v2/bot/message/push", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                to: id,
+                messages: [{ type: "text", text: message }],
+              }),
+            });
+          }
+        }
         // 今週のイベント
-        if (/今週.*イベント|イベント.*今週/.test(text)) {
+        else if (/今週.*イベント|イベント.*今週/.test(text)) {
           console.log("Group requested this week's events:", id);
           const events = await getThisWeeksEvents();
           const message = formatEventsForLine(events);
@@ -265,9 +319,15 @@ export async function POST(request: Request) {
         else {
           const notificationDays = parseNotificationInterval(text);
           if (notificationDays) {
-            await prisma.lineGroup.update({
+            // グループ行が無い場合にも対応するため upsert にする
+            await prisma.lineGroup.upsert({
               where: { id },
-              data: { notificationDays },
+              update: { notificationDays },
+              create: {
+                id,
+                type: source.type,
+                notificationDays,
+              },
             });
 
             const intervalText =

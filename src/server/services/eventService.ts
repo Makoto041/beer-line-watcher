@@ -21,7 +21,22 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
     // Check if Event already exists
     const id = makeEventId(item);
     const exists = await prisma.event.findUnique({ where: { id } });
-    if (exists) continue;
+
+    // 既存イベントでも、スクレイピングで新たに eventDate を取得できたら更新する
+    if (exists) {
+      if (item.eventDate && (!exists.eventDate || exists.eventDate.getTime() !== item.eventDate.getTime())) {
+        await prisma.event.update({
+          where: { id },
+          data: { eventDate: item.eventDate },
+        });
+        newOnes.push({
+          title: item.title,
+          url: item.url,
+          sourceId: item.sourceId,
+        });
+      }
+      continue;
+    }
 
     // Create new Event
     await prisma.event.create({
@@ -30,6 +45,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
         sourceId: item.sourceId,
         title: item.title,
         url: item.url,
+        eventDate: item.eventDate,
       },
     });
 

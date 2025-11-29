@@ -1,4 +1,5 @@
 import type { CrawledItem } from "./types";
+import { extractDateFromText } from "../utils/dateExtractor";
 
 const SOURCE_ID = "walkerplus-liquor-kanto";
 const BASE = "https://www.walkerplus.com/search/liquor/ar0300/";
@@ -28,14 +29,22 @@ export async function crawlWalkerplus(): Promise<CrawledItem[]> {
       const title = titleRaw.trim();
       const absolute = new URL(href, "https://www.walkerplus.com").toString();
 
-      // ビールに絞るならコメントアウト解除
-      // if (!/ビール|beer|クラフト/i.test(title)) continue;
+      // イベント関連のキーワードでフィルタリング（厳しめ）
+      const eventKeywords = /フェス|祭|イベント|開催|ビアガーデン|マルシェ|beer\s*festival|beer\s*event/i;
+      const excludeKeywords = /コラム|まとめ|ランキング|特集|取材|インタビュー|レビュー|紹介|おすすめ|とは|ニュース/i;
+
+      if (!eventKeywords.test(title)) continue;
+      if (excludeKeywords.test(title)) continue;
+
+      // Try to extract event date from title
+      const eventDate = extractDateFromText(title);
 
       items.push({
         externalId: absolute,
         title,
         url: absolute,
         sourceId: SOURCE_ID,
+        eventDate: eventDate || undefined,
       });
     }
   }
