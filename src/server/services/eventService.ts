@@ -30,6 +30,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
         sourceId: item.sourceId,
         title: item.title,
         url: item.url,
+        eventDate: item.eventDate,
       },
     });
 
