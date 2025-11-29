@@ -216,9 +216,11 @@ export async function POST(request: Request) {
         else {
           const notificationDays = parseNotificationInterval(text);
           if (notificationDays) {
-            await prisma.lineSubscriber.update({
+            // DBが初期化されていて follow 済みユーザー行が無い場合に備え upsert にする
+            await prisma.lineSubscriber.upsert({
               where: { userId },
-              data: { notificationDays },
+              update: { notificationDays },
+              create: { userId, notificationDays },
             });
 
             const intervalText =
@@ -265,9 +267,15 @@ export async function POST(request: Request) {
         else {
           const notificationDays = parseNotificationInterval(text);
           if (notificationDays) {
-            await prisma.lineGroup.update({
+            // グループ行が無い場合にも対応するため upsert にする
+            await prisma.lineGroup.upsert({
               where: { id },
-              data: { notificationDays },
+              update: { notificationDays },
+              create: {
+                id,
+                type: source.type,
+                notificationDays,
+              },
             });
 
             const intervalText =
