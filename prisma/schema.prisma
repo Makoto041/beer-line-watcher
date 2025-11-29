@@ -19,13 +19,12 @@ model Source {
 }
 
 model Event {
-  id        String    @id          // sourceId:url のハッシュなど
+  id        String   @id          // sourceId:url のハッシュなど
   sourceId  String
-  source    Source    @relation(fields: [sourceId], references: [id])
+  source    Source   @relation(fields: [sourceId], references: [id])
   title     String
   url       String
-  eventDate DateTime?              // イベント開催日（スクレイピングで取得）
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
 
 model LineSubscriber {

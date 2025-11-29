@@ -135,7 +135,6 @@ exports.Prisma.EventScalarFieldEnum = {
   sourceId: 'sourceId',
   title: 'title',
   url: 'url',
-  eventDate: 'eventDate',
   createdAt: 'createdAt'
 };
 
