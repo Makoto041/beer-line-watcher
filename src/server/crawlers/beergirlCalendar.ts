@@ -20,12 +20,27 @@ function parseICalDate(dateStr: string): Date | null {
     return new Date(year, month, day);
   }
 
-  // Format: YYYYMMDDTHHmmssZ (ISO-like)
+  // Format: YYYYMMDDTHHmmssZ (ISO-like with optional time and Z suffix)
   if (/^\d{8}T\d{6}Z?$/.test(cleanDate)) {
     const year = parseInt(cleanDate.substring(0, 4));
     const month = parseInt(cleanDate.substring(4, 6)) - 1;
     const day = parseInt(cleanDate.substring(6, 8));
-    return new Date(year, month, day);
+
+    // Extract time portion (HHmmss) after the 'T'
+    const hour = parseInt(cleanDate.substring(9, 11)) || 0;
+    const minute = parseInt(cleanDate.substring(11, 13)) || 0;
+    const second = parseInt(cleanDate.substring(13, 15)) || 0;
+
+    // Check if string ends with 'Z' (UTC indicator)
+    const isUTC = cleanDate.endsWith('Z');
+
+    if (isUTC) {
+      // Create UTC timestamp
+      return new Date(Date.UTC(year, month, day, hour, minute, second));
+    } else {
+      // Create local time
+      return new Date(year, month, day, hour, minute, second);
+    }
   }
 
   return null;
