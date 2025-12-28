@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { crawlBeergirl } from "@/server/crawlers/beergirl";
+import { crawlBeergirlCalendar } from "@/server/crawlers/beergirlCalendar";
 import { crawlWalkerplus } from "@/server/crawlers/walkerplus";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
 import { sendLineBroadcast } from "@/server/services/lineService";
@@ -18,16 +18,16 @@ export async function GET(request: Request) {
     console.log("Starting cron job...");
     const allNewMessages: string[] = [];
 
-    // 1. ビール女子
-    console.log("Crawling beergirl...");
-    const beergirlItems = await crawlBeergirl();
-    console.log(`Beergirl found ${beergirlItems.length} items`);
+    // 1. ビール女子カレンダー（Googleカレンダー）
+    console.log("Crawling beergirl calendar...");
+    const beergirlCalendarItems = await crawlBeergirlCalendar();
+    console.log(`Beergirl calendar found ${beergirlCalendarItems.length} items`);
 
-    const beergirlNews = await upsertEventsAndGetNewOnes(beergirlItems);
-    console.log(`Beergirl new events: ${beergirlNews.length}`);
+    const beergirlCalendarNews = await upsertEventsAndGetNewOnes(beergirlCalendarItems);
+    console.log(`Beergirl calendar new events: ${beergirlCalendarNews.length}`);
 
-    if (beergirlNews.length) {
-      beergirlNews.forEach((n) =>
+    if (beergirlCalendarNews.length) {
+      beergirlCalendarNews.forEach((n) =>
         allNewMessages.push(`🍺[ビール女子] ${n.title}\n${n.url}`)
       );
     }
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       success: true,
       newCount: allNewMessages.length,
       crawled: {
-        beergirl: beergirlItems.length,
+        beergirlCalendar: beergirlCalendarItems.length,
         walkerplus: walkerplusItems.length,
       },
     });
