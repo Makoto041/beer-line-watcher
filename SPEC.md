@@ -19,7 +19,7 @@
 
 ## クローラと保存
 - 位置：`src/server/crawlers/`
-  - `beergirl.ts`: https://beergirl.net/beer-event-matome-2017_e/ をクロール。イベント系キーワードのみ採用し、`extractDateFromText` で日付推定。
+  - `beergirl.ts`: [beergirl.net](https://beergirl.net/beer-event-matome-2017_e/) をクロール。イベント系キーワードのみ採用し、`extractDateFromText` で日付推定。
   - `walkerplus.ts`: Walkerplus 関東酒イベント検索をページング取得。同様にフィルタ＋日付抽出。
 - `extractDateFromText`: `YYYY年MM月DD日`, `MM月DD日`, `YYYY/MM/DD`, `MM/DD` に対応。今日より過去なら翌年扱いで補正。
 - `upsertEventsAndGetNewOnes`: 安定ハッシュで Event ID 作成 → Source を upsert → 既存でも `eventDate` が新規取得なら更新 → 新規/更新分を返却。
