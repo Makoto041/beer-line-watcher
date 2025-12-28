@@ -1,0 +1,134 @@
+import type { CrawledItem } from "./types";
+
+const SOURCE_ID = "beergirl-calendar";
+const CALENDAR_ID = "c_dqr8sohvevefk6cc4pndppmv6c@group.calendar.google.com";
+const ICAL_URL = `https://calendar.google.com/calendar/ical/${encodeURIComponent(CALENDAR_ID)}/public/basic.ics`;
+
+/**
+ * Parse iCal date string to JavaScript Date
+ * Supports formats: YYYYMMDD and YYYYMMDDTHHmmssZ
+ */
+function parseICalDate(dateStr: string): Date | null {
+  // Remove VALUE=DATE: prefix if present
+  const cleanDate = dateStr.replace(/VALUE=DATE:/, "").trim();
+
+  // Format: YYYYMMDD
+  if (/^\d{8}$/.test(cleanDate)) {
+    const year = parseInt(cleanDate.substring(0, 4));
+    const month = parseInt(cleanDate.substring(4, 6)) - 1; // JS months are 0-indexed
+    const day = parseInt(cleanDate.substring(6, 8));
+    return new Date(year, month, day);
+  }
+
+  // Format: YYYYMMDDTHHmmssZ (ISO-like)
+  if (/^\d{8}T\d{6}Z?$/.test(cleanDate)) {
+    const year = parseInt(cleanDate.substring(0, 4));
+    const month = parseInt(cleanDate.substring(4, 6)) - 1;
+    const day = parseInt(cleanDate.substring(6, 8));
+    return new Date(year, month, day);
+  }
+
+  return null;
+}
+
+/**
+ * Parse iCal format and extract events
+ */
+function parseICalEvents(icalText: string): CrawledItem[] {
+  const items: CrawledItem[] = [];
+  const events = icalText.split("BEGIN:VEVENT");
+
+  for (const eventBlock of events.slice(1)) {
+    // Skip first empty split
+    try {
+      const lines = eventBlock.split("\n");
+      let summary = "";
+      let dtstart = "";
+      let description = "";
+      let uid = "";
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith("SUMMARY:")) {
+          summary = trimmed.substring(8).trim();
+        } else if (trimmed.startsWith("DTSTART")) {
+          // Handle both DTSTART:20240101 and DTSTART;VALUE=DATE:20240101
+          const colonIndex = trimmed.indexOf(":");
+          if (colonIndex > 0) {
+            dtstart = trimmed.substring(colonIndex + 1).trim();
+          }
+        } else if (trimmed.startsWith("DESCRIPTION:")) {
+          description = trimmed.substring(12).trim();
+        } else if (trimmed.startsWith("UID:")) {
+          uid = trimmed.substring(4).trim();
+        }
+      }
+
+      if (!summary || !uid) continue;
+
+      // Extract URL from description (format: <a href="URL">...</a>)
+      let url = "";
+      const urlMatch = description.match(/<a\s+href="([^"]+)"/i);
+      if (urlMatch && urlMatch[1]) {
+        url = urlMatch[1];
+      }
+
+      // If no URL in description, create a fallback URL
+      if (!url) {
+        url = `https://beergirl.net/beer-event-matome-2017_e/#${uid}`;
+      }
+
+      // Parse event date
+      const eventDate = dtstart ? parseICalDate(dtstart) : null;
+
+      // Only include future events or events from the last 30 days
+      if (eventDate) {
+        const now = new Date();
+        const thirtyDaysAgo = new Date(
+          now.getTime() - 30 * 24 * 60 * 60 * 1000
+        );
+        if (eventDate < thirtyDaysAgo) {
+          continue; // Skip old events
+        }
+      }
+
+      items.push({
+        externalId: uid,
+        title: summary,
+        url,
+        sourceId: SOURCE_ID,
+        eventDate: eventDate || undefined,
+      });
+    } catch (error) {
+      console.error("Error parsing event block:", error);
+      continue;
+    }
+  }
+
+  return items;
+}
+
+/**
+ * Crawl Beergirl Google Calendar
+ */
+export async function crawlBeergirlCalendar(): Promise<CrawledItem[]> {
+  try {
+    console.log(`Fetching calendar from: ${ICAL_URL}`);
+    const res = await fetch(ICAL_URL);
+
+    if (!res.ok) {
+      console.error("Calendar fetch error", res.status);
+      return [];
+    }
+
+    const icalText = await res.text();
+    const items = parseICalEvents(icalText);
+
+    console.log(`Parsed ${items.length} events from Google Calendar`);
+    return items;
+  } catch (error) {
+    console.error("Error crawling Beergirl calendar:", error);
+    return [];
+  }
+}
