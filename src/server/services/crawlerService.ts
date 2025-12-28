@@ -1,4 +1,3 @@
-import { crawlBeergirl } from "@/server/crawlers/beergirl";
 import { crawlBeergirlCalendar } from "@/server/crawlers/beergirlCalendar";
 import { crawlWalkerplus } from "@/server/crawlers/walkerplus";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";

@@ -20,15 +20,55 @@ function parseICalDate(dateStr: string): Date | null {
     return new Date(year, month, day);
   }
 
-  // Format: YYYYMMDDTHHmmssZ (ISO-like)
+  // Format: YYYYMMDDTHHmmssZ (ISO-like with optional time and Z suffix)
   if (/^\d{8}T\d{6}Z?$/.test(cleanDate)) {
     const year = parseInt(cleanDate.substring(0, 4));
     const month = parseInt(cleanDate.substring(4, 6)) - 1;
     const day = parseInt(cleanDate.substring(6, 8));
-    return new Date(year, month, day);
+
+    // Extract time portion (HHmmss) after the 'T'
+    const hour = parseInt(cleanDate.substring(9, 11)) || 0;
+    const minute = parseInt(cleanDate.substring(11, 13)) || 0;
+    const second = parseInt(cleanDate.substring(13, 15)) || 0;
+
+    // Check if string ends with 'Z' (UTC indicator)
+    const isUTC = cleanDate.endsWith('Z');
+
+    if (isUTC) {
+      // Create UTC timestamp
+      return new Date(Date.UTC(year, month, day, hour, minute, second));
+    } else {
+      // Create local time
+      return new Date(year, month, day, hour, minute, second);
+    }
   }
 
   return null;
+}
+
+/**
+ * Unfold iCal lines according to RFC 5545
+ * Lines that start with a space or tab are continuation lines
+ * and should be appended to the previous line
+ */
+function unfoldICalLines(text: string): string {
+  const lines = text.split("\n");
+  const unfolded: string[] = [];
+
+  for (const line of lines) {
+    // Check if line starts with space or tab (continuation line)
+    if (line.length > 0 && (line[0] === " " || line[0] === "\t")) {
+      // Append to previous line, removing the leading space/tab
+      if (unfolded.length > 0) {
+        unfolded[unfolded.length - 1] += line.substring(1);
+      }
+    } else {
+      // Normal line, add to array
+      unfolded.push(line);
+    }
+  }
+
+  return unfolded.join("\n");
 }
 
 /**
@@ -41,7 +81,9 @@ function parseICalEvents(icalText: string): CrawledItem[] {
   for (const eventBlock of events.slice(1)) {
     // Skip first empty split
     try {
-      const lines = eventBlock.split("\n");
+      // Unfold continuation lines before parsing
+      const unfoldedBlock = unfoldICalLines(eventBlock);
+      const lines = unfoldedBlock.split("\n");
       let summary = "";
       let dtstart = "";
       let description = "";
