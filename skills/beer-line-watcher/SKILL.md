@@ -17,7 +17,7 @@ description: Playbook for the Beer Line Watcher repo (Next.js + Prisma + LINE bo
 - Run app: `pnpm dev` (Next.js turbo). Build: `pnpm build`; start: `pnpm start`.
 
 ## Core Components (paths)
-- Crawlers: `src/server/crawlers/{beergirl,walkerplus}.ts` (+ `types.ts`), date parser `src/server/utils/dateExtractor.ts`.
+- Crawlers: `src/server/crawlers/{beergirl,beergirlCalendar,walkerplus}.ts` (+ `types.ts`), date parser `src/server/utils/dateExtractor.ts`.
 - Event persistence: `src/server/services/eventService.ts` (hash IDs, upsert + new detection).
 - Queries/formatting: `src/server/services/eventQueryService.ts`.
 - LINE delivery: `src/server/services/lineService.ts`.
