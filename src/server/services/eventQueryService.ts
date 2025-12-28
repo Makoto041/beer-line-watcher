@@ -101,29 +101,66 @@ export async function getLatestEvents(
 
 /**
  * Get this week's events (upcoming events within 7 days)
+ * Only from Beergirl calendar, sorted by event date, max 5 items
  */
 export async function getThisWeeksEvents(): Promise<
-  Array<{ title: string; url: string; sourceName: string }>
+  Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
 > {
-  return getUpcomingEvents(7);
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+  const oneWeekLater = new Date();
+  oneWeekLater.setDate(now.getDate() + 7);
+
+  const events = await prisma.event.findMany({
+    where: {
+      sourceId: "beergirl-calendar", // Only Beergirl calendar events
+      eventDate: {
+        gte: startOfToday,
+        lte: oneWeekLater,
+      },
+    },
+    include: {
+      source: true,
+    },
+    orderBy: {
+      eventDate: "asc", // Sort by event date
+    },
+    take: 5, // Max 5 events
+  });
+
+  return events.map((event) => ({
+    title: event.title,
+    url: event.url,
+    sourceName: event.source.name,
+    eventDate: event.eventDate || undefined,
+  }));
 }
 
 /**
  * Format events as LINE message text
  */
 export function formatEventsForLine(
-  events: Array<{ title: string; url: string; sourceName: string }>
+  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
 ): string {
   if (events.length === 0) {
-    return "イベントが見つかりませんでした。";
+    return "今週のイベントが見つかりませんでした。";
   }
 
-  const lines = ["📋 最新のイベント情報\n"];
+  const lines = ["📋 今週のイベント情報（開催日順）\n"];
 
   events.forEach((event, index) => {
-    lines.push(`${index + 1}. [${event.sourceName}] ${event.title}`);
+    const dateStr = event.eventDate
+      ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
+      : "日付未定";
+    lines.push(`${index + 1}. [${dateStr}] ${event.title}`);
     lines.push(`   ${event.url}\n`);
   });
+
+  if (events.length === 5) {
+    lines.push("※表示は最大5件です。");
+    lines.push("詳しくはこちら: https://beergirl.net/beer-event-matome-2017_e/");
+  }
 
   return lines.join("\n");
 }
