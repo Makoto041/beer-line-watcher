@@ -47,6 +47,31 @@ function parseICalDate(dateStr: string): Date | null {
 }
 
 /**
+ * Unfold iCal lines according to RFC 5545
+ * Lines that start with a space or tab are continuation lines
+ * and should be appended to the previous line
+ */
+function unfoldICalLines(text: string): string {
+  const lines = text.split("\n");
+  const unfolded: string[] = [];
+
+  for (const line of lines) {
+    // Check if line starts with space or tab (continuation line)
+    if (line.length > 0 && (line[0] === " " || line[0] === "\t")) {
+      // Append to previous line, removing the leading space/tab
+      if (unfolded.length > 0) {
+        unfolded[unfolded.length - 1] += line.substring(1);
+      }
+    } else {
+      // Normal line, add to array
+      unfolded.push(line);
+    }
+  }
+
+  return unfolded.join("\n");
+}
+
+/**
  * Parse iCal format and extract events
  */
 function parseICalEvents(icalText: string): CrawledItem[] {
@@ -56,7 +81,9 @@ function parseICalEvents(icalText: string): CrawledItem[] {
   for (const eventBlock of events.slice(1)) {
     // Skip first empty split
     try {
-      const lines = eventBlock.split("\n");
+      // Unfold continuation lines before parsing
+      const unfoldedBlock = unfoldICalLines(eventBlock);
+      const lines = unfoldedBlock.split("\n");
       let summary = "";
       let dtstart = "";
       let description = "";
