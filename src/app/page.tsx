@@ -77,20 +77,58 @@ export default async function Page({
     (e) => e.eventDate && e.eventDate >= startOfToday && e.eventDate <= thisWeekEnd
   );
 
-  // Pickup events: today's events + events within 3 days (up to 5)
-  const threeDaysLater = new Date(now);
-  threeDaysLater.setDate(now.getDate() + 3);
-  const pickupEvents = events
-    .filter((e) => e.eventDate && e.eventDate >= startOfToday && e.eventDate <= threeDaysLater)
-    .slice(0, 5);
+  // Pickup events categorized by time
+  const endOfToday = new Date(startOfToday);
+  endOfToday.setDate(endOfToday.getDate() + 1);
 
-  // Check if event is today
-  const isEventToday = (eventDate: Date | null) => {
-    if (!eventDate) return false;
-    const eventDay = new Date(eventDate);
-    eventDay.setHours(0, 0, 0, 0);
-    return eventDay.getTime() === startOfToday.getTime();
+  const threeDaysLater = new Date(startOfToday);
+  threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+
+  const oneWeekLater = new Date(startOfToday);
+  oneWeekLater.setDate(oneWeekLater.getDate() + 7);
+
+  // Today's events
+  const todayEvents = events.filter((e) =>
+    e.eventDate && e.eventDate >= startOfToday && e.eventDate < endOfToday
+  );
+
+  // Within 3 days (excluding today)
+  const within3DaysEvents = events.filter((e) =>
+    e.eventDate && e.eventDate >= endOfToday && e.eventDate < threeDaysLater
+  );
+
+  // Within 1 week (excluding 3 days)
+  const within1WeekEvents = events.filter((e) =>
+    e.eventDate && e.eventDate >= threeDaysLater && e.eventDate < oneWeekLater
+  );
+
+  const hasPickupEvents = todayEvents.length > 0 || within3DaysEvents.length > 0 || within1WeekEvents.length > 0;
+
+  // Get latest update time per source
+  const sourceLatestUpdate = sources.reduce((acc, s) => {
+    const sourceEvents = events.filter(e => e.sourceId === s.id);
+    if (sourceEvents.length > 0) {
+      acc[s.id] = sourceEvents.reduce(
+        (latest, e) => e.createdAt > latest ? e.createdAt : latest,
+        sourceEvents[0]!.createdAt
+      );
+    }
+    return acc;
+  }, {} as Record<string, Date>);
+
+  // Format update time
+  const formatUpdateTime = (date: Date) => {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${month}/${day} ${hours}:${minutes}`;
   };
+
+  // Get overall latest update
+  const latestUpdateTime = Object.values(sourceLatestUpdate).length > 0
+    ? Object.values(sourceLatestUpdate).reduce((a, b) => a > b ? a : b)
+    : null;
 
   // Get event counts per source
   const sourceCounts = sources.reduce((acc, s) => {
@@ -109,12 +147,35 @@ export default async function Page({
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4">
-          {/* Badge - smaller on mobile */}
-          <div className="flex justify-center mb-4 md:mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-xs md:text-sm font-medium shadow-sm">
-              <span className="animate-bounce">🍺</span>
-              毎日自動更新
-            </span>
+          {/* Update time badge */}
+          <div className="flex flex-col items-center gap-2 mb-4 md:mb-6">
+            {latestUpdateTime && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-xs md:text-sm font-medium shadow-sm">
+                <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                最終更新: {formatUpdateTime(latestUpdateTime)}
+              </span>
+            )}
+            {/* Source update times */}
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {sources.map((s) => {
+                const config = SOURCE_CONFIG[s.id];
+                const lastUpdate = sourceLatestUpdate[s.id];
+                return (
+                  <span
+                    key={s.id}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] md:text-xs bg-white/80 text-gray-600 shadow-sm"
+                  >
+                    <span>{config?.emoji || '📅'}</span>
+                    <span className="hidden sm:inline">{config?.label || s.id}:</span>
+                    <span className={lastUpdate ? 'text-gray-700' : 'text-red-500'}>
+                      {lastUpdate ? formatUpdateTime(lastUpdate) : '未取得'}
+                    </span>
+                  </span>
+                );
+              })}
+            </div>
           </div>
 
           {/* Title - responsive sizing */}
@@ -178,35 +239,89 @@ export default async function Page({
         </div>
       </section>
 
-      {/* Pickup Section - Horizontal scroll on mobile */}
-      {pickupEvents.length > 0 && !source && !q && (
-        <section className="py-6 md:py-10 bg-gradient-to-b from-[#fbfbfd] to-white">
-          <div className="max-w-6xl mx-auto">
-            {/* Section header */}
-            <div className="px-4 mb-4 md:mb-6 flex items-center gap-2">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-lg md:text-xl shadow-md shadow-orange-500/20">
-                🔥
+      {/* Pickup Sections - Categorized by time */}
+      {hasPickupEvents && !source && !q && (
+        <section className="py-6 md:py-10 bg-gradient-to-b from-[#fbfbfd] to-white space-y-6 md:space-y-8">
+          {/* TODAY */}
+          {todayEvents.length > 0 && (
+            <div className="max-w-6xl mx-auto">
+              <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-lg md:text-xl shadow-md shadow-red-500/20 animate-pulse">
+                  🎉
+                </div>
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900">TODAY!</h2>
+                  <p className="text-xs md:text-sm text-gray-500">本日開催のイベント</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg md:text-xl font-bold text-gray-900">直近のイベント</h2>
-                <p className="text-xs md:text-sm text-gray-500">3日以内に開催</p>
+              <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                <div className="flex gap-3 md:gap-4">
+                  {todayEvents.map((event) => (
+                    <PickupCard
+                      key={event.id}
+                      event={event}
+                      sourceConfig={SOURCE_CONFIG[event.sourceId]}
+                      variant="today"
+                    />
+                  ))}
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Horizontal scroll container */}
-            <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
-              <div className="flex gap-3 md:gap-4">
-                {pickupEvents.map((event) => (
-                  <PickupCard
-                    key={event.id}
-                    event={event}
-                    sourceConfig={SOURCE_CONFIG[event.sourceId]}
-                    isToday={isEventToday(event.eventDate)}
-                  />
-                ))}
+          {/* Within 3 days */}
+          {within3DaysEvents.length > 0 && (
+            <div className="max-w-6xl mx-auto">
+              <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-lg md:text-xl shadow-md shadow-orange-500/20">
+                  🔥
+                </div>
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900">まもなく開催</h2>
+                  <p className="text-xs md:text-sm text-gray-500">3日以内</p>
+                </div>
+              </div>
+              <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                <div className="flex gap-3 md:gap-4">
+                  {within3DaysEvents.map((event) => (
+                    <PickupCard
+                      key={event.id}
+                      event={event}
+                      sourceConfig={SOURCE_CONFIG[event.sourceId]}
+                      variant="soon"
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Within 1 week */}
+          {within1WeekEvents.length > 0 && (
+            <div className="max-w-6xl mx-auto">
+              <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-lg md:text-xl shadow-md shadow-emerald-500/20">
+                  📅
+                </div>
+                <div>
+                  <h2 className="text-lg md:text-xl font-bold text-gray-900">今週のイベント</h2>
+                  <p className="text-xs md:text-sm text-gray-500">1週間以内</p>
+                </div>
+              </div>
+              <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                <div className="flex gap-3 md:gap-4">
+                  {within1WeekEvents.map((event) => (
+                    <PickupCard
+                      key={event.id}
+                      event={event}
+                      sourceConfig={SOURCE_CONFIG[event.sourceId]}
+                      variant="week"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       )}
 
