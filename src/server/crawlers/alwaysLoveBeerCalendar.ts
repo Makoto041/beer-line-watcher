@@ -157,9 +157,11 @@ function parseICalEvents(icalText: string): CrawledItem[] {
         }
       }
 
-      // For multi-day events, adjust end date (iCal DTEND is exclusive)
+      // For all-day multi-day events, adjust end date (iCal DTEND is exclusive for VALUE=DATE)
+      // Only apply this for date-only values (YYYYMMDD), not for timed events (YYYYMMDDTHHmmss)
       let adjustedEndDate = eventEndDate;
-      if (eventDate && eventEndDate && eventEndDate > eventDate) {
+      const isDateOnly = dtend && /^\d{8}$/.test(dtend);
+      if (isDateOnly && eventDate && eventEndDate && eventEndDate > eventDate) {
         adjustedEndDate = new Date(eventEndDate.getTime() - 24 * 60 * 60 * 1000);
         if (adjustedEndDate.getTime() === eventDate.getTime()) {
           adjustedEndDate = null;

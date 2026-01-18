@@ -33,13 +33,13 @@ model LineSubscriber {
   userId           String    @id
   createdAt        DateTime  @default(now())
   lastNotifiedAt   DateTime?
-  notificationDays Int       @default(1)
+  notificationDays Int       @default(7)
 }
 
 model LineGroup {
   id               String    @id
   type             String
-  notificationDays Int       @default(1)
+  notificationDays Int       @default(7)
   lastNotifiedAt   DateTime?
   createdAt        DateTime  @default(now())
 }

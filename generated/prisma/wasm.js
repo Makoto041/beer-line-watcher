@@ -188,6 +188,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -196,8 +197,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Source {\n  id          String   @id\n  name        String\n  url         String\n  description String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n  events      Event[]\n}\n\nmodel Event {\n  id           String    @id\n  sourceId     String\n  title        String\n  url          String\n  createdAt    DateTime  @default(now())\n  eventDate    DateTime?\n  eventEndDate DateTime?\n  source       Source    @relation(fields: [sourceId], references: [id])\n}\n\nmodel LineSubscriber {\n  userId           String    @id\n  createdAt        DateTime  @default(now())\n  lastNotifiedAt   DateTime?\n  notificationDays Int       @default(1)\n}\n\nmodel LineGroup {\n  id               String    @id\n  type             String\n  notificationDays Int       @default(1)\n  lastNotifiedAt   DateTime?\n  createdAt        DateTime  @default(now())\n}\n",
-  "inlineSchemaHash": "7c369a3101569c94b9c34cff2ea8e3eb0685a74391997f66210a13b36cbe9e82",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Source {\n  id          String   @id\n  name        String\n  url         String\n  description String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n  events      Event[]\n}\n\nmodel Event {\n  id           String    @id\n  sourceId     String\n  title        String\n  url          String\n  createdAt    DateTime  @default(now())\n  eventDate    DateTime?\n  eventEndDate DateTime?\n  source       Source    @relation(fields: [sourceId], references: [id])\n}\n\nmodel LineSubscriber {\n  userId           String    @id\n  createdAt        DateTime  @default(now())\n  lastNotifiedAt   DateTime?\n  notificationDays Int       @default(7)\n}\n\nmodel LineGroup {\n  id               String    @id\n  type             String\n  notificationDays Int       @default(7)\n  lastNotifiedAt   DateTime?\n  createdAt        DateTime  @default(now())\n}\n",
+  "inlineSchemaHash": "d72ff746cca6d04bd4595dd4738465ac26738255b9ed7ccab35567e83466f2b7",
   "copyEngine": true
 }
 config.dirname = '/'
