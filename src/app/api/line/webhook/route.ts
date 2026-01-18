@@ -54,21 +54,66 @@ async function replyMessage(replyToken: string, text: string) {
   });
 }
 
-// Parse notification interval from message
+// Parse notification interval from explicit command
+// Only matches explicit command formats like:
+// - "通知設定 毎日" / "通知設定 1週間" etc.
+// - "/通知 毎日" / "/通知 1週間" etc.
+// This prevents accidental triggers from casual conversation
 function parseNotificationInterval(text: string): number | null {
-  const normalizedText = text.replace(/\s/g, "").toLowerCase();
+  const trimmed = text.trim();
 
-  const patterns = [
-    { regex: /通知.*毎日|毎日.*通知|1日/, days: 1 },
-    { regex: /通知.*1週間|1週間.*通知|7日/, days: 7 },
-    { regex: /通知.*2週間|2週間.*通知|14日/, days: 14 },
-    { regex: /通知.*1ヶ月|1ヶ月.*通知|30日|1か月/, days: 30 },
+  // Pattern 1: "通知設定 <interval>" (explicit settings command)
+  // Pattern 2: "/通知 <interval>" (slash command style)
+  // Pattern 3: "通知 <interval>" at the start of message only
+  const commandPatterns = [
+    /^通知設定\s*(毎日|1日)$/,
+    /^通知設定\s*(1週間|週1|週一|7日)$/,
+    /^通知設定\s*(2週間|隔週|14日)$/,
+    /^通知設定\s*(1ヶ月|1か月|月1|月一|30日)$/,
+    /^\/通知\s*(毎日|1日)$/,
+    /^\/通知\s*(1週間|週1|週一|7日)$/,
+    /^\/通知\s*(2週間|隔週|14日)$/,
+    /^\/通知\s*(1ヶ月|1か月|月1|月一|30日)$/,
+    /^通知\s+(毎日|1日)$/,
+    /^通知\s+(1週間|週1|週一|7日)$/,
+    /^通知\s+(2週間|隔週|14日)$/,
+    /^通知\s+(1ヶ月|1か月|月1|月一|30日)$/,
   ];
 
-  for (const pattern of patterns) {
-    if (pattern.regex.test(normalizedText)) {
-      return pattern.days;
-    }
+  // Check for daily (1 day)
+  if (
+    commandPatterns[0].test(trimmed) ||
+    commandPatterns[4].test(trimmed) ||
+    commandPatterns[8].test(trimmed)
+  ) {
+    return 1;
+  }
+
+  // Check for weekly (7 days)
+  if (
+    commandPatterns[1].test(trimmed) ||
+    commandPatterns[5].test(trimmed) ||
+    commandPatterns[9].test(trimmed)
+  ) {
+    return 7;
+  }
+
+  // Check for bi-weekly (14 days)
+  if (
+    commandPatterns[2].test(trimmed) ||
+    commandPatterns[6].test(trimmed) ||
+    commandPatterns[10].test(trimmed)
+  ) {
+    return 14;
+  }
+
+  // Check for monthly (30 days)
+  if (
+    commandPatterns[3].test(trimmed) ||
+    commandPatterns[7].test(trimmed) ||
+    commandPatterns[11].test(trimmed)
+  ) {
+    return 30;
   }
 
   return null;
@@ -123,13 +168,14 @@ export async function POST(request: Request) {
             await replyMessage(
               event.replyToken,
               "🍺 ビールイベント通知ボットへようこそ！\n\n" +
-                "【使い方】\n" +
-                "• 「イベント」で直近のイベント5件を表示\n" +
-                "• 「今週のイベント」で今週のイベントを表示\n" +
-                "• 「通知 毎日」で毎日通知\n" +
-                "• 「通知 1週間」で週1回通知（デフォルト）\n" +
-                "• 「通知 2週間」で2週間に1回通知\n" +
-                "• 「通知 1ヶ月」で月1回通知"
+                "【コマンド一覧】\n" +
+                "• 「イベント」→ 直近5件を表示\n" +
+                "• 「今週のイベント」→ 今週のイベントを表示\n\n" +
+                "【通知設定】\n" +
+                "• 「通知設定 毎日」→ 毎日通知\n" +
+                "• 「通知設定 1週間」→ 週1回通知（デフォルト）\n" +
+                "• 「通知設定 2週間」→ 2週間に1回通知\n" +
+                "• 「通知設定 1ヶ月」→ 月1回通知"
             );
           }
         }
@@ -173,12 +219,13 @@ export async function POST(request: Request) {
               event.replyToken,
               "🍺 ビールイベント通知ボットが参加しました！\n" +
                 "新しいイベント情報をこのグループにお届けします。\n\n" +
-                "【コマンド】\n" +
-                "• 「イベント」で直近のイベント5件を表示\n" +
-                "• 「今週のイベント」で今週のイベントを表示\n" +
-                "• 「通知 1週間」などで通知間隔を変更\n" +
-                "• 「停止」で通知を停止\n" +
-                "• 「開始」で通知を再開"
+                "【コマンド一覧】\n" +
+                "• 「イベント」→ 直近5件を表示\n" +
+                "• 「今週のイベント」→ 今週のイベントを表示\n\n" +
+                "【通知設定】\n" +
+                "• 「通知設定 1週間」→ 週1回通知\n" +
+                "• 「停止」→ 通知を停止\n" +
+                "• 「開始」→ 通知を再開"
             );
           }
         }
