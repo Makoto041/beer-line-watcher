@@ -44,15 +44,13 @@ function buildLineMessage(
     const nextAddition = (includedCount === 0 ? "" : separator) + item;
     const potentialLength = result.length + nextAddition.length;
 
-    // Calculate suffix for remaining items if we stop here
-    const remainingAfterThis = items.length - (includedCount + 1);
-    const overflowSuffix =
-      remainingAfterThis > 0
-        ? `\n\n…他${remainingAfterThis}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`
-        : "";
+    // Calculate suffix for remaining items if we DON'T include this item (i.e., break now)
+    const remainingIfBreak = items.length - includedCount;
+    const suffixIfBreak = `\n\n…他${remainingIfBreak}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`;
 
-    // Check if adding this item + potential suffix would exceed limit
-    if (potentialLength + overflowSuffix.length > MAX_LINE_CHARS) {
+    // Check if adding this item would exceed limit
+    // If it does, we'll break and use suffixIfBreak
+    if (potentialLength + suffixIfBreak.length > MAX_LINE_CHARS) {
       break;
     }
 
