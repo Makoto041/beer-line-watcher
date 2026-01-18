@@ -1,4 +1,5 @@
 import { prisma } from "@/server/db";
+import { EVENTS_PAGE_URL } from "@/server/constants";
 
 /**
  * Get upcoming events (events with eventDate in the future or within last 30 days)
@@ -37,7 +38,7 @@ export async function getUpcomingEvents(
     },
     orderBy: [
       {
-        eventDate: "asc", // Events with dates first, sorted by date
+        eventDate: { sort: "asc", nulls: "last" }, // Events with dates first, sorted by date
       },
       {
         createdAt: "desc", // Then by creation date
@@ -83,7 +84,7 @@ export async function getLatestEvents(
     },
     orderBy: [
       {
-        eventDate: "asc",
+        eventDate: { sort: "asc", nulls: "last" },
       },
       {
         createdAt: "desc",
@@ -138,6 +139,58 @@ export async function getThisWeeksEvents(): Promise<
 }
 
 /**
+ * Get recent events for "イベント" command (recent 5 events)
+ */
+export async function getRecentEvents(
+  limit: number = 5
+): Promise<
+  Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+> {
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const events = await prisma.event.findMany({
+    where: {
+      OR: [
+        // Future events
+        {
+          eventDate: {
+            gte: startOfToday,
+          },
+        },
+        // Recent events without date (created within last 7 days)
+        {
+          eventDate: null,
+          createdAt: {
+            gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+          },
+        },
+      ],
+    },
+    include: {
+      source: true,
+    },
+    orderBy: [
+      {
+        eventDate: { sort: "asc", nulls: "last" },
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
+    take: limit,
+  });
+
+  return events.map((event) => ({
+    title: event.title,
+    url: event.url,
+    sourceName: event.source.name,
+    eventDate: event.eventDate || undefined,
+  }));
+}
+
+/**
  * Format events as LINE message text
  */
 export function formatEventsForLine(
@@ -159,8 +212,35 @@ export function formatEventsForLine(
 
   if (events.length === 5) {
     lines.push("※表示は最大5件です。");
-    lines.push("詳しくはこちら: https://beergirl.net/beer-event-matome-2017_e/");
+    lines.push(`詳しくはこちら: ${EVENTS_PAGE_URL}`);
   }
+
+  return lines.join("\n");
+}
+
+/**
+ * Format recent events for "イベント" command
+ */
+export function formatRecentEventsForLine(
+  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+): string {
+  if (events.length === 0) {
+    return "現在登録されているイベントがありません。";
+  }
+
+  const lines = ["🍺 直近のイベント情報\n"];
+
+  events.forEach((event, index) => {
+    const dateStr = event.eventDate
+      ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
+      : "日程未定";
+    const sourceEmoji = event.sourceName.includes("ビール女子") ? "🍺" : "🍷";
+    lines.push(`${index + 1}. ${sourceEmoji} [${dateStr}] ${event.title}`);
+    lines.push(`   ${event.url}\n`);
+  });
+
+  lines.push("━━━━━━━━━━━━━━━━━━━━");
+  lines.push(`📱 すべてのイベントを見る:\n${EVENTS_PAGE_URL}`);
 
   return lines.join("\n");
 }

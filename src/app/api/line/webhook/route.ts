@@ -3,7 +3,9 @@ import type { WebhookEvent } from "@line/bot-sdk";
 import { prisma } from "@/server/db";
 import {
   getThisWeeksEvents,
+  getRecentEvents,
   formatEventsForLine,
+  formatRecentEventsForLine,
 } from "@/server/services/eventQueryService";
 import {
   crawlAndGetNewEvents,
@@ -122,9 +124,10 @@ export async function POST(request: Request) {
               event.replyToken,
               "🍺 ビールイベント通知ボットへようこそ！\n\n" +
                 "【使い方】\n" +
+                "• 「イベント」で直近のイベント5件を表示\n" +
                 "• 「今週のイベント」で今週のイベントを表示\n" +
                 "• 「通知 毎日」で毎日通知\n" +
-                "• 「通知 1週間」で週1回通知\n" +
+                "• 「通知 1週間」で週1回通知（デフォルト）\n" +
                 "• 「通知 2週間」で2週間に1回通知\n" +
                 "• 「通知 1ヶ月」で月1回通知"
             );
@@ -171,6 +174,7 @@ export async function POST(request: Request) {
               "🍺 ビールイベント通知ボットが参加しました！\n" +
                 "新しいイベント情報をこのグループにお届けします。\n\n" +
                 "【コマンド】\n" +
+                "• 「イベント」で直近のイベント5件を表示\n" +
                 "• 「今週のイベント」で今週のイベントを表示\n" +
                 "• 「通知 1週間」などで通知間隔を変更\n" +
                 "• 「停止」で通知を停止\n" +
@@ -238,6 +242,13 @@ export async function POST(request: Request) {
           console.log("User requested this week's events:", userId);
           const events = await getThisWeeksEvents();
           const message = formatEventsForLine(events);
+          await replyMessage(event.replyToken, message);
+        }
+        // イベント（直近5件表示）
+        else if (/^イベント$/i.test(text)) {
+          console.log("User requested recent events:", userId);
+          const events = await getRecentEvents(5);
+          const message = formatRecentEventsForLine(events);
           await replyMessage(event.replyToken, message);
         }
         // 通知間隔の変更
@@ -313,6 +324,13 @@ export async function POST(request: Request) {
           console.log("Group requested this week's events:", id);
           const events = await getThisWeeksEvents();
           const message = formatEventsForLine(events);
+          await replyMessage(event.replyToken, message);
+        }
+        // イベント（直近5件表示）
+        else if (/^イベント$/i.test(text)) {
+          console.log("Group requested recent events:", id);
+          const events = await getRecentEvents(5);
+          const message = formatRecentEventsForLine(events);
           await replyMessage(event.replyToken, message);
         }
         // 通知間隔の変更
