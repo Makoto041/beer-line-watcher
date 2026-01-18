@@ -1,4 +1,5 @@
 import { prisma } from "@/server/db";
+import { EVENTS_PAGE_URL } from "@/server/constants";
 
 /**
  * Get upcoming events (events with eventDate in the future or within last 30 days)
@@ -193,8 +194,7 @@ export async function getRecentEvents(
  * Format events as LINE message text
  */
 export function formatEventsForLine(
-  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>,
-  options: { webPageUrl?: string } = {}
+  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
 ): string {
   if (events.length === 0) {
     return "今週のイベントが見つかりませんでした。";
@@ -212,8 +212,7 @@ export function formatEventsForLine(
 
   if (events.length === 5) {
     lines.push("※表示は最大5件です。");
-    const url = options.webPageUrl || process.env.NEXT_PUBLIC_APP_URL + "/events";
-    lines.push(`詳しくはこちら: ${url}`);
+    lines.push(`詳しくはこちら: ${EVENTS_PAGE_URL}`);
   }
 
   return lines.join("\n");
@@ -240,9 +239,8 @@ export function formatRecentEventsForLine(
     lines.push(`   ${event.url}\n`);
   });
 
-  const webPageUrl = process.env.NEXT_PUBLIC_APP_URL + "/events";
   lines.push("━━━━━━━━━━━━━━━━━━━━");
-  lines.push(`📱 すべてのイベントを見る:\n${webPageUrl}`);
+  lines.push(`📱 すべてのイベントを見る:\n${EVENTS_PAGE_URL}`);
 
   return lines.join("\n");
 }

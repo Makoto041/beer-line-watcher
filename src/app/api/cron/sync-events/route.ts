@@ -5,6 +5,7 @@ import { crawlBeerfestival } from "@/server/crawlers/beerfestival";
 import { crawlAlwaysLoveBeer } from "@/server/crawlers/alwayslovebeer";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
 import { sendLineBroadcast } from "@/server/services/lineService";
+import { EVENTS_PAGE_URL } from "@/server/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -86,8 +87,7 @@ export async function GET(request: Request) {
       // Limit message length for LINE (max 5000 characters)
       let text = "🍺 今週の新着ビールイベント\n\n" + allNewMessages.slice(0, 5).join("\n\n");
       if (allNewMessages.length > 5) {
-        const webPageUrl = process.env.NEXT_PUBLIC_APP_URL + "/events";
-        text += `\n\n他${allNewMessages.length - 5}件あります。\n詳しくはこちら: ${webPageUrl}`;
+        text += `\n\n他${allNewMessages.length - 5}件あります。\n詳しくはこちら: ${EVENTS_PAGE_URL}`;
       }
       await sendLineBroadcast(text);
       console.log("LINE broadcast sent successfully");

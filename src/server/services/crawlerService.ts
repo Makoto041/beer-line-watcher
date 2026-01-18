@@ -3,6 +3,7 @@ import { crawlWalkerplus } from "@/server/crawlers/walkerplus";
 import { crawlBeerfestival } from "@/server/crawlers/beerfestival";
 import { crawlAlwaysLoveBeer } from "@/server/crawlers/alwayslovebeer";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
+import { EVENTS_PAGE_URL } from "@/server/constants";
 
 interface SourceSummary {
   total: number;
@@ -128,9 +129,8 @@ export function formatCrawlerResultsForLine(
     });
 
     if (newEvents.length > 3) {
-      const webPageUrl = process.env.NEXT_PUBLIC_APP_URL + "/events";
       lines.push(`他${newEvents.length - 3}件の新着イベントがあります。`);
-      lines.push(`詳しくはこちら: ${webPageUrl}`);
+      lines.push(`詳しくはこちら: ${EVENTS_PAGE_URL}`);
     }
   }
 
