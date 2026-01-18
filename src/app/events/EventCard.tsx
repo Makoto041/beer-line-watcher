@@ -13,86 +13,64 @@ interface Event {
   };
 }
 
+interface SourceConfig {
+  emoji: string;
+  label: string;
+  color: string;
+  bgColor: string;
+}
+
 interface EventCardProps {
   event: Event;
   index: number;
-}
-
-// Get source-specific styling
-function getSourceStyle(sourceId: string): { emoji: string; color: string; bgColor: string; borderColor: string } {
-  const styles: Record<string, { emoji: string; color: string; bgColor: string; borderColor: string }> = {
-    'beergirl-calendar': {
-      emoji: '🍺',
-      color: 'text-emerald-300',
-      bgColor: 'bg-emerald-900/50',
-      borderColor: 'border-emerald-500/30',
-    },
-    'walkerplus-liquor-kanto': {
-      emoji: '🍷',
-      color: 'text-purple-300',
-      bgColor: 'bg-purple-900/50',
-      borderColor: 'border-purple-500/30',
-    },
-    'beerfestival-info': {
-      emoji: '🎪',
-      color: 'text-amber-300',
-      bgColor: 'bg-amber-900/50',
-      borderColor: 'border-amber-500/30',
-    },
-    'alwayslovebeer': {
-      emoji: '🍻',
-      color: 'text-pink-300',
-      bgColor: 'bg-pink-900/50',
-      borderColor: 'border-pink-500/30',
-    },
-  };
-
-  return styles[sourceId] || {
-    emoji: '📅',
-    color: 'text-slate-300',
-    bgColor: 'bg-slate-800/50',
-    borderColor: 'border-slate-500/30',
-  };
+  sourceConfig?: SourceConfig;
 }
 
 // Format date for display
-function formatEventDate(date: Date): { month: string; day: string; weekday: string } {
+function formatEventDate(date: Date): { month: number; day: number; weekday: string; full: string } {
   const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
   return {
-    month: `${date.getMonth() + 1}月`,
-    day: `${date.getDate()}`,
+    month: date.getMonth() + 1,
+    day: date.getDate(),
     weekday: weekdays[date.getDay()] ?? '',
+    full: `${date.getMonth() + 1}月${date.getDate()}日(${weekdays[date.getDay()]})`,
   };
 }
 
-// Check if event is happening soon (within 3 days)
-function isHappeningSoon(eventDate: Date | null): boolean {
-  if (!eventDate) return false;
+// Check event status
+function getEventStatus(eventDate: Date | null): 'today' | 'soon' | 'upcoming' | null {
+  if (!eventDate) return null;
+
   const now = new Date();
-  const diffTime = eventDate.getTime() - now.getTime();
-  const diffDays = diffTime / (1000 * 60 * 60 * 24);
-  return diffDays >= 0 && diffDays <= 3;
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const eventDay = new Date(eventDate);
+  eventDay.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.floor((eventDay.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'today';
+  if (diffDays > 0 && diffDays <= 3) return 'soon';
+  if (diffDays > 0 && diffDays <= 7) return 'upcoming';
+  return null;
 }
 
-// Check if event is today
-function isToday(eventDate: Date | null): boolean {
-  if (!eventDate) return false;
-  const now = new Date();
-  return (
-    eventDate.getDate() === now.getDate() &&
-    eventDate.getMonth() === now.getMonth() &&
-    eventDate.getFullYear() === now.getFullYear()
-  );
-}
-
-export function EventCard({ event, index }: EventCardProps) {
-  const style = getSourceStyle(event.sourceId);
-  const happeningSoon = isHappeningSoon(event.eventDate);
-  const today = isToday(event.eventDate);
+export function EventCard({ event, index, sourceConfig }: EventCardProps) {
   const dateInfo = event.eventDate ? formatEventDate(event.eventDate) : null;
+  const status = getEventStatus(event.eventDate);
 
-  // Calculate stagger delay (cap at 0.5s)
+  // Calculate stagger delay
   const staggerDelay = Math.min(index * 0.05, 0.5);
+
+  const defaultConfig: SourceConfig = {
+    emoji: '📅',
+    label: event.source.name || event.sourceId,
+    color: 'text-gray-600',
+    bgColor: 'bg-gray-50',
+  };
+
+  const config = sourceConfig || defaultConfig;
 
   return (
     <a
@@ -100,70 +78,63 @@ export function EventCard({ event, index }: EventCardProps) {
       target="_blank"
       rel="noopener noreferrer"
       className="group block opacity-0 animate-fade-in-up"
-      style={{ animationDelay: `${staggerDelay}s`, animationFillMode: 'forwards' }}
+      style={{ animationDelay: `${staggerDelay + 0.5}s`, animationFillMode: 'forwards' }}
     >
-      <div className={`relative h-full rounded-2xl border ${style.borderColor} bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-sm overflow-hidden transition-all duration-300 card-lift group-hover:border-emerald-400/50`}>
-        {/* Shimmer effect on hover */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer" />
+      <div className="card-premium h-full overflow-hidden">
+        {/* Top accent bar */}
+        <div className={`h-1 ${config.bgColor.replace('bg-', 'bg-gradient-to-r from-').replace('-50', '-400')} to-transparent`} />
 
-        {/* Happening soon badge */}
-        {today && (
-          <div className="absolute top-3 right-3 px-2 py-1 text-[10px] font-bold rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg animate-pulse">
-            TODAY
-          </div>
-        )}
-        {!today && happeningSoon && (
-          <div className="absolute top-3 right-3 px-2 py-1 text-[10px] font-bold rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-900 shadow-lg">
-            SOON
-          </div>
-        )}
-
-        <div className="relative p-4">
-          {/* Header with date and source */}
-          <div className="flex items-start gap-3 mb-3">
-            {/* Date display */}
+        <div className="p-5">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3 mb-4">
+            {/* Date or Icon */}
             {dateInfo ? (
-              <div className={`flex-shrink-0 w-14 h-14 rounded-xl ${style.bgColor} border ${style.borderColor} flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
-                <span className="text-[10px] text-slate-400">{dateInfo.month}</span>
-                <span className={`text-xl font-bold ${style.color}`}>{dateInfo.day}</span>
-                <span className="text-[10px] text-slate-400">({dateInfo.weekday})</span>
+              <div className={`flex-shrink-0 w-16 h-16 rounded-2xl ${config.bgColor} flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
+                <span className="text-xs text-gray-500">{dateInfo.month}月</span>
+                <span className={`text-2xl font-bold ${config.color}`}>{dateInfo.day}</span>
+                <span className="text-xs text-gray-500">({dateInfo.weekday})</span>
               </div>
             ) : (
-              <div className={`flex-shrink-0 w-14 h-14 rounded-xl ${style.bgColor} border ${style.borderColor} flex items-center justify-center text-2xl transition-transform group-hover:scale-105`}>
-                {style.emoji}
+              <div className={`flex-shrink-0 w-16 h-16 rounded-2xl ${config.bgColor} flex items-center justify-center text-3xl transition-transform group-hover:scale-105`}>
+                {config.emoji}
               </div>
             )}
 
-            {/* Source badge */}
-            <div className="flex-1 min-w-0">
-              <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-full ${style.bgColor} ${style.color} border ${style.borderColor}`}>
-                <span>{style.emoji}</span>
-                <span className="truncate">{event.source.name || event.sourceId}</span>
-              </span>
-            </div>
+            {/* Status badge */}
+            {status && (
+              <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                status === 'today'
+                  ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white animate-pulse-soft'
+                  : status === 'soon'
+                    ? 'bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900'
+                    : 'bg-gradient-to-r from-emerald-400 to-green-400 text-emerald-900'
+              }`}>
+                {status === 'today' ? '今日!' : status === 'soon' ? 'まもなく' : '今週'}
+              </div>
+            )}
           </div>
 
           {/* Title */}
-          <h3 className="text-sm md:text-base font-semibold text-slate-100 leading-snug line-clamp-2 group-hover:text-emerald-300 transition-colors">
+          <h3 className="text-base font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-amber-600 transition-colors mb-3">
             {event.title}
           </h3>
 
-          {/* Footer */}
-          <div className="mt-3 flex items-center justify-between">
-            <span className="text-[10px] text-slate-500">
-              登録: {event.createdAt.toLocaleDateString('ja-JP')}
+          {/* Source tag */}
+          <div className="flex items-center justify-between">
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.color}`}>
+              <span>{config.emoji}</span>
+              {config.label}
             </span>
-            <span className="flex items-center gap-1 text-xs text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity">
-              詳細を見る
-              <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+            {/* Arrow icon */}
+            <span className="flex items-center gap-1 text-sm text-gray-400 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">
+              詳細
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </span>
           </div>
         </div>
-
-        {/* Bottom accent line */}
-        <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent ${style.bgColor.replace('bg-', 'via-').replace('/50', '')} to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
       </div>
     </a>
   );
