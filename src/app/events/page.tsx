@@ -1,5 +1,9 @@
 import { prisma } from "@/server/db";
 import { Prisma } from "../../../generated/prisma";
+import { EventCard } from "./EventCard";
+import { HeroSection } from "./HeroSection";
+import { SearchForm } from "./SearchForm";
+import { StatsBar } from "./StatsBar";
 
 export const dynamic = "force-dynamic";
 
@@ -47,112 +51,94 @@ export default async function EventsPage({
 
   const sources = await prisma.source.findMany();
 
+  // Calculate stats
+  const thisWeekEnd = new Date(now);
+  thisWeekEnd.setDate(now.getDate() + 7);
+  const thisWeekEvents = events.filter(
+    (e) => e.eventDate && e.eventDate >= startOfToday && e.eventDate <= thisWeekEnd
+  );
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-black text-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-6 md:py-10">
-        <header className="mb-6 md:mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-400/15 border border-emerald-400/40 flex items-center justify-center text-emerald-300">
-              🍺
-            </div>
-            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-              ビール・お酒イベント一覧
-            </h1>
-          </div>
-          <p className="text-xs md:text-sm text-slate-400">
-            ビール女子 / Walkerplus / beerfestival.info / alwayslovebeer.com から取得した直近のイベント情報
-          </p>
-        </header>
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50 noise-overlay">
+      {/* Background decorations */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500/5 rounded-full blur-3xl" />
+      </div>
 
-        <section className="mb-4 md:mb-6">
-          <form className="flex flex-col md:flex-row gap-2 md:items-center">
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="キーワード検索（例：ビアフェス、IPA、渋谷）"
-              className="flex-1 px-3 py-2 text-xs md:text-sm rounded-2xl bg-white/5 border border-white/10 text-slate-50 placeholder:text-slate-500 outline-none focus:border-emerald-400/80 focus:ring-1 focus:ring-emerald-400/50 transition-all"
-            />
-            <select
-              name="source"
-              defaultValue={source}
-              className="px-3 py-2 text-xs md:text-sm rounded-2xl bg-white/5 border border-white/10 text-slate-50 outline-none focus:border-emerald-400/80 focus:ring-1 focus:ring-emerald-400/50 transition-all"
-            >
-              <option value="">すべてのソース</option>
-              {sources.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name || s.id}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className="px-4 py-2 text-xs md:text-sm rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold transition-all shadow-sm hover:shadow-md"
-            >
-              絞り込み
-            </button>
-          </form>
-        </section>
+      <div className="relative z-10">
+        {/* Hero Section */}
+        <HeroSection eventCount={events.length} />
 
-        <section>
-          {events.length === 0 ? (
-            <div className="mt-6 text-xs text-slate-400">
-              条件に合うイベントがまだありません。
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-              {events.map((e) => {
-                const eventDateStr = e.eventDate
-                  ? `${e.eventDate.getMonth() + 1}/${e.eventDate.getDate()}`
-                  : null;
+        <div className="max-w-6xl mx-auto px-4 pb-12">
+          {/* Stats Bar */}
+          <StatsBar
+            totalEvents={events.length}
+            thisWeekEvents={thisWeekEvents.length}
+            sourceCount={sources.length}
+          />
 
-                const createdAt = e.createdAt;
-                const createdAtStr = `${createdAt.getFullYear()}-${String(
-                  createdAt.getMonth() + 1
-                ).padStart(2, "0")}-${String(createdAt.getDate()).padStart(
-                  2,
-                  "0"
-                )}`;
+          {/* Search Section */}
+          <SearchForm sources={sources} currentSource={source} currentQuery={q} />
 
-                return (
-                  <a
+          {/* Events Grid */}
+          <section className="mt-8">
+            {events.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 animate-fade-in-up">
+                <div className="text-6xl mb-4 animate-float">🍺</div>
+                <h3 className="text-xl font-semibold text-slate-300 mb-2">
+                  イベントが見つかりません
+                </h3>
+                <p className="text-sm text-slate-500">
+                  条件を変更して再度お試しください
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {events.map((e, index) => (
+                  <EventCard
                     key={e.id}
-                    href={e.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block rounded-2xl border border-white/5 bg-gradient-to-br from-white/5 to-white/0 hover:from-white/10 hover:border-emerald-300/30 transition-all shadow-sm hover:shadow-lg backdrop-blur-sm p-4"
-                  >
-                    <div className="flex items-center gap-2 text-[10px] text-emerald-300/80 mb-1 flex-wrap">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-900/70 border border-emerald-400/40">
-                        {e.source.name || e.sourceId}
-                      </span>
-                      {eventDateStr && (
-                        <span className="px-2 py-0.5 rounded-full bg-amber-900/70 border border-amber-400/40 text-amber-300">
-                          📅 {eventDateStr}
-                        </span>
-                      )}
-                      <span className="text-slate-400">登録: {createdAtStr}</span>
-                    </div>
-                    <h2 className="text-sm md:text-base font-semibold text-slate-50 leading-snug line-clamp-2">
-                      {e.title}
-                    </h2>
-                    <p className="mt-2 text-[10px] text-emerald-200/80 break-all line-clamp-1">
-                      {e.url}
-                    </p>
-                  </a>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                    event={e}
+                    index={index}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
 
-        <footer className="mt-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-xs text-slate-500">
-            🍺 ビールイベント通知Bot - 毎週金曜日に新着イベントをLINEでお届け
-          </p>
-          <p className="text-[10px] text-slate-600 mt-1">
-            ソース: {sources.length > 0 ? sources.map(s => s.name || s.id).join(" / ") : "ビール女子 / Walkerplus / beerfestival.info / alwayslovebeer.com"}
-          </p>
-        </footer>
+          {/* Footer */}
+          <footer className="mt-16 pt-8 border-t border-white/5">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-xl shadow-lg shadow-emerald-500/20 animate-pulse-glow">
+                  🍺
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-300">
+                    ビールイベント通知Bot
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    毎週金曜日に新着イベントをLINEでお届け
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {sources.map((s) => (
+                  <span
+                    key={s.id}
+                    className="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-slate-400"
+                  >
+                    {s.name || s.id}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <p className="text-center text-xs text-slate-600 mt-6">
+              Made with 🍻 for beer lovers
+            </p>
+          </footer>
+        </div>
       </div>
     </main>
   );
