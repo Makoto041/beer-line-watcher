@@ -6,8 +6,18 @@ import { calculateDuplicateScore } from "../utils/duplicateDetector";
 // Threshold for duplicate detection (0.6 = 60% similarity)
 const DUPLICATE_THRESHOLD = 0.6;
 
-export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
-  const newOnes: { title: string; url: string; sourceId: string }[] = [];
+export interface UpsertResult {
+  newEvents: Array<{ title: string; url: string; sourceId: string }>;
+  updatedEvents: Array<{ title: string; url: string; sourceId: string }>;
+  skippedDuplicates: number;
+  skippedExisting: number;
+}
+
+export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<UpsertResult> {
+  const newEvents: { title: string; url: string; sourceId: string }[] = [];
+  const updatedEvents: { title: string; url: string; sourceId: string }[] = [];
+  let skippedDuplicates = 0;
+  let skippedExisting = 0;
 
   // Get existing events from the last 60 days for duplicate checking
   const sixtyDaysAgo = new Date();
@@ -61,11 +71,14 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
             eventEndDate: item.eventEndDate,
           },
         });
-        newOnes.push({
+        updatedEvents.push({
           title: item.title,
           url: item.url,
           sourceId: item.sourceId,
         });
+        console.log(`Updated event: "${item.title}" (date info updated)`);
+      } else {
+        skippedExisting++;
       }
       continue;
     }
@@ -73,7 +86,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
     // Check for duplicate events from other sources
     const isDuplicate = checkForDuplicate(item, existingEvents);
     if (isDuplicate) {
-      console.log(`Skipping duplicate event: "${item.title}" (similar to existing)`);
+      skippedDuplicates++;
       continue;
     }
 
@@ -99,14 +112,15 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
       eventEndDate: item.eventEndDate || null,
     });
 
-    newOnes.push({
+    newEvents.push({
       title: item.title,
       url: item.url,
       sourceId: item.sourceId,
     });
+    console.log(`New event: "${item.title}"`);
   }
 
-  return newOnes;
+  return { newEvents, updatedEvents, skippedDuplicates, skippedExisting };
 }
 
 /**
