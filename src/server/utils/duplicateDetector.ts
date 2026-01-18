@@ -197,7 +197,7 @@ export function removeDuplicates(
     "beergirl-calendar",
     "walkerplus-liquor-kanto",
     "beerfestival-info",
-    "alwayslovebeer",
+    "alwayslovebeer-calendar",
   ];
 
   const sortedEvents = [...events].sort((a, b) => {
