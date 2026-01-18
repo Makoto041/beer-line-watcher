@@ -1,12 +1,13 @@
 "use client";
 
-import { formatDateJST } from "@/lib/date-utils";
+import { formatDateJST, formatDateRangeJST } from "@/lib/date-utils";
 
 interface Event {
   id: string;
   title: string;
   url: string;
   eventDate: Date | null;
+  eventEndDate?: Date | null;
   createdAt: Date;
   sourceId: string;
   source: {
@@ -67,6 +68,9 @@ const variantStyles = {
 
 export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCardProps) {
   const dateInfo = event.eventDate ? formatDateJST(event.eventDate) : null;
+  const dateRange = event.eventDate && event.eventEndDate
+    ? formatDateRangeJST(event.eventDate, event.eventEndDate)
+    : null;
   const styles = variantStyles[variant];
 
   const defaultConfig: SourceConfig = {
@@ -97,12 +101,20 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
           {/* Date display */}
           {dateInfo && (
             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl mb-3 ${styles.dateBg}`}>
-              <span className={`text-2xl font-bold ${styles.dateText}`}>
-                {dateInfo.month}/{dateInfo.day}
-              </span>
-              <span className={`text-sm ${styles.dateSubText}`}>
-                ({dateInfo.weekday})
-              </span>
+              {dateRange ? (
+                <span className={`text-xl font-bold ${styles.dateText}`}>
+                  {dateRange.range}
+                </span>
+              ) : (
+                <>
+                  <span className={`text-2xl font-bold ${styles.dateText}`}>
+                    {dateInfo.month}/{dateInfo.day}
+                  </span>
+                  <span className={`text-sm ${styles.dateSubText}`}>
+                    ({dateInfo.weekday})
+                  </span>
+                </>
+              )}
             </div>
           )}
 

@@ -5,6 +5,7 @@ import { SourceTabs } from "./components/SourceTabs";
 import { PickupCard } from "./components/PickupCard";
 import { PickupCarousel } from "./components/PickupCarousel";
 import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
+import { removeDuplicates } from "@/server/utils/duplicateDetector";
 
 export const dynamic = "force-dynamic";
 
@@ -62,12 +63,27 @@ export default async function Page({
   if (source) where.sourceId = source;
   if (q) where.title = { contains: q, mode: 'insensitive' };
 
-  const events = await prisma.event.findMany({
+  const rawEvents = await prisma.event.findMany({
     where,
     orderBy: [{ eventDate: "asc" }, { createdAt: "desc" }],
-    take: 50,
+    take: 100, // Fetch more to account for duplicates
     include: { source: true },
   });
+
+  // Remove duplicates across sources (keeps higher priority source)
+  const uniqueEvents = removeDuplicates(
+    rawEvents.map(e => ({
+      title: e.title,
+      url: e.url,
+      eventDate: e.eventDate || undefined,
+      sourceId: e.sourceId,
+    })),
+    0.6
+  );
+
+  // Map back to full event objects
+  const uniqueUrls = new Set(uniqueEvents.map(e => e.url));
+  const events = rawEvents.filter(e => uniqueUrls.has(e.url)).slice(0, 50);
 
   const sources = await prisma.source.findMany();
 

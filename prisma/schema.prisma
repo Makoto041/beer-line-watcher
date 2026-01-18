@@ -1,44 +1,45 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model Source {
-  id          String   @id        // "beergirl-calendar" など
+  id          String   @id
   name        String
   url         String
   description String?
-  events      Event[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  events      Event[]
 }
 
 model Event {
-  id        String    @id          // sourceId:url のハッシュなど
-  sourceId  String
-  source    Source    @relation(fields: [sourceId], references: [id])
-  title     String
-  url       String
-  eventDate DateTime?              // イベント開催日（スクレイピングで取得）
-  createdAt DateTime  @default(now())
+  id           String    @id
+  sourceId     String
+  title        String
+  url          String
+  createdAt    DateTime  @default(now())
+  eventDate    DateTime?
+  eventEndDate DateTime?
+  source       Source    @relation(fields: [sourceId], references: [id])
 }
 
 model LineSubscriber {
-  userId             String   @id
-  notificationDays   Int      @default(7)  // 通知間隔（日数）: 1, 7, 14, 30（デフォルト週1回）
-  lastNotifiedAt     DateTime?             // 最後に通知した日時
-  createdAt          DateTime @default(now())
+  userId           String    @id
+  createdAt        DateTime  @default(now())
+  lastNotifiedAt   DateTime?
+  notificationDays Int       @default(7)
 }
 
 model LineGroup {
-  id                 String   @id  // groupId or roomId
-  type               String        // "group" or "room"
-  notificationDays   Int      @default(7)  // 通知間隔（日数）: 1, 7, 14, 30（デフォルト週1回）
-  lastNotifiedAt     DateTime?             // 最後に通知した日時
-  createdAt          DateTime @default(now())
+  id               String    @id
+  type             String
+  notificationDays Int       @default(7)
+  lastNotifiedAt   DateTime?
+  createdAt        DateTime  @default(now())
 }

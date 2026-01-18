@@ -83,19 +83,28 @@ export async function GET(request: Request) {
 
     console.log("Starting cron job...");
     const allNewMessages: string[] = [];
-    const crawledCounts: Record<string, number> = {};
+    const crawledCounts: Record<string, { total: number; new: number; updated: number; skippedDuplicates: number; skippedExisting: number }> = {};
+
+    // Helper to log upsert result
+    const logResult = (name: string, total: number, result: { newEvents: { title: string; url: string; sourceId: string }[]; updatedEvents: { title: string; url: string; sourceId: string }[]; skippedDuplicates: number; skippedExisting: number }) => {
+      console.log(`${name}: ${total}件取得 → ${result.newEvents.length}件新規, ${result.updatedEvents.length}件更新, ${result.skippedExisting}件既存, ${result.skippedDuplicates}件重複スキップ`);
+    };
 
     // 1. ビール女子カレンダー（Googleカレンダー）
     console.log("Crawling beergirl calendar...");
     const beergirlCalendarItems = await crawlBeergirlCalendar();
-    crawledCounts.beergirlCalendar = beergirlCalendarItems.length;
-    console.log(`Beergirl calendar found ${beergirlCalendarItems.length} items`);
+    const beergirlResult = await upsertEventsAndGetNewOnes(beergirlCalendarItems);
+    crawledCounts.beergirlCalendar = {
+      total: beergirlCalendarItems.length,
+      new: beergirlResult.newEvents.length,
+      updated: beergirlResult.updatedEvents.length,
+      skippedDuplicates: beergirlResult.skippedDuplicates,
+      skippedExisting: beergirlResult.skippedExisting,
+    };
+    logResult("ビール女子", beergirlCalendarItems.length, beergirlResult);
 
-    const beergirlCalendarNews = await upsertEventsAndGetNewOnes(beergirlCalendarItems);
-    console.log(`Beergirl calendar new events: ${beergirlCalendarNews.length}`);
-
-    if (beergirlCalendarNews.length) {
-      beergirlCalendarNews.forEach((n) =>
+    if (beergirlResult.newEvents.length) {
+      beergirlResult.newEvents.forEach((n) =>
         allNewMessages.push(`🍺[ビール女子] ${n.title}\n${n.url}`)
       );
     }
@@ -103,14 +112,18 @@ export async function GET(request: Request) {
     // 2. 全国ビールイベントカレンダー（Googleカレンダー）
     console.log("Crawling Always Love Beer calendar...");
     const alwayslovebeerCalendarItems = await crawlAlwaysLoveBeerCalendar();
-    crawledCounts.alwayslovebeerCalendar = alwayslovebeerCalendarItems.length;
-    console.log(`Always Love Beer calendar found ${alwayslovebeerCalendarItems.length} items`);
+    const alwayslovebeerResult = await upsertEventsAndGetNewOnes(alwayslovebeerCalendarItems);
+    crawledCounts.alwayslovebeerCalendar = {
+      total: alwayslovebeerCalendarItems.length,
+      new: alwayslovebeerResult.newEvents.length,
+      updated: alwayslovebeerResult.updatedEvents.length,
+      skippedDuplicates: alwayslovebeerResult.skippedDuplicates,
+      skippedExisting: alwayslovebeerResult.skippedExisting,
+    };
+    logResult("全国ビールイベント", alwayslovebeerCalendarItems.length, alwayslovebeerResult);
 
-    const alwayslovebeerCalendarNews = await upsertEventsAndGetNewOnes(alwayslovebeerCalendarItems);
-    console.log(`Always Love Beer calendar new events: ${alwayslovebeerCalendarNews.length}`);
-
-    if (alwayslovebeerCalendarNews.length) {
-      alwayslovebeerCalendarNews.forEach((n) =>
+    if (alwayslovebeerResult.newEvents.length) {
+      alwayslovebeerResult.newEvents.forEach((n) =>
         allNewMessages.push(`🗓️[全国ビールイベント] ${n.title}\n${n.url}`)
       );
     }
@@ -118,14 +131,18 @@ export async function GET(request: Request) {
     // 3. Walkerplus
     console.log("Crawling walkerplus...");
     const walkerplusItems = await crawlWalkerplus();
-    crawledCounts.walkerplus = walkerplusItems.length;
-    console.log(`Walkerplus found ${walkerplusItems.length} items`);
+    const walkerplusResult = await upsertEventsAndGetNewOnes(walkerplusItems);
+    crawledCounts.walkerplus = {
+      total: walkerplusItems.length,
+      new: walkerplusResult.newEvents.length,
+      updated: walkerplusResult.updatedEvents.length,
+      skippedDuplicates: walkerplusResult.skippedDuplicates,
+      skippedExisting: walkerplusResult.skippedExisting,
+    };
+    logResult("Walkerplus", walkerplusItems.length, walkerplusResult);
 
-    const walkerplusNews = await upsertEventsAndGetNewOnes(walkerplusItems);
-    console.log(`Walkerplus new events: ${walkerplusNews.length}`);
-
-    if (walkerplusNews.length) {
-      walkerplusNews.forEach((n) =>
+    if (walkerplusResult.newEvents.length) {
+      walkerplusResult.newEvents.forEach((n) =>
         allNewMessages.push(`🍷[Walkerplus] ${n.title}\n${n.url}`)
       );
     }
@@ -133,14 +150,18 @@ export async function GET(request: Request) {
     // 4. beerfestival.info
     console.log("Crawling beerfestival.info...");
     const beerfestivalItems = await crawlBeerfestival();
-    crawledCounts.beerfestival = beerfestivalItems.length;
-    console.log(`Beerfestival found ${beerfestivalItems.length} items`);
+    const beerfestivalResult = await upsertEventsAndGetNewOnes(beerfestivalItems);
+    crawledCounts.beerfestival = {
+      total: beerfestivalItems.length,
+      new: beerfestivalResult.newEvents.length,
+      updated: beerfestivalResult.updatedEvents.length,
+      skippedDuplicates: beerfestivalResult.skippedDuplicates,
+      skippedExisting: beerfestivalResult.skippedExisting,
+    };
+    logResult("ビアフェス情報", beerfestivalItems.length, beerfestivalResult);
 
-    const beerfestivalNews = await upsertEventsAndGetNewOnes(beerfestivalItems);
-    console.log(`Beerfestival new events: ${beerfestivalNews.length}`);
-
-    if (beerfestivalNews.length) {
-      beerfestivalNews.forEach((n) =>
+    if (beerfestivalResult.newEvents.length) {
+      beerfestivalResult.newEvents.forEach((n) =>
         allNewMessages.push(`🎪[ビアフェス情報] ${n.title}\n${n.url}`)
       );
     }

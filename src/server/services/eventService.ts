@@ -6,8 +6,18 @@ import { calculateDuplicateScore } from "../utils/duplicateDetector";
 // Threshold for duplicate detection (0.6 = 60% similarity)
 const DUPLICATE_THRESHOLD = 0.6;
 
-export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
-  const newOnes: { title: string; url: string; sourceId: string }[] = [];
+export interface UpsertResult {
+  newEvents: Array<{ title: string; url: string; sourceId: string }>;
+  updatedEvents: Array<{ title: string; url: string; sourceId: string }>;
+  skippedDuplicates: number;
+  skippedExisting: number;
+}
+
+export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<UpsertResult> {
+  const newEvents: { title: string; url: string; sourceId: string }[] = [];
+  const updatedEvents: { title: string; url: string; sourceId: string }[] = [];
+  let skippedDuplicates = 0;
+  let skippedExisting = 0;
 
   // Get existing events from the last 60 days for duplicate checking
   const sixtyDaysAgo = new Date();
@@ -23,6 +33,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
       url: true,
       sourceId: true,
       eventDate: true,
+      eventEndDate: true,
     },
   });
 
@@ -41,20 +52,33 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
 
     // Check if Event already exists by ID
     const id = makeEventId(item);
-    const exists = await prisma.event.findUnique({ where: { id } });
+    const exists = await prisma.event.findUnique({
+      where: { id },
+      select: { eventDate: true, eventEndDate: true },
+    });
 
-    // 既存イベントでも、スクレイピングで新たに eventDate を取得できたら更新する
+    // 既存イベントでも、スクレイピングで新たに eventDate/eventEndDate を取得できたら更新する
     if (exists) {
-      if (item.eventDate && (!exists.eventDate || exists.eventDate.getTime() !== item.eventDate.getTime())) {
+      const needsUpdate =
+        (item.eventDate && (!exists.eventDate || exists.eventDate.getTime() !== item.eventDate.getTime())) ||
+        (item.eventEndDate && (!exists.eventEndDate || exists.eventEndDate.getTime() !== item.eventEndDate.getTime()));
+
+      if (needsUpdate) {
         await prisma.event.update({
           where: { id },
-          data: { eventDate: item.eventDate },
+          data: {
+            eventDate: item.eventDate,
+            eventEndDate: item.eventEndDate,
+          },
         });
-        newOnes.push({
+        updatedEvents.push({
           title: item.title,
           url: item.url,
           sourceId: item.sourceId,
         });
+        console.log(`Updated event: "${item.title}" (date info updated)`);
+      } else {
+        skippedExisting++;
       }
       continue;
     }
@@ -62,7 +86,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
     // Check for duplicate events from other sources
     const isDuplicate = checkForDuplicate(item, existingEvents);
     if (isDuplicate) {
-      console.log(`Skipping duplicate event: "${item.title}" (similar to existing)`);
+      skippedDuplicates++;
       continue;
     }
 
@@ -74,6 +98,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
         title: item.title,
         url: item.url,
         eventDate: item.eventDate,
+        eventEndDate: item.eventEndDate,
       },
     });
 
@@ -84,16 +109,18 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
       url: item.url,
       sourceId: item.sourceId,
       eventDate: item.eventDate || null,
+      eventEndDate: item.eventEndDate || null,
     });
 
-    newOnes.push({
+    newEvents.push({
       title: item.title,
       url: item.url,
       sourceId: item.sourceId,
     });
+    console.log(`New event: "${item.title}"`);
   }
 
-  return newOnes;
+  return { newEvents, updatedEvents, skippedDuplicates, skippedExisting };
 }
 
 /**
@@ -107,6 +134,7 @@ function checkForDuplicate(
     url: string;
     sourceId: string;
     eventDate: Date | null;
+    eventEndDate: Date | null;
   }>
 ): boolean {
   for (const existing of existingEvents) {

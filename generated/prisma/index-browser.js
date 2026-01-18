@@ -135,15 +135,16 @@ exports.Prisma.EventScalarFieldEnum = {
   sourceId: 'sourceId',
   title: 'title',
   url: 'url',
+  createdAt: 'createdAt',
   eventDate: 'eventDate',
-  createdAt: 'createdAt'
+  eventEndDate: 'eventEndDate'
 };
 
 exports.Prisma.LineSubscriberScalarFieldEnum = {
   userId: 'userId',
-  notificationDays: 'notificationDays',
+  createdAt: 'createdAt',
   lastNotifiedAt: 'lastNotifiedAt',
-  createdAt: 'createdAt'
+  notificationDays: 'notificationDays'
 };
 
 exports.Prisma.LineGroupScalarFieldEnum = {

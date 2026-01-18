@@ -107,15 +107,16 @@ exports.Prisma.EventScalarFieldEnum = {
   sourceId: 'sourceId',
   title: 'title',
   url: 'url',
+  createdAt: 'createdAt',
   eventDate: 'eventDate',
-  createdAt: 'createdAt'
+  eventEndDate: 'eventEndDate'
 };
 
 exports.Prisma.LineSubscriberScalarFieldEnum = {
   userId: 'userId',
-  notificationDays: 'notificationDays',
+  createdAt: 'createdAt',
   lastNotifiedAt: 'lastNotifiedAt',
-  createdAt: 'createdAt'
+  notificationDays: 'notificationDays'
 };
 
 exports.Prisma.LineGroupScalarFieldEnum = {
@@ -196,13 +197,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\nmodel Source {\n  id          String   @id // \"beergirl-calendar\" など\n  name        String\n  url         String\n  description String?\n  events      Event[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n}\n\nmodel Event {\n  id        String    @id // sourceId:url のハッシュなど\n  sourceId  String\n  source    Source    @relation(fields: [sourceId], references: [id])\n  title     String\n  url       String\n  eventDate DateTime? // イベント開催日（スクレイピングで取得）\n  createdAt DateTime  @default(now())\n}\n\nmodel LineSubscriber {\n  userId           String    @id\n  notificationDays Int       @default(1) // 通知間隔（日数）: 1, 7, 14, 30\n  lastNotifiedAt   DateTime? // 最後に通知した日時\n  createdAt        DateTime  @default(now())\n}\n\nmodel LineGroup {\n  id               String    @id // groupId or roomId\n  type             String // \"group\" or \"room\"\n  notificationDays Int       @default(1) // 通知間隔（日数）: 1, 7, 14, 30\n  lastNotifiedAt   DateTime? // 最後に通知した日時\n  createdAt        DateTime  @default(now())\n}\n",
-  "inlineSchemaHash": "f9f75e6904c30a945bb865ca1a457fc2c2e0311abdf6f367b004b55176073001",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Source {\n  id          String   @id\n  name        String\n  url         String\n  description String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n  events      Event[]\n}\n\nmodel Event {\n  id           String    @id\n  sourceId     String\n  title        String\n  url          String\n  createdAt    DateTime  @default(now())\n  eventDate    DateTime?\n  eventEndDate DateTime?\n  source       Source    @relation(fields: [sourceId], references: [id])\n}\n\nmodel LineSubscriber {\n  userId           String    @id\n  createdAt        DateTime  @default(now())\n  lastNotifiedAt   DateTime?\n  notificationDays Int       @default(7)\n}\n\nmodel LineGroup {\n  id               String    @id\n  type             String\n  notificationDays Int       @default(7)\n  lastNotifiedAt   DateTime?\n  createdAt        DateTime  @default(now())\n}\n",
+  "inlineSchemaHash": "d72ff746cca6d04bd4595dd4738465ac26738255b9ed7ccab35567e83466f2b7",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Source\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToSource\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source\",\"kind\":\"object\",\"type\":\"Source\",\"relationName\":\"EventToSource\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"eventDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineSubscriber\":{\"fields\":[{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notificationDays\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"lastNotifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"LineGroup\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notificationDays\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"lastNotifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Source\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"events\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToSource\"}],\"dbName\":null},\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"eventDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"eventEndDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"source\",\"kind\":\"object\",\"type\":\"Source\",\"relationName\":\"EventToSource\"}],\"dbName\":null},\"LineSubscriber\":{\"fields\":[{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastNotifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"notificationDays\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"LineGroup\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notificationDays\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"lastNotifiedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

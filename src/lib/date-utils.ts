@@ -51,15 +51,28 @@ export function getDaysFromTodayJST(eventDate: Date): number {
 
 /**
  * Check event status based on days from today (in JST)
+ * For multi-day events, considers the full date range:
+ * - 'today': Event is happening today (start <= today <= end)
+ * - 'soon': Event starts within 3 days
+ * - 'upcoming': Event starts within 7 days
+ * - null: Event is in the past or more than 7 days away
  */
-export function getEventStatusJST(eventDate: Date | null): 'today' | 'soon' | 'upcoming' | null {
+export function getEventStatusJST(
+  eventDate: Date | null,
+  eventEndDate?: Date | null
+): 'today' | 'soon' | 'upcoming' | null {
   if (!eventDate) return null;
 
-  const diffDays = getDaysFromTodayJST(eventDate);
+  const startDiffDays = getDaysFromTodayJST(eventDate);
+  const endDiffDays = eventEndDate ? getDaysFromTodayJST(eventEndDate) : startDiffDays;
 
-  if (diffDays === 0) return 'today';
-  if (diffDays > 0 && diffDays <= 3) return 'soon';
-  if (diffDays > 0 && diffDays <= 7) return 'upcoming';
+  // For multi-day events: if today is between start and end, it's happening today
+  if (startDiffDays <= 0 && endDiffDays >= 0) return 'today';
+
+  // Single day or future events
+  if (startDiffDays === 0) return 'today';
+  if (startDiffDays > 0 && startDiffDays <= 3) return 'soon';
+  if (startDiffDays > 0 && startDiffDays <= 7) return 'upcoming';
   return null;
 }
 
@@ -87,4 +100,39 @@ export function formatDateTimeJST(date: Date): string {
   const hours = jst.getHours().toString().padStart(2, '0');
   const minutes = jst.getMinutes().toString().padStart(2, '0');
   return `${month}/${day} ${hours}:${minutes}`;
+}
+
+/**
+ * Format date range for multi-day events (in JST)
+ * Returns a compact representation: "1/24-26" or "1/24-2/5" for cross-month
+ */
+export function formatDateRangeJST(
+  startDate: Date,
+  endDate: Date | null | undefined
+): { start: string; end: string | null; range: string } {
+  const start = formatDateJST(startDate);
+  const startStr = `${start.month}/${start.day}`;
+
+  if (!endDate) {
+    return { start: startStr, end: null, range: startStr };
+  }
+
+  const end = formatDateJST(endDate);
+  const endStr = `${end.month}/${end.day}`;
+
+  // Same month: "1/24-26"
+  if (start.month === end.month) {
+    return {
+      start: startStr,
+      end: endStr,
+      range: `${start.month}/${start.day}-${end.day}`,
+    };
+  }
+
+  // Different months: "1/24-2/5"
+  return {
+    start: startStr,
+    end: endStr,
+    range: `${startStr}-${endStr}`,
+  };
 }

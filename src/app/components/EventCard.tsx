@@ -1,12 +1,13 @@
 "use client";
 
-import { formatDateJST, getEventStatusJST } from "@/lib/date-utils";
+import { formatDateJST, formatDateRangeJST, getEventStatusJST } from "@/lib/date-utils";
 
 interface Event {
   id: string;
   title: string;
   url: string;
   eventDate: Date | null;
+  eventEndDate?: Date | null;
   createdAt: Date;
   sourceId: string;
   source: {
@@ -30,7 +31,10 @@ interface EventCardProps {
 
 export function EventCard({ event, index, sourceConfig }: EventCardProps) {
   const dateInfo = event.eventDate ? formatDateJST(event.eventDate) : null;
-  const status = getEventStatusJST(event.eventDate);
+  const dateRange = event.eventDate && event.eventEndDate
+    ? formatDateRangeJST(event.eventDate, event.eventEndDate)
+    : null;
+  const status = getEventStatusJST(event.eventDate, event.eventEndDate);
 
   const defaultConfig: SourceConfig = {
     emoji: '📅',
@@ -57,10 +61,19 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
           <div className="flex items-start justify-between gap-3 mb-4">
             {/* Date or Icon */}
             {dateInfo ? (
-              <div className={`flex-shrink-0 w-16 h-16 rounded-2xl ${config.bgColor} flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
-                <span className="text-xs text-gray-500">{dateInfo.month}月</span>
-                <span className={`text-2xl font-bold ${config.color}`}>{dateInfo.day}</span>
-                <span className="text-xs text-gray-500">({dateInfo.weekday})</span>
+              <div className={`flex-shrink-0 ${dateRange ? 'min-w-[4.5rem] px-2' : 'w-16'} h-16 rounded-2xl ${config.bgColor} flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
+                {dateRange ? (
+                  <>
+                    <span className="text-[10px] text-gray-500">開催期間</span>
+                    <span className={`text-base font-bold ${config.color} whitespace-nowrap`}>{dateRange.range}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-xs text-gray-500">{dateInfo.month}月</span>
+                    <span className={`text-2xl font-bold ${config.color}`}>{dateInfo.day}</span>
+                    <span className="text-xs text-gray-500">({dateInfo.weekday})</span>
+                  </>
+                )}
               </div>
             ) : (
               <div className={`flex-shrink-0 w-16 h-16 rounded-2xl ${config.bgColor} flex items-center justify-center text-3xl transition-transform group-hover:scale-105`}>
