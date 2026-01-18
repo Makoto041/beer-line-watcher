@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/sync-events?token=3a9dfc92b1e7480f9d234bc991e3a2a1",
-      "schedule": "0 9 * * 5"
+      "schedule": "0 0 * * *"
     }
   ]
 }
