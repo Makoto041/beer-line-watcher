@@ -1,7 +1,37 @@
 import { prisma } from "@/server/db";
 import { Prisma } from "../../generated/prisma";
+import { EventCard } from "./components/EventCard";
+import { SourceTabs } from "./components/SourceTabs";
 
 export const dynamic = "force-dynamic";
+
+// Source configurations with colors
+const SOURCE_CONFIG: Record<string, { emoji: string; label: string; color: string; bgColor: string }> = {
+  'beergirl-calendar': {
+    emoji: '🍺',
+    label: 'ビール女子',
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-50',
+  },
+  'walkerplus-liquor-kanto': {
+    emoji: '🍷',
+    label: 'Walkerplus',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50',
+  },
+  'beerfestival-info': {
+    emoji: '🎪',
+    label: 'ビアフェス情報',
+    color: 'text-rose-600',
+    bgColor: 'bg-rose-50',
+  },
+  'alwayslovebeer': {
+    emoji: '🍻',
+    label: 'Always Love Beer',
+    color: 'text-sky-600',
+    bgColor: 'bg-sky-50',
+  },
+};
 
 export default async function Page({
   searchParams,
@@ -12,114 +42,207 @@ export default async function Page({
   const source = params?.source ?? "";
   const q = params?.q ?? "";
 
-  const where: Prisma.EventWhereInput = {};
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  // Build where clause with focus on upcoming events
+  const where: Prisma.EventWhereInput = {
+    OR: [
+      { eventDate: { gte: startOfToday } },
+      {
+        eventDate: null,
+        createdAt: { gte: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000) },
+      },
+    ],
+  };
+
   if (source) where.sourceId = source;
-  if (q) where.title = { contains: q };
+  if (q) where.title = { contains: q, mode: 'insensitive' };
 
   const events = await prisma.event.findMany({
     where,
-    orderBy: { createdAt: "desc" },
-    take: 100,
+    orderBy: [{ eventDate: "asc" }, { createdAt: "desc" }],
+    take: 50,
     include: { source: true },
   });
 
   const sources = await prisma.source.findMany();
 
+  // Calculate stats
+  const thisWeekEnd = new Date(now);
+  thisWeekEnd.setDate(now.getDate() + 7);
+  const thisWeekEvents = events.filter(
+    (e) => e.eventDate && e.eventDate >= startOfToday && e.eventDate <= thisWeekEnd
+  );
+
+  // Get event counts per source
+  const sourceCounts = sources.reduce((acc, s) => {
+    acc[s.id] = events.filter(e => e.sourceId === s.id).length;
+    return acc;
+  }, {} as Record<string, number>);
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-black text-slate-50">
-      <div className="max-w-5xl mx-auto px-4 py-6 md:py-10">
-        <header className="mb-6 md:mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-400/15 border border-emerald-400/40 flex items-center justify-center text-emerald-300">
-              🍺
-            </div>
-            <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-              Beer Event Watcher
-            </h1>
+    <main className="min-h-screen bg-[#fbfbfd]">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-amber-50 via-white to-[#fbfbfd] pt-12 pb-16 md:pt-20 md:pb-24">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-amber-200/40 to-orange-200/40 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-gradient-to-br from-yellow-200/30 to-amber-200/30 rounded-full blur-3xl" />
+        </div>
+
+        <div className="relative max-w-6xl mx-auto px-4">
+          {/* Badge */}
+          <div className="flex justify-center mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-medium shadow-sm">
+              <span className="animate-bounce">🍺</span>
+              毎日自動更新
+            </span>
           </div>
-          <p className="text-xs md:text-sm text-slate-400">
-            指定サイトから取得したビール／お酒イベントの新着一覧。 LINE
-            Botと連携して、自動でイベント更新を検知します。
-          </p>
-        </header>
 
-        <section className="mb-4 md:mb-6">
-          <form className="flex flex-col md:flex-row gap-2 md:items-center">
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="キーワード検索（例：ビアフェス、IPA、渋谷）"
-              className="flex-1 px-3 py-2 text-xs md:text-sm rounded-2xl bg-white/5 border border-white/10 text-slate-50 placeholder:text-slate-500 outline-none focus:border-emerald-400/80 focus:ring-1 focus:ring-emerald-400/50 transition-all"
-            />
-            <select
-              name="source"
-              defaultValue={source}
-              className="px-3 py-2 text-xs md:text-sm rounded-2xl bg-white/5 border border-white/10 text-slate-50 outline-none focus:border-emerald-400/80 focus:ring-1 focus:ring-emerald-400/50 transition-all"
-            >
-              <option value="">All sources</option>
-              {sources.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name || s.id}
-                </option>
-              ))}
-            </select>
-            <button
-              type="submit"
-              className="px-4 py-2 text-xs md:text-sm rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold transition-all shadow-sm hover:shadow-md"
-            >
-              絞り込み
-            </button>
-          </form>
-          <p className="mt-1 text-[10px] text-slate-500">
-            最新100件を表示中。クエリはURLに反映されるので、そのまま共有可能。
-          </p>
-        </section>
+          {/* Title */}
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 mb-4">
+              ビール・お酒イベント
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-500 font-light max-w-2xl mx-auto">
+              全国のビールイベント情報を
+              <br className="md:hidden" />
+              ひとつの場所で。
+            </p>
+          </div>
 
-        <section>
+          {/* Stats */}
+          <div className="flex flex-wrap justify-center gap-6 md:gap-12 mt-10">
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">{events.length}</div>
+              <div className="text-sm text-gray-500 mt-1">イベント</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">{thisWeekEvents.length}</div>
+              <div className="text-sm text-gray-500 mt-1">今週開催</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">{sources.length}</div>
+              <div className="text-sm text-gray-500 mt-1">情報源</div>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto mt-10">
+            <form className="relative">
+              <div className="relative">
+                <svg className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  name="q"
+                  defaultValue={q}
+                  placeholder="イベント名で検索..."
+                  className="w-full pl-14 pr-32 py-4 text-lg rounded-2xl bg-white border-0 shadow-lg shadow-gray-200/50 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium rounded-xl shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  検索
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Source Tabs */}
+        <SourceTabs
+          sources={sources}
+          sourceCounts={sourceCounts}
+          currentSource={source}
+          sourceConfig={SOURCE_CONFIG}
+        />
+
+        {/* Events Grid */}
+        <section className="mt-8">
           {events.length === 0 ? (
-            <div className="mt-6 text-xs text-slate-400">
-              条件に合うイベントがまだありません。
+            <div className="flex flex-col items-center justify-center py-24">
+              <div className="text-7xl mb-6 animate-bounce">🍺</div>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-2">
+                イベントが見つかりません
+              </h3>
+              <p className="text-gray-500 mb-6">
+                条件を変更して再度お試しください
+              </p>
+              <a
+                href="/"
+                className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-full transition-all hover:scale-105"
+              >
+                すべて表示
+              </a>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-              {events.map((e) => {
-                const d = e.createdAt;
-                const ds = `${d.getFullYear()}-${String(
-                  d.getMonth() + 1
-                ).padStart(2, "0")}-${String(d.getDate()).padStart(
-                  2,
-                  "0"
-                )} ${String(d.getHours()).padStart(2, "0")}:${String(
-                  d.getMinutes()
-                ).padStart(2, "0")}`;
-
-                return (
-                  <a
-                    key={e.id}
-                    href={e.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block rounded-2xl border border-white/5 bg-gradient-to-br from-white/5 to-white/0 hover:from-white/10 hover:border-emerald-300/30 transition-all shadow-sm hover:shadow-lg backdrop-blur-sm p-4"
-                  >
-                    <div className="flex items-center gap-2 text-[10px] text-emerald-300/80 mb-1">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-900/70 border border-emerald-400/40">
-                        {e.source.name || e.sourceId}
-                      </span>
-                      <span className="text-slate-400">{ds}</span>
-                    </div>
-                    <h2 className="text-sm md:text-base font-semibold text-slate-50 leading-snug line-clamp-2">
-                      {e.title}
-                    </h2>
-                    <p className="mt-2 text-[10px] text-emerald-200/80 break-all">
-                      {e.url}
-                    </p>
-                  </a>
-                );
-              })}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {events.map((event, index) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  index={index}
+                  sourceConfig={SOURCE_CONFIG[event.sourceId]}
+                />
+              ))}
             </div>
           )}
         </section>
+
+        {/* Load More (if needed) */}
+        {events.length >= 50 && (
+          <div className="flex justify-center mt-12">
+            <p className="text-gray-500 text-sm">
+              最大50件を表示しています
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-100 mt-16">
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Logo */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-2xl shadow-lg shadow-amber-500/20">
+                🍺
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900">ビールイベント通知Bot</div>
+                <div className="text-sm text-gray-500">毎日自動でイベント情報を更新</div>
+              </div>
+            </div>
+
+            {/* Sources */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {sources.map((s) => {
+                const config = SOURCE_CONFIG[s.id];
+                return (
+                  <span
+                    key={s.id}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm ${config?.bgColor || 'bg-gray-100'} ${config?.color || 'text-gray-600'}`}
+                  >
+                    <span>{config?.emoji || '📅'}</span>
+                    {config?.label || s.name || s.id}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="text-center text-sm text-gray-400 mt-8 pt-8 border-t border-gray-100">
+            Made by MAKOTO IWABUCHI
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

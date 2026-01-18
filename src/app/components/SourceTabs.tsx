@@ -32,7 +32,7 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig 
     } else {
       params.delete('source');
     }
-    router.push(`/events?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   };
 
   const totalCount = Object.values(sourceCounts).reduce((a, b) => a + b, 0);

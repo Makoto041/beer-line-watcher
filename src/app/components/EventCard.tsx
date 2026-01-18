@@ -60,9 +60,6 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
   const dateInfo = event.eventDate ? formatEventDate(event.eventDate) : null;
   const status = getEventStatus(event.eventDate);
 
-  // Calculate stagger delay
-  const staggerDelay = Math.min(index * 0.05, 0.5);
-
   const defaultConfig: SourceConfig = {
     emoji: '📅',
     label: event.source.name || event.sourceId,
@@ -103,7 +100,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
             {status && (
               <div className={`px-3 py-1 rounded-full text-xs font-bold ${
                 status === 'today'
-                  ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white animate-pulse-soft'
+                  ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white animate-pulse'
                   : status === 'soon'
                     ? 'bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900'
                     : 'bg-gradient-to-r from-emerald-400 to-green-400 text-emerald-900'
