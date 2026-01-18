@@ -62,57 +62,51 @@ async function replyMessage(replyToken: string, text: string) {
 function parseNotificationInterval(text: string): number | null {
   const trimmed = text.trim();
 
-  // Pattern 1: "通知設定 <interval>" (explicit settings command)
-  // Pattern 2: "/通知 <interval>" (slash command style)
-  // Pattern 3: "通知 <interval>" at the start of message only
-  const commandPatterns = [
+  // Daily patterns
+  const dailyPatterns = [
     /^通知設定\s*(毎日|1日)$/,
-    /^通知設定\s*(1週間|週1|週一|7日)$/,
-    /^通知設定\s*(2週間|隔週|14日)$/,
-    /^通知設定\s*(1ヶ月|1か月|月1|月一|30日)$/,
     /^\/通知\s*(毎日|1日)$/,
-    /^\/通知\s*(1週間|週1|週一|7日)$/,
-    /^\/通知\s*(2週間|隔週|14日)$/,
-    /^\/通知\s*(1ヶ月|1か月|月1|月一|30日)$/,
     /^通知\s+(毎日|1日)$/,
+  ];
+
+  // Weekly patterns
+  const weeklyPatterns = [
+    /^通知設定\s*(1週間|週1|週一|7日)$/,
+    /^\/通知\s*(1週間|週1|週一|7日)$/,
     /^通知\s+(1週間|週1|週一|7日)$/,
+  ];
+
+  // Bi-weekly patterns
+  const biweeklyPatterns = [
+    /^通知設定\s*(2週間|隔週|14日)$/,
+    /^\/通知\s*(2週間|隔週|14日)$/,
     /^通知\s+(2週間|隔週|14日)$/,
+  ];
+
+  // Monthly patterns
+  const monthlyPatterns = [
+    /^通知設定\s*(1ヶ月|1か月|月1|月一|30日)$/,
+    /^\/通知\s*(1ヶ月|1か月|月1|月一|30日)$/,
     /^通知\s+(1ヶ月|1か月|月1|月一|30日)$/,
   ];
 
   // Check for daily (1 day)
-  if (
-    commandPatterns[0].test(trimmed) ||
-    commandPatterns[4].test(trimmed) ||
-    commandPatterns[8].test(trimmed)
-  ) {
+  if (dailyPatterns.some((p) => p.test(trimmed))) {
     return 1;
   }
 
   // Check for weekly (7 days)
-  if (
-    commandPatterns[1].test(trimmed) ||
-    commandPatterns[5].test(trimmed) ||
-    commandPatterns[9].test(trimmed)
-  ) {
+  if (weeklyPatterns.some((p) => p.test(trimmed))) {
     return 7;
   }
 
   // Check for bi-weekly (14 days)
-  if (
-    commandPatterns[2].test(trimmed) ||
-    commandPatterns[6].test(trimmed) ||
-    commandPatterns[10].test(trimmed)
-  ) {
+  if (biweeklyPatterns.some((p) => p.test(trimmed))) {
     return 14;
   }
 
   // Check for monthly (30 days)
-  if (
-    commandPatterns[3].test(trimmed) ||
-    commandPatterns[7].test(trimmed) ||
-    commandPatterns[11].test(trimmed)
-  ) {
+  if (monthlyPatterns.some((p) => p.test(trimmed))) {
     return 30;
   }
 
