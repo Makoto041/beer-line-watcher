@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(skill-creator)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm prisma migrate:*)",
+      "Bash(gh pr view:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(git restore:*)"
+    ]
+  }
+}
+  

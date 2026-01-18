@@ -94,15 +94,15 @@ export default async function EventsPage({
 
         <div className="relative max-w-6xl mx-auto px-4">
           {/* Badge */}
-          <div className="flex justify-center mb-6 animate-fade-in-up opacity-0" style={{ animationDelay: '0.1s' }}>
+          <div className="flex justify-center mb-6">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-medium shadow-sm">
-              <span className="animate-bounce-subtle">🍺</span>
+              <span className="animate-bounce">🍺</span>
               毎週金曜日更新
             </span>
           </div>
 
           {/* Title */}
-          <div className="text-center animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s' }}>
+          <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 mb-4">
               ビール・お酒イベント
             </h1>
@@ -114,23 +114,23 @@ export default async function EventsPage({
           </div>
 
           {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-6 md:gap-12 mt-10 animate-fade-in-up opacity-0" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-wrap justify-center gap-6 md:gap-12 mt-10">
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-gradient-beer">{events.length}</div>
+              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">{events.length}</div>
               <div className="text-sm text-gray-500 mt-1">イベント</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-gradient-beer">{thisWeekEvents.length}</div>
+              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">{thisWeekEvents.length}</div>
               <div className="text-sm text-gray-500 mt-1">今週開催</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-gradient-beer">{sources.length}</div>
+              <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">{sources.length}</div>
               <div className="text-sm text-gray-500 mt-1">情報源</div>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mt-10 animate-fade-in-up opacity-0" style={{ animationDelay: '0.4s' }}>
+          <div className="max-w-2xl mx-auto mt-10">
             <form className="relative">
               <div className="relative">
                 <svg className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,8 +167,8 @@ export default async function EventsPage({
         {/* Events Grid */}
         <section className="mt-8">
           {events.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 animate-fade-in-up opacity-0">
-              <div className="text-7xl mb-6 animate-float">🍺</div>
+            <div className="flex flex-col items-center justify-center py-24">
+              <div className="text-7xl mb-6 animate-bounce">🍺</div>
               <h3 className="text-2xl font-semibold text-gray-800 mb-2">
                 イベントが見つかりません
               </h3>

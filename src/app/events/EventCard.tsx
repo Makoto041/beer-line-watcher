@@ -77,10 +77,9 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
       href={event.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block opacity-0 animate-fade-in-up"
-      style={{ animationDelay: `${staggerDelay + 0.5}s`, animationFillMode: 'forwards' }}
+      className="group block"
     >
-      <div className="card-premium h-full overflow-hidden">
+      <div className="bg-white rounded-[20px] shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_2px_4px_rgba(0,0,0,0.05),0_12px_24px_rgba(0,0,0,0.05)] transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:translate-y-[-8px] hover:scale-[1.02] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.1),0_32px_64px_rgba(0,0,0,0.1)] h-full overflow-hidden">
         {/* Top accent bar */}
         <div className={`h-1 ${config.bgColor.replace('bg-', 'bg-gradient-to-r from-').replace('-50', '-400')} to-transparent`} />
 
