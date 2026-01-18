@@ -212,7 +212,8 @@ export function formatEventsForLine(
 
   if (events.length === 5) {
     lines.push("※表示は最大5件です。");
-    lines.push(`詳しくはこちら: ${EVENTS_PAGE_URL}`);
+    lines.push("詳しくはこちら:");
+    lines.push(EVENTS_PAGE_URL);
   }
 
   return lines.join("\n");
@@ -240,7 +241,8 @@ export function formatRecentEventsForLine(
   });
 
   lines.push("━━━━━━━━━━━━━━━━━━━━");
-  lines.push(`📱 すべてのイベントを見る:\n${EVENTS_PAGE_URL}`);
+  lines.push("📱 すべてのイベントを見る:");
+  lines.push(EVENTS_PAGE_URL);
 
   return lines.join("\n");
 }
