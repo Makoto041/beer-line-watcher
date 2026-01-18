@@ -88,6 +88,7 @@ function parseICalEvents(icalText: string): CrawledItem[] {
       let dtstart = "";
       let description = "";
       let uid = "";
+      let recurrenceId = "";
 
       for (const line of lines) {
         const trimmed = line.trim();
@@ -104,10 +105,20 @@ function parseICalEvents(icalText: string): CrawledItem[] {
           description = trimmed.substring(12).trim();
         } else if (trimmed.startsWith("UID:")) {
           uid = trimmed.substring(4).trim();
+        } else if (trimmed.startsWith("RECURRENCE-ID")) {
+          // Handle RECURRENCE-ID:20240101 and RECURRENCE-ID;TZID=...:...
+          const colonIndex = trimmed.indexOf(":");
+          if (colonIndex > 0) {
+            recurrenceId = trimmed.substring(colonIndex + 1).trim();
+          }
         }
       }
 
       if (!summary || !uid) continue;
+
+      // Create unique external ID by combining UID and RECURRENCE-ID (if present)
+      // This ensures recurring event instances are treated as separate events
+      const externalId = recurrenceId ? `${uid}::${recurrenceId}` : uid;
 
       // Extract URL from description (format: <a href="URL">...</a>)
       let url = "";
@@ -136,7 +147,7 @@ function parseICalEvents(icalText: string): CrawledItem[] {
       }
 
       items.push({
-        externalId: uid,
+        externalId,
         title: summary,
         url,
         sourceId: SOURCE_ID,
