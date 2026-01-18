@@ -60,7 +60,7 @@ export default async function EventsPage({
             </h1>
           </div>
           <p className="text-xs md:text-sm text-slate-400">
-            ビール女子、Walkerplus、クラフトビールサイトから取得した直近のイベント情報
+            ビール女子 / Walkerplus / beerfestival.info / alwayslovebeer.com から取得した直近のイベント情報
           </p>
         </header>
 
@@ -150,7 +150,7 @@ export default async function EventsPage({
             🍺 ビールイベント通知Bot - 毎週金曜日に新着イベントをLINEでお届け
           </p>
           <p className="text-[10px] text-slate-600 mt-1">
-            ソース: ビール女子 / Walkerplus / クラフトビール専門サイト
+            ソース: {sources.length > 0 ? sources.map(s => s.name || s.id).join(" / ") : "ビール女子 / Walkerplus / beerfestival.info / alwayslovebeer.com"}
           </p>
         </footer>
       </div>
