@@ -12,7 +12,7 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+  const [isInteracting, setIsInteracting] = useState(false);
   const dragStartX = useRef(0);
   const scrollStartX = useRef(0);
 
@@ -38,44 +38,48 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
   // Mouse drag handlers
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!shouldAnimate) return;
-    setIsDragging(true);
+    e.preventDefault();
+    setIsInteracting(true);
     setIsPaused(true);
     dragStartX.current = e.clientX;
     scrollStartX.current = wrapperRef.current?.scrollLeft || 0;
   }, [shouldAnimate]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !wrapperRef.current) return;
+    if (!isInteracting || !wrapperRef.current) return;
+    e.preventDefault();
     const diff = dragStartX.current - e.clientX;
     wrapperRef.current.scrollLeft = scrollStartX.current + diff;
-  }, [isDragging]);
+  }, [isInteracting]);
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
+    setIsInteracting(false);
     setIsPaused(false);
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setIsDragging(false);
+    setIsInteracting(false);
     setIsPaused(false);
   }, []);
 
   // Touch handlers for mobile swipe
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!shouldAnimate) return;
+    setIsInteracting(true);
     setIsPaused(true);
     dragStartX.current = e.touches[0]?.clientX || 0;
     scrollStartX.current = wrapperRef.current?.scrollLeft || 0;
   }, [shouldAnimate]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!wrapperRef.current) return;
+    if (!isInteracting || !wrapperRef.current) return;
     const touchX = e.touches[0]?.clientX || 0;
     const diff = dragStartX.current - touchX;
     wrapperRef.current.scrollLeft = scrollStartX.current + diff;
-  }, []);
+  }, [isInteracting]);
 
   const handleTouchEnd = useCallback(() => {
+    setIsInteracting(false);
     setIsPaused(false);
   }, []);
 
@@ -92,11 +96,17 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
     }
   }, [shouldAnimate]);
 
-  // Common wrapper that always has refs attached
+  // When animating, use CSS animation; when interacting, use native scroll
+  const useAnimation = shouldAnimate && !isInteracting;
+
   return (
     <div
       ref={wrapperRef}
-      className={shouldAnimate ? "marquee-container -mx-4 overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing" : "overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"}
+      className={`-mx-4 scrollbar-hide ${
+        shouldAnimate
+          ? "marquee-container overflow-x-auto cursor-grab active:cursor-grabbing"
+          : "overflow-x-auto pb-2 px-4"
+      }`}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -109,12 +119,8 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
     >
       <div
         ref={contentRef}
-        className={
-          shouldAnimate
-            ? "flex gap-3 md:gap-4 animate-scroll-left px-4"
-            : "flex gap-3 md:gap-4"
-        }
-        style={shouldAnimate ? {
+        className={`flex gap-3 md:gap-4 ${useAnimation ? "animate-scroll-left" : ""} ${shouldAnimate ? "px-4" : ""}`}
+        style={useAnimation ? {
           animationDuration: `${speed}s`,
           animationPlayState: isPaused ? "paused" : "running"
         } : undefined}

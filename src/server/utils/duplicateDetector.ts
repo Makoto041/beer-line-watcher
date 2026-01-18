@@ -21,10 +21,14 @@ function normalizeText(text: string): string {
     .toLowerCase()
     .replace(/[\s\u3000]+/g, " ") // Normalize whitespace (including Japanese space)
     .replace(/[【】「」『』（）()［］\[\]]/g, "") // Remove brackets
-    .replace(/[、。！？!?,.]/g, "") // Remove punctuation
+    .replace(/[、。！？!?,.：:@＠]/g, "") // Remove punctuation
     .replace(/第(\d+)回/g, "$1") // Normalize "第N回" to just number
     .replace(/ビアフェス|ビールフェス|ビールフェスティバル|beer\s*fest(?:ival)?/gi, "ビアフェス")
     .replace(/オクトーバーフェスト|oktoberfest/gi, "オクトーバーフェスト")
+    // Remove location prefixes like "神奈川：" or "東京："
+    .replace(/^(東京|神奈川|大阪|愛知|福岡|北海道|埼玉|千葉|兵庫|京都|静岡|広島|宮城)[：:]?\s*/g, "")
+    // Remove venue suffixes like "@横浜大さん橋ホール"
+    .replace(/@.+$/, "")
     .trim();
 }
 
@@ -51,11 +55,26 @@ function extractKeyTerms(title: string): Set<string> {
   const eventTypes = [
     "ビアフェス", "ビアガーデン", "オクトーバーフェスト", "クラフトビール",
     "地ビール", "ブルワリー", "醸造", "試飲", "飲み比べ", "タップ",
-    "フェスティバル", "フェス", "祭", "マルシェ", "フェア"
+    "フェスティバル", "フェス", "祭", "マルシェ", "フェア",
+    // English event names
+    "brewers cup", "ブルワーズカップ", "japan brewers", "beer week",
+    "craft beer", "beer festival", "beer garden"
   ];
   for (const type of eventTypes) {
     if (normalized.includes(type)) {
       terms.add(type);
+    }
+  }
+
+  // Extract well-known event names as a whole
+  const knownEvents = [
+    "japan brewers cup", "ジャパンブルワーズカップ",
+    "けやきひろば", "大江戸ビール祭り", "よこはまビール祭り",
+    "ビアフェス信越", "ビアフェス横浜", "クラフトビア横浜"
+  ];
+  for (const event of knownEvents) {
+    if (normalized.includes(event)) {
+      terms.add(event);
     }
   }
 
@@ -114,6 +133,16 @@ function isSameDate(date1?: Date, date2?: Date): boolean {
 }
 
 /**
+ * Check if one normalized title contains the other (substring match)
+ */
+function containsOther(title1: string, title2: string): boolean {
+  const norm1 = normalizeText(title1);
+  const norm2 = normalizeText(title2);
+  // One title is substantially contained in the other
+  return norm1.includes(norm2) || norm2.includes(norm1);
+}
+
+/**
  * Check if two events are likely duplicates
  * Returns a confidence score between 0 and 1
  */
@@ -123,6 +152,21 @@ export function calculateDuplicateScore(
 ): number {
   // Same source = not considered duplicate (already deduped within source)
   if (event1.sourceId === event2.sourceId) return 0;
+
+  // If one title contains the other (after normalization), check dates
+  if (containsOther(event1.title, event2.title)) {
+    // If dates match, definitely duplicate
+    if (isSameDate(event1.eventDate, event2.eventDate)) {
+      return 0.9;
+    }
+    // If one date is missing, still consider it a likely duplicate
+    if (!event1.eventDate || !event2.eventDate) {
+      return 0.7;
+    }
+    // Both dates present but different - probably different events (annual, different city)
+    // Return low score to avoid false positives
+    return 0.4;
+  }
 
   // Calculate term similarity
   const terms1 = extractKeyTerms(event1.title);
