@@ -9,6 +9,69 @@ import { EVENTS_PAGE_URL } from "@/server/constants";
 
 export const dynamic = "force-dynamic";
 
+// LINE message character limit
+const MAX_LINE_CHARS = 5000;
+
+/**
+ * Build LINE message from event items with character limit enforcement
+ */
+function buildLineMessage(
+  header: string,
+  items: string[],
+  overflowUrlSuffix: string
+): string {
+  if (items.length === 0) return "";
+
+  const separator = "\n\n";
+
+  // First, try to include all items without overflow suffix
+  let fullMessage = header;
+  for (let i = 0; i < items.length; i++) {
+    fullMessage += (i === 0 ? "" : separator) + items[i];
+  }
+
+  // If everything fits, return as-is
+  if (fullMessage.length <= MAX_LINE_CHARS) {
+    return fullMessage;
+  }
+
+  // Otherwise, we need to truncate and add overflow suffix
+  // Build message item by item, reserving space for suffix
+  let result = header;
+  let includedCount = 0;
+
+  for (const item of items) {
+    const nextAddition = (includedCount === 0 ? "" : separator) + item;
+    const potentialLength = result.length + nextAddition.length;
+
+    // Calculate suffix for remaining items if we DON'T include this item (i.e., break now)
+    const remainingIfBreak = items.length - includedCount;
+    const suffixIfBreak = `\n\n…他${remainingIfBreak}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`;
+
+    // Check if adding this item would exceed limit
+    // If it does, we'll break and use suffixIfBreak
+    if (potentialLength + suffixIfBreak.length > MAX_LINE_CHARS) {
+      break;
+    }
+
+    result += nextAddition;
+    includedCount++;
+  }
+
+  // Add overflow suffix if not all items were included
+  const remainingCount = items.length - includedCount;
+  if (remainingCount > 0) {
+    result += `\n\n…他${remainingCount}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`;
+  }
+
+  // Final safety check - truncate if somehow still over limit
+  if (result.length > MAX_LINE_CHARS) {
+    result = result.slice(0, MAX_LINE_CHARS - 3) + "...";
+  }
+
+  return result;
+}
+
 export async function GET(request: Request) {
   try {
     // 簡易認証（Vercel Cron からのみ叩く想定）
@@ -84,11 +147,12 @@ export async function GET(request: Request) {
 
     if (allNewMessages.length) {
       console.log(`Sending ${allNewMessages.length} new events to LINE...`);
-      // Limit message length for LINE (max 5000 characters)
-      let text = "🍺 今週の新着ビールイベント\n\n" + allNewMessages.slice(0, 5).join("\n\n");
-      if (allNewMessages.length > 5) {
-        text += `\n\n他${allNewMessages.length - 5}件あります。\n詳しくはこちら: ${EVENTS_PAGE_URL}`;
-      }
+      const text = buildLineMessage(
+        "🍺 今週の新着ビールイベント\n\n",
+        allNewMessages,
+        EVENTS_PAGE_URL
+      );
+      console.log(`Message length: ${text.length} characters`);
       await sendLineBroadcast(text);
       console.log("LINE broadcast sent successfully");
     } else {
