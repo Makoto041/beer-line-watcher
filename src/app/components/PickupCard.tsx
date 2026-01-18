@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDateJST } from "@/lib/date-utils";
+
 interface Event {
   id: string;
   title: string;
@@ -24,16 +26,6 @@ interface PickupCardProps {
   event: Event;
   sourceConfig?: SourceConfig;
   variant?: 'today' | 'soon' | 'week';
-}
-
-// Format date for display
-function formatEventDate(date: Date): { month: number; day: number; weekday: string } {
-  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-  return {
-    month: date.getMonth() + 1,
-    day: date.getDate(),
-    weekday: weekdays[date.getDay()] ?? '',
-  };
 }
 
 // Variant styles
@@ -74,7 +66,7 @@ const variantStyles = {
 };
 
 export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCardProps) {
-  const dateInfo = event.eventDate ? formatEventDate(event.eventDate) : null;
+  const dateInfo = event.eventDate ? formatDateJST(event.eventDate) : null;
   const styles = variantStyles[variant];
 
   const defaultConfig: SourceConfig = {

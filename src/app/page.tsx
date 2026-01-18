@@ -3,6 +3,7 @@ import { Prisma } from "../../generated/prisma";
 import { EventCard } from "./components/EventCard";
 import { SourceTabs } from "./components/SourceTabs";
 import { PickupCard } from "./components/PickupCard";
+import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -43,17 +44,16 @@ export default async function Page({
   const source = params?.source ?? "";
   const q = params?.q ?? "";
 
-  const now = new Date();
-  const startOfToday = new Date(now);
-  startOfToday.setHours(0, 0, 0, 0);
+  // Use JST for all date comparisons
+  const startOfTodayJST = getStartOfTodayJST();
 
   // Build where clause with focus on upcoming events
   const where: Prisma.EventWhereInput = {
     OR: [
-      { eventDate: { gte: startOfToday } },
+      { eventDate: { gte: startOfTodayJST } },
       {
         eventDate: null,
-        createdAt: { gte: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000) },
+        createdAt: { gte: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) },
       },
     ],
   };
@@ -70,37 +70,33 @@ export default async function Page({
 
   const sources = await prisma.source.findMany();
 
-  // Calculate stats
-  const thisWeekEnd = new Date(now);
-  thisWeekEnd.setDate(now.getDate() + 7);
-  const thisWeekEvents = events.filter(
-    (e) => e.eventDate && e.eventDate >= startOfToday && e.eventDate <= thisWeekEnd
-  );
+  // Calculate stats using JST-based day differences
+  const thisWeekEvents = events.filter((e) => {
+    if (!e.eventDate) return false;
+    const days = getDaysFromTodayJST(e.eventDate);
+    return days >= 0 && days <= 7;
+  });
 
-  // Pickup events categorized by time
-  const endOfToday = new Date(startOfToday);
-  endOfToday.setDate(endOfToday.getDate() + 1);
+  // Pickup events categorized by time (using JST)
+  // Today's events (days = 0)
+  const todayEvents = events.filter((e) => {
+    if (!e.eventDate) return false;
+    return getDaysFromTodayJST(e.eventDate) === 0;
+  });
 
-  const threeDaysLater = new Date(startOfToday);
-  threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+  // Within 3 days (days = 1, 2)
+  const within3DaysEvents = events.filter((e) => {
+    if (!e.eventDate) return false;
+    const days = getDaysFromTodayJST(e.eventDate);
+    return days >= 1 && days <= 2;
+  });
 
-  const oneWeekLater = new Date(startOfToday);
-  oneWeekLater.setDate(oneWeekLater.getDate() + 7);
-
-  // Today's events
-  const todayEvents = events.filter((e) =>
-    e.eventDate && e.eventDate >= startOfToday && e.eventDate < endOfToday
-  );
-
-  // Within 3 days (excluding today)
-  const within3DaysEvents = events.filter((e) =>
-    e.eventDate && e.eventDate >= endOfToday && e.eventDate < threeDaysLater
-  );
-
-  // Within 1 week (excluding 3 days)
-  const within1WeekEvents = events.filter((e) =>
-    e.eventDate && e.eventDate >= threeDaysLater && e.eventDate < oneWeekLater
-  );
+  // Within 1 week (days = 3, 4, 5, 6)
+  const within1WeekEvents = events.filter((e) => {
+    if (!e.eventDate) return false;
+    const days = getDaysFromTodayJST(e.eventDate);
+    return days >= 3 && days <= 6;
+  });
 
   const hasPickupEvents = todayEvents.length > 0 || within3DaysEvents.length > 0 || within1WeekEvents.length > 0;
 
@@ -116,14 +112,8 @@ export default async function Page({
     return acc;
   }, {} as Record<string, Date>);
 
-  // Format update time
-  const formatUpdateTime = (date: Date) => {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${month}/${day} ${hours}:${minutes}`;
-  };
+  // Format update time using JST
+  const formatUpdateTime = (date: Date) => formatDateTimeJST(date);
 
   // Get overall latest update
   const latestUpdateTime = Object.values(sourceLatestUpdate).length > 0

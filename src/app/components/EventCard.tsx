@@ -1,5 +1,7 @@
 "use client";
 
+import { formatDateJST, getEventStatusJST } from "@/lib/date-utils";
+
 interface Event {
   id: string;
   title: string;
@@ -26,39 +28,9 @@ interface EventCardProps {
   sourceConfig?: SourceConfig;
 }
 
-// Format date for display
-function formatEventDate(date: Date): { month: number; day: number; weekday: string; full: string } {
-  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-  return {
-    month: date.getMonth() + 1,
-    day: date.getDate(),
-    weekday: weekdays[date.getDay()] ?? '',
-    full: `${date.getMonth() + 1}月${date.getDate()}日(${weekdays[date.getDay()]})`,
-  };
-}
-
-// Check event status
-function getEventStatus(eventDate: Date | null): 'today' | 'soon' | 'upcoming' | null {
-  if (!eventDate) return null;
-
-  const now = new Date();
-  const startOfToday = new Date(now);
-  startOfToday.setHours(0, 0, 0, 0);
-
-  const eventDay = new Date(eventDate);
-  eventDay.setHours(0, 0, 0, 0);
-
-  const diffDays = Math.floor((eventDay.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return 'today';
-  if (diffDays > 0 && diffDays <= 3) return 'soon';
-  if (diffDays > 0 && diffDays <= 7) return 'upcoming';
-  return null;
-}
-
 export function EventCard({ event, index, sourceConfig }: EventCardProps) {
-  const dateInfo = event.eventDate ? formatEventDate(event.eventDate) : null;
-  const status = getEventStatus(event.eventDate);
+  const dateInfo = event.eventDate ? formatDateJST(event.eventDate) : null;
+  const status = getEventStatusJST(event.eventDate);
 
   const defaultConfig: SourceConfig = {
     emoji: '📅',
