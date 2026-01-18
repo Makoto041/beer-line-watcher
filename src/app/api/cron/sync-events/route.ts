@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { crawlBeergirlCalendar } from "@/server/crawlers/beergirlCalendar";
+import { crawlAlwaysLoveBeerCalendar } from "@/server/crawlers/alwaysLoveBeerCalendar";
 import { crawlWalkerplus } from "@/server/crawlers/walkerplus";
 import { crawlBeerfestival } from "@/server/crawlers/beerfestival";
-import { crawlAlwaysLoveBeer } from "@/server/crawlers/alwayslovebeer";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
 import { sendLineBroadcast } from "@/server/services/lineService";
 import { EVENTS_PAGE_URL } from "@/server/constants";
@@ -100,7 +100,22 @@ export async function GET(request: Request) {
       );
     }
 
-    // 2. Walkerplus
+    // 2. 全国ビールイベントカレンダー（Googleカレンダー）
+    console.log("Crawling Always Love Beer calendar...");
+    const alwayslovebeerCalendarItems = await crawlAlwaysLoveBeerCalendar();
+    crawledCounts.alwayslovebeerCalendar = alwayslovebeerCalendarItems.length;
+    console.log(`Always Love Beer calendar found ${alwayslovebeerCalendarItems.length} items`);
+
+    const alwayslovebeerCalendarNews = await upsertEventsAndGetNewOnes(alwayslovebeerCalendarItems);
+    console.log(`Always Love Beer calendar new events: ${alwayslovebeerCalendarNews.length}`);
+
+    if (alwayslovebeerCalendarNews.length) {
+      alwayslovebeerCalendarNews.forEach((n) =>
+        allNewMessages.push(`🗓️[全国ビールイベント] ${n.title}\n${n.url}`)
+      );
+    }
+
+    // 3. Walkerplus
     console.log("Crawling walkerplus...");
     const walkerplusItems = await crawlWalkerplus();
     crawledCounts.walkerplus = walkerplusItems.length;
@@ -115,7 +130,7 @@ export async function GET(request: Request) {
       );
     }
 
-    // 3. beerfestival.info
+    // 4. beerfestival.info
     console.log("Crawling beerfestival.info...");
     const beerfestivalItems = await crawlBeerfestival();
     crawledCounts.beerfestival = beerfestivalItems.length;
@@ -127,21 +142,6 @@ export async function GET(request: Request) {
     if (beerfestivalNews.length) {
       beerfestivalNews.forEach((n) =>
         allNewMessages.push(`🎪[ビアフェス情報] ${n.title}\n${n.url}`)
-      );
-    }
-
-    // 4. alwayslovebeer.com
-    console.log("Crawling alwayslovebeer.com...");
-    const alwayslovebeerItems = await crawlAlwaysLoveBeer();
-    crawledCounts.alwayslovebeer = alwayslovebeerItems.length;
-    console.log(`AlwaysLoveBeer found ${alwayslovebeerItems.length} items`);
-
-    const alwayslovebeerNews = await upsertEventsAndGetNewOnes(alwayslovebeerItems);
-    console.log(`AlwaysLoveBeer new events: ${alwayslovebeerNews.length}`);
-
-    if (alwayslovebeerNews.length) {
-      alwayslovebeerNews.forEach((n) =>
-        allNewMessages.push(`🍻[Always Love Beer] ${n.title}\n${n.url}`)
       );
     }
 

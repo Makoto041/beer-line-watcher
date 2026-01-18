@@ -144,9 +144,9 @@ function checkForDuplicate(
 function getSourceDisplayName(sourceId: string): string {
   const names: Record<string, string> = {
     "beergirl-calendar": "ビール女子カレンダー",
+    "alwayslovebeer-calendar": "全国ビールイベントカレンダー",
     "walkerplus-liquor-kanto": "ウォーカープラス",
     "beerfestival-info": "ビアフェス情報",
-    alwayslovebeer: "Always Love Beer",
   };
   return names[sourceId] || sourceId;
 }

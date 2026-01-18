@@ -1,7 +1,7 @@
 import { crawlBeergirlCalendar } from "@/server/crawlers/beergirlCalendar";
+import { crawlAlwaysLoveBeerCalendar } from "@/server/crawlers/alwaysLoveBeerCalendar";
 import { crawlWalkerplus } from "@/server/crawlers/walkerplus";
 import { crawlBeerfestival } from "@/server/crawlers/beerfestival";
-import { crawlAlwaysLoveBeer } from "@/server/crawlers/alwayslovebeer";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
 import { EVENTS_PAGE_URL } from "@/server/constants";
 
@@ -18,19 +18,25 @@ export async function crawlAndGetNewEvents(): Promise<{
   newEvents: Array<{ title: string; url: string; sourceId: string }>;
   summary: {
     beergirlCalendar: SourceSummary;
+    alwayslovebeerCalendar: SourceSummary;
     walkerplus: SourceSummary;
     beerfestival: SourceSummary;
-    alwayslovebeer: SourceSummary;
   };
 }> {
   const allNewEvents: Array<{ title: string; url: string; sourceId: string }> =
     [];
 
-  // Crawl Beergirl Google Calendar (primary source with event dates)
+  // Crawl Beergirl Google Calendar
   console.log("Crawling beergirl calendar...");
   const beergirlCalendarItems = await crawlBeergirlCalendar();
   const beergirlCalendarNews = await upsertEventsAndGetNewOnes(beergirlCalendarItems);
   allNewEvents.push(...beergirlCalendarNews);
+
+  // Crawl Always Love Beer Google Calendar (全国ビールイベントカレンダー)
+  console.log("Crawling Always Love Beer calendar...");
+  const alwayslovebeerCalendarItems = await crawlAlwaysLoveBeerCalendar();
+  const alwayslovebeerCalendarNews = await upsertEventsAndGetNewOnes(alwayslovebeerCalendarItems);
+  allNewEvents.push(...alwayslovebeerCalendarNews);
 
   // Crawl Walkerplus
   console.log("Crawling walkerplus...");
@@ -44,18 +50,16 @@ export async function crawlAndGetNewEvents(): Promise<{
   const beerfestivalNews = await upsertEventsAndGetNewOnes(beerfestivalItems);
   allNewEvents.push(...beerfestivalNews);
 
-  // Crawl alwayslovebeer.com
-  console.log("Crawling alwayslovebeer.com...");
-  const alwayslovebeerItems = await crawlAlwaysLoveBeer();
-  const alwayslovebeerNews = await upsertEventsAndGetNewOnes(alwayslovebeerItems);
-  allNewEvents.push(...alwayslovebeerNews);
-
   return {
     newEvents: allNewEvents,
     summary: {
       beergirlCalendar: {
         total: beergirlCalendarItems.length,
         new: beergirlCalendarNews.length,
+      },
+      alwayslovebeerCalendar: {
+        total: alwayslovebeerCalendarItems.length,
+        new: alwayslovebeerCalendarNews.length,
       },
       walkerplus: {
         total: walkerplusItems.length,
@@ -64,10 +68,6 @@ export async function crawlAndGetNewEvents(): Promise<{
       beerfestival: {
         total: beerfestivalItems.length,
         new: beerfestivalNews.length,
-      },
-      alwayslovebeer: {
-        total: alwayslovebeerItems.length,
-        new: alwayslovebeerNews.length,
       },
     },
   };
@@ -79,9 +79,9 @@ export async function crawlAndGetNewEvents(): Promise<{
 function getSourceDisplayName(sourceId: string): string {
   const names: Record<string, string> = {
     "beergirl-calendar": "ビール女子",
+    "alwayslovebeer-calendar": "全国ビールイベントカレンダー",
     "walkerplus-liquor-kanto": "ウォーカープラス",
     "beerfestival-info": "ビアフェス情報",
-    alwayslovebeer: "Always Love Beer",
   };
   return names[sourceId] || sourceId;
 }
@@ -93,9 +93,9 @@ export function formatCrawlerResultsForLine(
   newEvents: Array<{ title: string; url: string; sourceId: string }>,
   summary: {
     beergirlCalendar: SourceSummary;
+    alwayslovebeerCalendar: SourceSummary;
     walkerplus: SourceSummary;
     beerfestival: SourceSummary;
-    alwayslovebeer: SourceSummary;
   }
 ): string {
   const lines = ["🔄 最新情報を取得しました\n"];
@@ -106,13 +106,13 @@ export function formatCrawlerResultsForLine(
     `🍺 ビール女子: ${summary.beergirlCalendar.total}件中${summary.beergirlCalendar.new}件が新規`
   );
   lines.push(
+    `🗓️ 全国ビールイベント: ${summary.alwayslovebeerCalendar.total}件中${summary.alwayslovebeerCalendar.new}件が新規`
+  );
+  lines.push(
     `🍷 ウォーカープラス: ${summary.walkerplus.total}件中${summary.walkerplus.new}件が新規`
   );
   lines.push(
-    `🎪 ビアフェス情報: ${summary.beerfestival.total}件中${summary.beerfestival.new}件が新規`
-  );
-  lines.push(
-    `🍻 Always Love Beer: ${summary.alwayslovebeer.total}件中${summary.alwayslovebeer.new}件が新規\n`
+    `🎪 ビアフェス情報: ${summary.beerfestival.total}件中${summary.beerfestival.new}件が新規\n`
   );
 
   // Show new events (max 3 for new items)

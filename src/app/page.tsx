@@ -16,6 +16,12 @@ const SOURCE_CONFIG: Record<string, { emoji: string; label: string; color: strin
     color: 'text-amber-600',
     bgColor: 'bg-amber-50',
   },
+  'alwayslovebeer-calendar': {
+    emoji: '🗓️',
+    label: '全国ビールイベント',
+    color: 'text-sky-600',
+    bgColor: 'bg-sky-50',
+  },
   'walkerplus-liquor-kanto': {
     emoji: '🍷',
     label: 'Walkerplus',
@@ -27,12 +33,6 @@ const SOURCE_CONFIG: Record<string, { emoji: string; label: string; color: strin
     label: 'ビアフェス情報',
     color: 'text-rose-600',
     bgColor: 'bg-rose-50',
-  },
-  'alwayslovebeer': {
-    emoji: '🍻',
-    label: 'Always Love Beer',
-    color: 'text-sky-600',
-    bgColor: 'bg-sky-50',
   },
 };
 
