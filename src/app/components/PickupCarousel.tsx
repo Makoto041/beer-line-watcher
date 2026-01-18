@@ -52,6 +52,7 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    setIsPaused(false);
   }, []);
 
   const handleMouseLeave = useCallback(() => {
