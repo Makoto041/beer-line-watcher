@@ -83,7 +83,7 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
       href={event.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block flex-shrink-0 w-[280px] sm:w-[320px]"
+      className="group block flex-shrink-0 w-[300px] sm:w-[340px]"
     >
       <div className={`relative h-full rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${styles.container}`}>
         {/* Badge */}
@@ -107,7 +107,7 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
           )}
 
           {/* Title */}
-          <h3 className={`text-lg font-bold leading-snug line-clamp-2 mb-3 ${styles.titleText}`}>
+          <h3 className={`text-base sm:text-lg font-bold leading-snug line-clamp-3 mb-3 ${styles.titleText}`}>
             {event.title}
           </h3>
 

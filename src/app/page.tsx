@@ -3,6 +3,7 @@ import { Prisma } from "../../generated/prisma";
 import { EventCard } from "./components/EventCard";
 import { SourceTabs } from "./components/SourceTabs";
 import { PickupCard } from "./components/PickupCard";
+import { PickupCarousel } from "./components/PickupCarousel";
 import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
 
 export const dynamic = "force-dynamic";
@@ -127,7 +128,7 @@ export default async function Page({
   }, {} as Record<string, number>);
 
   return (
-    <main className="min-h-screen bg-[#fbfbfd]">
+    <main className="min-h-screen bg-[#fbfbfd] overflow-x-hidden">
       {/* Hero Section - Mobile optimized */}
       <section className="relative overflow-hidden bg-gradient-to-b from-amber-50 via-white to-[#fbfbfd] pt-8 pb-10 md:pt-16 md:pb-20">
         {/* Decorative elements - smaller on mobile */}
@@ -244,18 +245,16 @@ export default async function Page({
                   <p className="text-xs md:text-sm text-gray-500">本日開催のイベント</p>
                 </div>
               </div>
-              <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                <div className="flex gap-3 md:gap-4">
-                  {todayEvents.map((event) => (
-                    <PickupCard
-                      key={event.id}
-                      event={event}
-                      sourceConfig={SOURCE_CONFIG[event.sourceId]}
-                      variant="today"
-                    />
-                  ))}
-                </div>
-              </div>
+              <PickupCarousel speed={25}>
+                {todayEvents.map((event) => (
+                  <PickupCard
+                    key={event.id}
+                    event={event}
+                    sourceConfig={SOURCE_CONFIG[event.sourceId]}
+                    variant="today"
+                  />
+                ))}
+              </PickupCarousel>
             </div>
           )}
 
@@ -271,18 +270,16 @@ export default async function Page({
                   <p className="text-xs md:text-sm text-gray-500">3日以内</p>
                 </div>
               </div>
-              <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                <div className="flex gap-3 md:gap-4">
-                  {within3DaysEvents.map((event) => (
-                    <PickupCard
-                      key={event.id}
-                      event={event}
-                      sourceConfig={SOURCE_CONFIG[event.sourceId]}
-                      variant="soon"
-                    />
-                  ))}
-                </div>
-              </div>
+              <PickupCarousel speed={30}>
+                {within3DaysEvents.map((event) => (
+                  <PickupCard
+                    key={event.id}
+                    event={event}
+                    sourceConfig={SOURCE_CONFIG[event.sourceId]}
+                    variant="soon"
+                  />
+                ))}
+              </PickupCarousel>
             </div>
           )}
 
@@ -298,18 +295,16 @@ export default async function Page({
                   <p className="text-xs md:text-sm text-gray-500">1週間以内</p>
                 </div>
               </div>
-              <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                <div className="flex gap-3 md:gap-4">
-                  {within1WeekEvents.map((event) => (
-                    <PickupCard
-                      key={event.id}
-                      event={event}
-                      sourceConfig={SOURCE_CONFIG[event.sourceId]}
-                      variant="week"
-                    />
-                  ))}
-                </div>
-              </div>
+              <PickupCarousel speed={35}>
+                {within1WeekEvents.map((event) => (
+                  <PickupCard
+                    key={event.id}
+                    event={event}
+                    sourceConfig={SOURCE_CONFIG[event.sourceId]}
+                    variant="week"
+                  />
+                ))}
+              </PickupCarousel>
             </div>
           )}
         </section>

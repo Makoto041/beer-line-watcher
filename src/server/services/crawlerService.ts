@@ -130,7 +130,8 @@ export function formatCrawlerResultsForLine(
 
     if (newEvents.length > 3) {
       lines.push(`他${newEvents.length - 3}件の新着イベントがあります。`);
-      lines.push(`詳しくはこちら: ${EVENTS_PAGE_URL}`);
+      lines.push("詳しくはこちら:");
+      lines.push(EVENTS_PAGE_URL);
     }
   }
 
