@@ -8,18 +8,20 @@ interface PickupCarouselProps {
 }
 
 export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const wrapper = wrapperRef.current;
+    const content = contentRef.current;
+    if (!wrapper || !content) return;
 
     // Check if content overflows (needs scrolling)
     const checkOverflow = () => {
-      const scrollWidth = container.scrollWidth;
-      const clientWidth = container.clientWidth;
-      setShouldAnimate(scrollWidth > clientWidth);
+      const contentWidth = content.scrollWidth;
+      const wrapperWidth = wrapper.clientWidth;
+      setShouldAnimate(contentWidth > wrapperWidth);
     };
 
     checkOverflow();
@@ -27,23 +29,24 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
     return () => window.removeEventListener("resize", checkOverflow);
   }, [children]);
 
-  if (!shouldAnimate) {
+  if (shouldAnimate) {
     return (
-      <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-        <div className="flex gap-3 md:gap-4">{children}</div>
+      <div className="marquee-container -mx-4">
+        <div
+          className="flex gap-3 md:gap-4 animate-scroll-left px-4"
+          style={{ animationDuration: `${speed}s` }}
+        >
+          {children}
+          {/* Duplicate for seamless loop */}
+          {children}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="marquee-container -mx-4">
-      <div
-        ref={containerRef}
-        className="flex gap-3 md:gap-4 animate-scroll-left px-4"
-        style={{ animationDuration: `${speed}s` }}
-      >
-        {children}
-        {/* Duplicate for seamless loop */}
+    <div ref={wrapperRef} className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+      <div ref={contentRef} className="flex gap-3 md:gap-4">
         {children}
       </div>
     </div>
