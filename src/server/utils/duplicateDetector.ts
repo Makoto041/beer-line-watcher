@@ -153,14 +153,19 @@ export function calculateDuplicateScore(
   // Same source = not considered duplicate (already deduped within source)
   if (event1.sourceId === event2.sourceId) return 0;
 
-  // If one title contains the other (after normalization), high match
+  // If one title contains the other (after normalization), check dates
   if (containsOther(event1.title, event2.title)) {
-    // If dates also match, definitely duplicate
+    // If dates match, definitely duplicate
     if (isSameDate(event1.eventDate, event2.eventDate)) {
       return 0.9;
     }
-    // Even without date, containment is a strong signal
-    return 0.7;
+    // If one date is missing, still consider it a likely duplicate
+    if (!event1.eventDate || !event2.eventDate) {
+      return 0.7;
+    }
+    // Both dates present but different - probably different events (annual, different city)
+    // Return low score to avoid false positives
+    return 0.4;
   }
 
   // Calculate term similarity
