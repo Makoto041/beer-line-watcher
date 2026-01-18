@@ -22,21 +22,37 @@ function buildLineMessage(
 ): string {
   if (items.length === 0) return "";
 
-  // Calculate max suffix length for overflow case
-  // e.g., "\n\n…他999件あります。\n詳しくはこちら: https://..."
-  const maxOverflowSuffix = `\n\n…他${items.length}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`;
-  const reservedForSuffix = maxOverflowSuffix.length;
+  const separator = "\n\n";
 
+  // First, try to include all items without overflow suffix
+  let fullMessage = header;
+  for (let i = 0; i < items.length; i++) {
+    fullMessage += (i === 0 ? "" : separator) + items[i];
+  }
+
+  // If everything fits, return as-is
+  if (fullMessage.length <= MAX_LINE_CHARS) {
+    return fullMessage;
+  }
+
+  // Otherwise, we need to truncate and add overflow suffix
+  // Build message item by item, reserving space for suffix
   let result = header;
   let includedCount = 0;
-  const separator = "\n\n";
 
   for (const item of items) {
     const nextAddition = (includedCount === 0 ? "" : separator) + item;
     const potentialLength = result.length + nextAddition.length;
 
-    // Check if adding this item would exceed limit (leaving room for suffix)
-    if (potentialLength + reservedForSuffix > MAX_LINE_CHARS) {
+    // Calculate suffix for remaining items if we stop here
+    const remainingAfterThis = items.length - (includedCount + 1);
+    const overflowSuffix =
+      remainingAfterThis > 0
+        ? `\n\n…他${remainingAfterThis}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`
+        : "";
+
+    // Check if adding this item + potential suffix would exceed limit
+    if (potentialLength + overflowSuffix.length > MAX_LINE_CHARS) {
       break;
     }
 
