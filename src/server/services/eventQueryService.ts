@@ -138,10 +138,63 @@ export async function getThisWeeksEvents(): Promise<
 }
 
 /**
+ * Get recent events for "イベント" command (recent 5 events)
+ */
+export async function getRecentEvents(
+  limit: number = 5
+): Promise<
+  Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+> {
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const events = await prisma.event.findMany({
+    where: {
+      OR: [
+        // Future events
+        {
+          eventDate: {
+            gte: startOfToday,
+          },
+        },
+        // Recent events without date (created within last 7 days)
+        {
+          eventDate: null,
+          createdAt: {
+            gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+          },
+        },
+      ],
+    },
+    include: {
+      source: true,
+    },
+    orderBy: [
+      {
+        eventDate: "asc",
+      },
+      {
+        createdAt: "desc",
+      },
+    ],
+    take: limit,
+  });
+
+  return events.map((event) => ({
+    title: event.title,
+    url: event.url,
+    sourceName: event.source.name,
+    eventDate: event.eventDate || undefined,
+  }));
+}
+
+/**
  * Format events as LINE message text
  */
 export function formatEventsForLine(
-  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>,
+  options: { webPageUrl?: string } = {}
 ): string {
   if (events.length === 0) {
     return "今週のイベントが見つかりませんでした。";
@@ -159,8 +212,37 @@ export function formatEventsForLine(
 
   if (events.length === 5) {
     lines.push("※表示は最大5件です。");
-    lines.push("詳しくはこちら: https://beergirl.net/beer-event-matome-2017_e/");
+    const url = options.webPageUrl || process.env.NEXT_PUBLIC_APP_URL + "/events";
+    lines.push(`詳しくはこちら: ${url}`);
   }
+
+  return lines.join("\n");
+}
+
+/**
+ * Format recent events for "イベント" command
+ */
+export function formatRecentEventsForLine(
+  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+): string {
+  if (events.length === 0) {
+    return "現在登録されているイベントがありません。";
+  }
+
+  const lines = ["🍺 直近のイベント情報\n"];
+
+  events.forEach((event, index) => {
+    const dateStr = event.eventDate
+      ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
+      : "日程未定";
+    const sourceEmoji = event.sourceName.includes("ビール女子") ? "🍺" : "🍷";
+    lines.push(`${index + 1}. ${sourceEmoji} [${dateStr}] ${event.title}`);
+    lines.push(`   ${event.url}\n`);
+  });
+
+  const webPageUrl = process.env.NEXT_PUBLIC_APP_URL + "/events";
+  lines.push("━━━━━━━━━━━━━━━━━━━━");
+  lines.push(`📱 すべてのイベントを見る:\n${webPageUrl}`);
 
   return lines.join("\n");
 }
