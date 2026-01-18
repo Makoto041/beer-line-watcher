@@ -4,6 +4,29 @@ import { prisma } from "@/server/db";
 const LINE_MULTICAST_ENDPOINT = "https://api.line.me/v2/bot/message/multicast";
 const LINE_PUSH_ENDPOINT = "https://api.line.me/v2/bot/message/push";
 
+/**
+ * 通知間隔（notificationDays）に基づいて通知対象かどうかを判定
+ * @param lastNotifiedAt 最後に通知した日時
+ * @param notificationDays 通知間隔（日数）
+ * @returns 通知すべきならtrue
+ */
+function shouldNotify(
+  lastNotifiedAt: Date | null,
+  notificationDays: number
+): boolean {
+  if (!lastNotifiedAt) {
+    // 一度も通知していない場合は通知する
+    return true;
+  }
+
+  const now = new Date();
+  const daysSinceLastNotification = Math.floor(
+    (now.getTime() - lastNotifiedAt.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return daysSinceLastNotification >= notificationDays;
+}
+
 export async function sendLineBroadcast(message: string) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
@@ -11,29 +34,47 @@ export async function sendLineBroadcast(message: string) {
     return;
   }
 
-  // Get all subscribers (users)
+  const now = new Date();
+
+  // Get all subscribers (users) with their notification settings
   const subscribers = await prisma.lineSubscriber.findMany({
-    select: { userId: true },
+    select: { userId: true, notificationDays: true, lastNotifiedAt: true },
   });
-  const userIds = subscribers.map((s) => s.userId);
 
-  // Get all groups
+  // Filter subscribers based on notification interval
+  const eligibleSubscribers = subscribers.filter((s) =>
+    shouldNotify(s.lastNotifiedAt, s.notificationDays)
+  );
+  const userIds = eligibleSubscribers.map((s) => s.userId);
+
+  // Get all groups with their notification settings
   const groups = await prisma.lineGroup.findMany({
-    select: { id: true, type: true },
+    select: { id: true, type: true, notificationDays: true, lastNotifiedAt: true },
   });
 
-  if (userIds.length === 0 && groups.length === 0) {
-    console.log("No recipients to send message to");
+  // Filter groups based on notification interval
+  const eligibleGroups = groups.filter((g) =>
+    shouldNotify(g.lastNotifiedAt, g.notificationDays)
+  );
+
+  console.log(
+    `Notification eligibility: ${userIds.length}/${subscribers.length} users, ${eligibleGroups.length}/${groups.length} groups/rooms`
+  );
+
+  if (userIds.length === 0 && eligibleGroups.length === 0) {
+    console.log("No recipients to send message to (all filtered by notification interval)");
     return;
   }
 
   console.log(
-    `Sending to ${userIds.length + groups.length} recipients (${userIds.length} users, ${groups.length} groups/rooms)`
+    `Sending to ${userIds.length + eligibleGroups.length} recipients (${userIds.length} users, ${eligibleGroups.length} groups/rooms)`
   );
 
   // LINE multicast API has a limit of 500 recipients per request
   // Split into batches if needed
   const batchSize = 500;
+  const successfulUserIds: string[] = [];
+  const successfulGroupIds: string[] = [];
 
   // 1) Send to individual users via multicast
   for (let i = 0; i < userIds.length; i += batchSize) {
@@ -56,11 +97,12 @@ export async function sendLineBroadcast(message: string) {
       console.error("LINE multicast error", res.status, body);
     } else {
       console.log(`Sent user batch ${i / batchSize + 1} successfully`);
+      successfulUserIds.push(...batch);
     }
   }
 
   // 2) Send to groups/rooms via push API (multicast does not accept group IDs)
-  for (const group of groups) {
+  for (const group of eligibleGroups) {
     const res = await fetch(LINE_PUSH_ENDPOINT, {
       method: "POST",
       headers: {
@@ -82,6 +124,24 @@ export async function sendLineBroadcast(message: string) {
       );
     } else {
       console.log(`Sent message to ${group.type} ${group.id}`);
+      successfulGroupIds.push(group.id);
     }
+  }
+
+  // 3) Update lastNotifiedAt for successful recipients
+  if (successfulUserIds.length > 0) {
+    await prisma.lineSubscriber.updateMany({
+      where: { userId: { in: successfulUserIds } },
+      data: { lastNotifiedAt: now },
+    });
+    console.log(`Updated lastNotifiedAt for ${successfulUserIds.length} users`);
+  }
+
+  if (successfulGroupIds.length > 0) {
+    await prisma.lineGroup.updateMany({
+      where: { id: { in: successfulGroupIds } },
+      data: { lastNotifiedAt: now },
+    });
+    console.log(`Updated lastNotifiedAt for ${successfulGroupIds.length} groups`);
   }
 }
