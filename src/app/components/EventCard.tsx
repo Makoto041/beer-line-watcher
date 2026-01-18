@@ -34,7 +34,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
   const dateRange = event.eventDate && event.eventEndDate
     ? formatDateRangeJST(event.eventDate, event.eventEndDate)
     : null;
-  const status = getEventStatusJST(event.eventDate);
+  const status = getEventStatusJST(event.eventDate, event.eventEndDate);
 
   const defaultConfig: SourceConfig = {
     emoji: '📅',

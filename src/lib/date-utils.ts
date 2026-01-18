@@ -51,15 +51,28 @@ export function getDaysFromTodayJST(eventDate: Date): number {
 
 /**
  * Check event status based on days from today (in JST)
+ * For multi-day events, considers the full date range:
+ * - 'today': Event is happening today (start <= today <= end)
+ * - 'soon': Event starts within 3 days
+ * - 'upcoming': Event starts within 7 days
+ * - null: Event is in the past or more than 7 days away
  */
-export function getEventStatusJST(eventDate: Date | null): 'today' | 'soon' | 'upcoming' | null {
+export function getEventStatusJST(
+  eventDate: Date | null,
+  eventEndDate?: Date | null
+): 'today' | 'soon' | 'upcoming' | null {
   if (!eventDate) return null;
 
-  const diffDays = getDaysFromTodayJST(eventDate);
+  const startDiffDays = getDaysFromTodayJST(eventDate);
+  const endDiffDays = eventEndDate ? getDaysFromTodayJST(eventEndDate) : startDiffDays;
 
-  if (diffDays === 0) return 'today';
-  if (diffDays > 0 && diffDays <= 3) return 'soon';
-  if (diffDays > 0 && diffDays <= 7) return 'upcoming';
+  // For multi-day events: if today is between start and end, it's happening today
+  if (startDiffDays <= 0 && endDiffDays >= 0) return 'today';
+
+  // Single day or future events
+  if (startDiffDays === 0) return 'today';
+  if (startDiffDays > 0 && startDiffDays <= 3) return 'soon';
+  if (startDiffDays > 0 && startDiffDays <= 7) return 'upcoming';
   return null;
 }
 
