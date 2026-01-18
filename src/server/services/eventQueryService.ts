@@ -38,7 +38,7 @@ export async function getUpcomingEvents(
     },
     orderBy: [
       {
-        eventDate: "asc", // Events with dates first, sorted by date
+        eventDate: { sort: "asc", nulls: "last" }, // Events with dates first, sorted by date
       },
       {
         createdAt: "desc", // Then by creation date
@@ -84,7 +84,7 @@ export async function getLatestEvents(
     },
     orderBy: [
       {
-        eventDate: "asc",
+        eventDate: { sort: "asc", nulls: "last" },
       },
       {
         createdAt: "desc",
@@ -173,7 +173,7 @@ export async function getRecentEvents(
     },
     orderBy: [
       {
-        eventDate: "asc",
+        eventDate: { sort: "asc", nulls: "last" },
       },
       {
         createdAt: "desc",
