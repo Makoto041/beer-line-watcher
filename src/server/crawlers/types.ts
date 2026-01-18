@@ -6,4 +6,5 @@ export type CrawledItem = {
   url: string;
   sourceId: string;
   eventDate?: Date; // イベント開催日（オプション）
+  eventEndDate?: Date; // イベント終了日（複数日イベント用）
 };

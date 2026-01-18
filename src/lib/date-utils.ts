@@ -88,3 +88,38 @@ export function formatDateTimeJST(date: Date): string {
   const minutes = jst.getMinutes().toString().padStart(2, '0');
   return `${month}/${day} ${hours}:${minutes}`;
 }
+
+/**
+ * Format date range for multi-day events (in JST)
+ * Returns a compact representation: "1/24-26" or "1/24-2/5" for cross-month
+ */
+export function formatDateRangeJST(
+  startDate: Date,
+  endDate: Date | null | undefined
+): { start: string; end: string | null; range: string } {
+  const start = formatDateJST(startDate);
+  const startStr = `${start.month}/${start.day}`;
+
+  if (!endDate) {
+    return { start: startStr, end: null, range: startStr };
+  }
+
+  const end = formatDateJST(endDate);
+  const endStr = `${end.month}/${end.day}`;
+
+  // Same month: "1/24-26"
+  if (start.month === end.month) {
+    return {
+      start: startStr,
+      end: endStr,
+      range: `${start.month}/${start.day}-${end.day}`,
+    };
+  }
+
+  // Different months: "1/24-2/5"
+  return {
+    start: startStr,
+    end: endStr,
+    range: `${startStr}-${endStr}`,
+  };
+}

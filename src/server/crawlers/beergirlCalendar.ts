@@ -86,6 +86,7 @@ function parseICalEvents(icalText: string): CrawledItem[] {
       const lines = unfoldedBlock.split("\n");
       let summary = "";
       let dtstart = "";
+      let dtend = "";
       let description = "";
       let uid = "";
 
@@ -99,6 +100,12 @@ function parseICalEvents(icalText: string): CrawledItem[] {
           const colonIndex = trimmed.indexOf(":");
           if (colonIndex > 0) {
             dtstart = trimmed.substring(colonIndex + 1).trim();
+          }
+        } else if (trimmed.startsWith("DTEND")) {
+          // Handle DTEND:20240102 and DTEND;VALUE=DATE:20240102
+          const colonIndex = trimmed.indexOf(":");
+          if (colonIndex > 0) {
+            dtend = trimmed.substring(colonIndex + 1).trim();
           }
         } else if (trimmed.startsWith("DESCRIPTION:")) {
           description = trimmed.substring(12).trim();
@@ -121,8 +128,9 @@ function parseICalEvents(icalText: string): CrawledItem[] {
         url = `https://beergirl.net/beer-event-matome-2017_e/#${uid}`;
       }
 
-      // Parse event date
+      // Parse event dates
       const eventDate = dtstart ? parseICalDate(dtstart) : null;
+      const eventEndDate = dtend ? parseICalDate(dtend) : null;
 
       // Only include future events or events from the last 30 days
       if (eventDate) {
@@ -135,12 +143,24 @@ function parseICalEvents(icalText: string): CrawledItem[] {
         }
       }
 
+      // For multi-day events, adjust end date (iCal DTEND is exclusive)
+      // e.g., 1/24-1/26 event has DTEND=1/27, so subtract 1 day
+      let adjustedEndDate = eventEndDate;
+      if (eventDate && eventEndDate && eventEndDate > eventDate) {
+        adjustedEndDate = new Date(eventEndDate.getTime() - 24 * 60 * 60 * 1000);
+        // Only keep end date if it's different from start date
+        if (adjustedEndDate.getTime() === eventDate.getTime()) {
+          adjustedEndDate = null;
+        }
+      }
+
       items.push({
         externalId: uid,
         title: summary,
         url,
         sourceId: SOURCE_ID,
         eventDate: eventDate || undefined,
+        eventEndDate: adjustedEndDate || undefined,
       });
     } catch (error) {
       console.error("Error parsing event block:", error);

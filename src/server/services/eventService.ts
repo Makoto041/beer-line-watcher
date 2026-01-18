@@ -23,6 +23,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
       url: true,
       sourceId: true,
       eventDate: true,
+      eventEndDate: true,
     },
   });
 
@@ -41,14 +42,24 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
 
     // Check if Event already exists by ID
     const id = makeEventId(item);
-    const exists = await prisma.event.findUnique({ where: { id } });
+    const exists = await prisma.event.findUnique({
+      where: { id },
+      select: { eventDate: true, eventEndDate: true },
+    });
 
-    // 既存イベントでも、スクレイピングで新たに eventDate を取得できたら更新する
+    // 既存イベントでも、スクレイピングで新たに eventDate/eventEndDate を取得できたら更新する
     if (exists) {
-      if (item.eventDate && (!exists.eventDate || exists.eventDate.getTime() !== item.eventDate.getTime())) {
+      const needsUpdate =
+        (item.eventDate && (!exists.eventDate || exists.eventDate.getTime() !== item.eventDate.getTime())) ||
+        (item.eventEndDate && (!exists.eventEndDate || exists.eventEndDate.getTime() !== item.eventEndDate.getTime()));
+
+      if (needsUpdate) {
         await prisma.event.update({
           where: { id },
-          data: { eventDate: item.eventDate },
+          data: {
+            eventDate: item.eventDate,
+            eventEndDate: item.eventEndDate,
+          },
         });
         newOnes.push({
           title: item.title,
@@ -74,6 +85,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
         title: item.title,
         url: item.url,
         eventDate: item.eventDate,
+        eventEndDate: item.eventEndDate,
       },
     });
 
@@ -84,6 +96,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]) {
       url: item.url,
       sourceId: item.sourceId,
       eventDate: item.eventDate || null,
+      eventEndDate: item.eventEndDate || null,
     });
 
     newOnes.push({
@@ -107,6 +120,7 @@ function checkForDuplicate(
     url: string;
     sourceId: string;
     eventDate: Date | null;
+    eventEndDate: Date | null;
   }>
 ): boolean {
   for (const existing of existingEvents) {
