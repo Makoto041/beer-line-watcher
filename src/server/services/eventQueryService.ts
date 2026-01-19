@@ -207,12 +207,14 @@ export function formatEventsForLine(
       ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
       : "日付未定";
     lines.push(`${index + 1}. [${dateStr}] ${event.title}`);
-    lines.push(`   ${event.url}\n`);
+    // URLは独立した行に配置（先頭に空白なし）
+    lines.push(event.url);
+    lines.push("");
   });
 
   if (events.length === 5) {
     lines.push("※表示は最大5件です。");
-    lines.push("詳しくはこちら:");
+    lines.push("詳しくはこちら↓");
     lines.push(EVENTS_PAGE_URL);
   }
 
@@ -237,11 +239,13 @@ export function formatRecentEventsForLine(
       : "日程未定";
     const sourceEmoji = event.sourceName.includes("ビール女子") ? "🍺" : "🍷";
     lines.push(`${index + 1}. ${sourceEmoji} [${dateStr}] ${event.title}`);
-    lines.push(`   ${event.url}\n`);
+    // URLは独立した行に配置（先頭に空白なし）
+    lines.push(event.url);
+    lines.push("");
   });
 
   lines.push("━━━━━━━━━━━━━━━━━━━━");
-  lines.push("📱 すべてのイベントを見る:");
+  lines.push("📱 すべてのイベントを見る↓");
   lines.push(EVENTS_PAGE_URL);
 
   return lines.join("\n");

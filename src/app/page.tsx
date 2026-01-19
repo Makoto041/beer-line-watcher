@@ -5,6 +5,7 @@ import { SourceTabs } from "./components/SourceTabs";
 import { SearchForm } from "./components/SearchForm";
 import { PickupCard } from "./components/PickupCard";
 import { PickupCarousel } from "./components/PickupCarousel";
+import { LineBotBanner, LineBotFooterLink } from "./components/LineBotBanner";
 import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
 import { removeDuplicates } from "@/server/utils/duplicateDetector";
 
@@ -130,26 +131,6 @@ export default async function Page({
 
   const hasPickupEvents = todayEvents.length > 0 || within3DaysEvents.length > 0 || within1WeekEvents.length > 0;
 
-  // Get latest update time per source
-  const sourceLatestUpdate = sources.reduce((acc, s) => {
-    const sourceEvents = events.filter(e => e.sourceId === s.id);
-    if (sourceEvents.length > 0) {
-      acc[s.id] = sourceEvents.reduce(
-        (latest, e) => e.createdAt > latest ? e.createdAt : latest,
-        sourceEvents[0]!.createdAt
-      );
-    }
-    return acc;
-  }, {} as Record<string, Date>);
-
-  // Format update time using JST
-  const formatUpdateTime = (date: Date) => formatDateTimeJST(date);
-
-  // Get overall latest update
-  const latestUpdateTime = Object.values(sourceLatestUpdate).length > 0
-    ? Object.values(sourceLatestUpdate).reduce((a, b) => a > b ? a : b)
-    : null;
-
   // Get event counts per source (from all events, not filtered)
   // Remove duplicates from all events first for accurate counts
   const allUniqueEvents = removeDuplicates(
@@ -168,6 +149,26 @@ export default async function Page({
     acc[s.id] = allEvents.filter(e => e.sourceId === s.id).length;
     return acc;
   }, {} as Record<string, number>);
+
+  // Get latest update time per source (from all events, not filtered)
+  const sourceLatestUpdate = sources.reduce((acc, s) => {
+    const sourceEvents = allEvents.filter(e => e.sourceId === s.id);
+    if (sourceEvents.length > 0) {
+      acc[s.id] = sourceEvents.reduce(
+        (latest, e) => e.createdAt > latest ? e.createdAt : latest,
+        sourceEvents[0]!.createdAt
+      );
+    }
+    return acc;
+  }, {} as Record<string, Date>);
+
+  // Format update time using JST
+  const formatUpdateTime = (date: Date) => formatDateTimeJST(date);
+
+  // Get overall latest update
+  const latestUpdateTime = Object.values(sourceLatestUpdate).length > 0
+    ? Object.values(sourceLatestUpdate).reduce((a, b) => a > b ? a : b)
+    : null;
 
   return (
     <main className="min-h-screen bg-[#fbfbfd] overflow-x-hidden">
@@ -249,6 +250,9 @@ export default async function Page({
           <div className="max-w-2xl mx-auto mt-6 md:mt-10">
             <SearchForm defaultValue={q} />
           </div>
+
+          {/* LINE Bot Banner - inside hero for better visibility on mobile */}
+          {!source && !q && <LineBotBanner />}
         </div>
       </section>
 
@@ -399,20 +403,23 @@ export default async function Page({
               </div>
             </div>
 
-            {/* Sources - wrap on mobile */}
-            <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
-              {sources.map((s) => {
-                const config = SOURCE_CONFIG[s.id];
-                return (
-                  <span
-                    key={s.id}
-                    className={`inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm ${config?.bgColor || 'bg-gray-100'} ${config?.color || 'text-gray-600'}`}
-                  >
-                    <span>{config?.emoji || '📅'}</span>
-                    <span className="hidden sm:inline">{config?.label || s.name || s.id}</span>
-                  </span>
-                );
-              })}
+            {/* LINE Bot Link + Sources */}
+            <div className="flex flex-col items-center gap-3 md:gap-4">
+              <LineBotFooterLink />
+              <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
+                {sources.map((s) => {
+                  const config = SOURCE_CONFIG[s.id];
+                  return (
+                    <span
+                      key={s.id}
+                      className={`inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm ${config?.bgColor || 'bg-gray-100'} ${config?.color || 'text-gray-600'}`}
+                    >
+                      <span>{config?.emoji || '📅'}</span>
+                      <span className="hidden sm:inline">{config?.label || s.name || s.id}</span>
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
