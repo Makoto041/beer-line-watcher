@@ -2,6 +2,7 @@ import { prisma } from "@/server/db";
 import { Prisma } from "../../generated/prisma";
 import { EventCard } from "./components/EventCard";
 import { SourceTabs } from "./components/SourceTabs";
+import { SearchForm } from "./components/SearchForm";
 import { PickupCard } from "./components/PickupCard";
 import { PickupCarousel } from "./components/PickupCarousel";
 import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
@@ -49,8 +50,8 @@ export default async function Page({
   // Use JST for all date comparisons
   const startOfTodayJST = getStartOfTodayJST();
 
-  // Build where clause with focus on upcoming events
-  const where: Prisma.EventWhereInput = {
+  // Base where clause for upcoming events (without source filter)
+  const baseWhere: Prisma.EventWhereInput = {
     OR: [
       { eventDate: { gte: startOfTodayJST } },
       {
@@ -60,13 +61,25 @@ export default async function Page({
     ],
   };
 
-  if (source) where.sourceId = source;
-  if (q) where.title = { contains: q, mode: 'insensitive' };
+  // Build filtered where clause for display
+  const filteredWhere: Prisma.EventWhereInput = {
+    ...baseWhere,
+    ...(source && { sourceId: source }),
+    ...(q && { title: { contains: q, mode: 'insensitive' as const } }),
+  };
 
+  // Fetch events for display (with filters applied at DB level)
   const rawEvents = await prisma.event.findMany({
-    where,
+    where: filteredWhere,
     orderBy: [{ eventDate: "asc" }, { createdAt: "desc" }],
-    take: 100, // Fetch more to account for duplicates
+    take: 100,
+    include: { source: true },
+  });
+
+  // Fetch all events for counting (without source/search filters)
+  const allRawEvents = await prisma.event.findMany({
+    where: baseWhere,
+    orderBy: [{ eventDate: "asc" }, { createdAt: "desc" }],
     include: { source: true },
   });
 
@@ -137,9 +150,22 @@ export default async function Page({
     ? Object.values(sourceLatestUpdate).reduce((a, b) => a > b ? a : b)
     : null;
 
-  // Get event counts per source
+  // Get event counts per source (from all events, not filtered)
+  // Remove duplicates from all events first for accurate counts
+  const allUniqueEvents = removeDuplicates(
+    allRawEvents.map(e => ({
+      title: e.title,
+      url: e.url,
+      eventDate: e.eventDate || undefined,
+      sourceId: e.sourceId,
+    })),
+    0.6
+  );
+  const allUniqueUrls = new Set(allUniqueEvents.map(e => e.url));
+  const allEvents = allRawEvents.filter(e => allUniqueUrls.has(e.url));
+
   const sourceCounts = sources.reduce((acc, s) => {
-    acc[s.id] = events.filter(e => e.sourceId === s.id).length;
+    acc[s.id] = allEvents.filter(e => e.sourceId === s.id).length;
     return acc;
   }, {} as Record<string, number>);
 
@@ -221,27 +247,7 @@ export default async function Page({
 
           {/* Search Bar - mobile optimized */}
           <div className="max-w-2xl mx-auto mt-6 md:mt-10">
-            <form className="relative">
-              <div className="relative flex flex-col sm:flex-row gap-2 sm:gap-0">
-                <div className="relative flex-1">
-                  <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <input
-                    name="q"
-                    defaultValue={q}
-                    placeholder="イベント名で検索..."
-                    className="w-full pl-11 pr-4 sm:pr-28 py-3 md:py-4 text-base md:text-lg rounded-xl sm:rounded-2xl bg-white border-0 shadow-lg shadow-gray-200/50 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="sm:absolute sm:right-2 sm:top-1/2 sm:-translate-y-1/2 w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium rounded-xl shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/30 transition-all active:scale-[0.98]"
-                >
-                  検索
-                </button>
-              </div>
-            </form>
+            <SearchForm defaultValue={q} />
           </div>
         </div>
       </section>
