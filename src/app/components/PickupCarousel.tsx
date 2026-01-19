@@ -119,7 +119,7 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
     >
       <div
         ref={contentRef}
-        className={`flex gap-3 md:gap-4 px-4 ${useAnimation ? "animate-scroll-left" : ""}`}
+        className={`flex gap-3 md:gap-4 ${shouldAnimate ? "pl-[6%] pr-4" : "px-4"} ${useAnimation ? "animate-scroll-left" : ""}`}
         style={useAnimation ? {
           animationDuration: `${speed}s`,
           animationPlayState: isPaused ? "paused" : "running"

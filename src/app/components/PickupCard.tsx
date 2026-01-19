@@ -116,7 +116,7 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
         <div className="relative z-10 p-5 flex flex-col h-full min-h-[180px]">
           {/* Date display */}
           {dateInfo && (
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl mb-3 ${event.imageUrl ? 'bg-white/20 backdrop-blur-sm' : styles.dateBg}`}>
+            <div className={`inline-flex w-fit items-center gap-2 px-3 py-1.5 rounded-xl mb-3 ${event.imageUrl ? 'bg-white/20 backdrop-blur-sm' : styles.dateBg}`}>
               {dateRange ? (
                 <span className={`text-xl font-bold ${event.imageUrl ? 'text-white' : styles.dateText}`}>
                   {dateRange.range}

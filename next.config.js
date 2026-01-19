@@ -8,16 +8,11 @@ import "./src/env.js";
 const config = {
   reactStrictMode: true,
   images: {
+    // OGP画像は様々なドメインから来るため、全HTTPSドメインを許可
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'ms-cache.walkerplus.com',
-        pathname: '/walkertouch/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.beerfestival.info',
-        pathname: '/wp-content/**',
+        hostname: '**',
       },
     ],
   },

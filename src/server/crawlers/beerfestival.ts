@@ -28,10 +28,10 @@ export async function crawlBeerfestival(): Promise<CrawledItem[]> {
     const html = await res.text();
 
     // Extract event links with titles and dates
-    // Pattern: dates followed by event link
-    // Example: 1月28日（水）〜2月1日（日） <a href="...">Event Name</a>
+    // Pattern: dates followed by event link (with possible <br> tag between)
+    // Example: 1月28日（水）〜2月1日（日）<br><a href="...">Event Name</a>
     const eventRegex =
-      /(\d{1,2}月\d{1,2}日[^<]*?)<a[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi;
+      /(\d{1,2}月\d{1,2}日[^<]*?)(?:<br\s*\/?>)?\s*<a[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi;
     let match: RegExpExecArray | null;
 
     while ((match = eventRegex.exec(html)) !== null) {
