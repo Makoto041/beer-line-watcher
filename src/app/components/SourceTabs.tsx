@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useRef, useEffect } from "react";
 
 interface Source {
   id: string;
@@ -21,19 +22,43 @@ interface SourceTabsProps {
   sourceConfig: Record<string, SourceConfig>;
 }
 
+const SCROLL_STORAGE_KEY = 'source-tabs-scroll';
+
 export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig }: SourceTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // Save scroll position before navigation
   const handleSourceChange = (sourceId: string) => {
+    // Save current scroll position to sessionStorage
+    if (scrollContainerRef.current) {
+      sessionStorage.setItem(SCROLL_STORAGE_KEY, String(scrollContainerRef.current.scrollLeft));
+    }
+
     const params = new URLSearchParams(searchParams.toString());
     if (sourceId) {
       params.set('source', sourceId);
     } else {
       params.delete('source');
     }
-    router.push(`/?${params.toString()}`);
+    const queryString = params.toString();
+    // Use replace instead of push to avoid scroll reset
+    router.replace(queryString ? `/?${queryString}` : '/', { scroll: false });
   };
+
+  // Restore scroll position after render
+  useEffect(() => {
+    const savedPosition = sessionStorage.getItem(SCROLL_STORAGE_KEY);
+    if (scrollContainerRef.current && savedPosition) {
+      // Use requestAnimationFrame to ensure DOM is fully rendered
+      requestAnimationFrame(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollLeft = Number(savedPosition);
+        }
+      });
+    }
+  }, [currentSource]);
 
   const totalCount = Object.values(sourceCounts).reduce((a, b) => a + b, 0);
 
@@ -48,7 +73,7 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig 
       </div>
 
       {/* Tabs - horizontal scroll on mobile */}
-      <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
+      <div ref={scrollContainerRef} className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
         <div className="flex gap-2 min-w-max">
           {/* All sources */}
           <button
