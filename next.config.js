@@ -19,6 +19,27 @@ const config = {
         hostname: 'www.beerfestival.info',
         pathname: '/wp-content/**',
       },
+      // ビール女子関連のイベントページ画像
+      {
+        protocol: 'https',
+        hostname: '*.cdninstagram.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tokorozawa-sakuratown.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'japanbrewerscup.jp',
+      },
+      {
+        protocol: 'https',
+        hostname: 'beergirlproduction-8f8c.kxcdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.amebaowndme.com',
+      },
     ],
   },
 };

@@ -1,4 +1,5 @@
 import type { CrawledItem } from "./types";
+import { fetchOgImagesForUrls } from "../utils/ogImageFetcher";
 
 const SOURCE_ID = "beergirl-calendar";
 const CALENDAR_ID = "c_dqr8sohvevefk6cc4pndppmv6c@group.calendar.google.com";
@@ -201,6 +202,23 @@ export async function crawlBeergirlCalendar(): Promise<CrawledItem[]> {
     const items = parseICalEvents(icalText);
 
     console.log(`Parsed ${items.length} events from Google Calendar`);
+
+    // 各イベントページからOGP画像を取得
+    try {
+      const urls = items.map((item) => item.url);
+      const ogImages = await fetchOgImagesForUrls(urls, 3);
+
+      for (const item of items) {
+        const ogImage = ogImages.get(item.url);
+        if (ogImage) {
+          item.imageUrl = ogImage;
+        }
+      }
+      console.log(`Fetched OG images for ${ogImages.size} events`);
+    } catch (error) {
+      console.error("Error fetching OG images:", error);
+    }
+
     return items;
   } catch (error) {
     console.error("Error crawling Beergirl calendar:", error);
