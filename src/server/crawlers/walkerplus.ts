@@ -4,6 +4,9 @@ import { extractDateFromText } from "../utils/dateExtractor";
 const SOURCE_ID = "walkerplus-liquor-kanto";
 const BASE = "https://www.walkerplus.com/search/liquor/ar0300/";
 
+// イベントIDから画像URLを抽出するためのマップ
+type EventImageMap = Map<string, string>;
+
 export async function crawlWalkerplus(): Promise<CrawledItem[]> {
   const maxPages = 3;
   const items: CrawledItem[] = [];
@@ -17,6 +20,10 @@ export async function crawlWalkerplus(): Promise<CrawledItem[]> {
     }
 
     const html = await res.text();
+
+    // 画像URLを抽出（イベントIDをキーとして）
+    const imageMap = extractImageMap(html);
+
     const linkRegex = /<a[^>]+href="(\/event\/[^"]+)"[^>]*>([^<]{4,160})<\/a>/g;
     let m: RegExpExecArray | null;
 
@@ -39,17 +46,61 @@ export async function crawlWalkerplus(): Promise<CrawledItem[]> {
       // Try to extract event date from title
       const eventDate = extractDateFromText(title);
 
+      // イベントIDから画像URLを取得
+      const eventIdMatch = href.match(/\/event\/([^/]+)/);
+      const eventId = eventIdMatch?.[1];
+      const imageUrl = eventId ? imageMap.get(eventId) : undefined;
+
       items.push({
         externalId: absolute,
         title,
         url: absolute,
         sourceId: SOURCE_ID,
+        imageUrl,
         eventDate: eventDate || undefined,
       });
     }
   }
 
   return dedupe(items);
+}
+
+/**
+ * HTMLから画像URLをイベントIDごとに抽出
+ * パターン: /event/ar0314e171125/ と //ms-cache.walkerplus.com/.../171125_6.jpg
+ */
+function extractImageMap(html: string): EventImageMap {
+  const map: EventImageMap = new Map();
+
+  // 画像URLパターン: //ms-cache.walkerplus.com/walkertouch/wtd/event/XX/l/XXXXXX_X.jpg
+  const imgRegex = /<img[^>]+src="([^"]*ms-cache\.walkerplus\.com[^"]+\.jpg)"[^>]*>/gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = imgRegex.exec(html)) !== null) {
+    const imgSrc = match[1];
+    if (!imgSrc) continue;
+
+    // 画像URLからイベント番号を抽出（例: 171125_6.jpg → 171125）
+    const imgIdMatch = imgSrc.match(/\/(\d{6})_\d+\.jpg/);
+    if (imgIdMatch) {
+      const imgId = imgIdMatch[1];
+      // イベントリンクパターン: /event/ar0314e171125/
+      // ページ内でこのIDを持つイベントリンクを探す
+      const eventLinkRegex = new RegExp(`/event/[^/]*e${imgId}[^"]*`, 'i');
+      const eventLinkMatch = html.match(eventLinkRegex);
+      if (eventLinkMatch) {
+        const eventPath = eventLinkMatch[0];
+        const eventIdMatch = eventPath.match(/\/event\/([^/]+)/);
+        if (eventIdMatch?.[1]) {
+          // プロトコルを追加
+          const fullImgUrl = imgSrc.startsWith('//') ? `https:${imgSrc}` : imgSrc;
+          map.set(eventIdMatch[1], fullImgUrl);
+        }
+      }
+    }
+  }
+
+  return map;
 }
 
 function dedupe(items: CrawledItem[]): CrawledItem[] {

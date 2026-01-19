@@ -7,6 +7,15 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ms-cache.walkerplus.com',
+        pathname: '/walkertouch/**',
+      },
+    ],
+  },
 };
 
 export default config;

@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { formatDateJST, formatDateRangeJST } from "@/lib/date-utils";
 
 interface Event {
   id: string;
   title: string;
   url: string;
+  imageUrl?: string | null;
   eventDate: Date | null;
   eventEndDate?: Date | null;
   createdAt: Date;
@@ -89,28 +91,42 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
       rel="noopener noreferrer"
       className="group block flex-shrink-0 w-[300px] sm:w-[340px]"
     >
-      <div className={`relative h-full rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${styles.container}`}>
+      <div className={`relative h-full rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${event.imageUrl ? 'bg-gray-900' : styles.container}`}>
+        {/* Event Image Background */}
+        {event.imageUrl && (
+          <div className="absolute inset-0">
+            <Image
+              src={event.imageUrl}
+              alt={event.title}
+              fill
+              className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-110"
+              sizes="(max-width: 768px) 300px, 340px"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          </div>
+        )}
+
         {/* Badge */}
-        <div className="absolute top-3 right-3">
-          <span className={`px-3 py-1 backdrop-blur-sm rounded-full text-xs font-bold ${styles.badgeClass}`}>
+        <div className="absolute top-3 right-3 z-10">
+          <span className={`px-3 py-1 backdrop-blur-sm rounded-full text-xs font-bold ${event.imageUrl ? 'bg-white/20 text-white' : styles.badgeClass}`}>
             {styles.badge}
           </span>
         </div>
 
-        <div className="p-5">
+        <div className="relative z-10 p-5 flex flex-col h-full min-h-[180px]">
           {/* Date display */}
           {dateInfo && (
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl mb-3 ${styles.dateBg}`}>
+            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl mb-3 ${event.imageUrl ? 'bg-white/20 backdrop-blur-sm' : styles.dateBg}`}>
               {dateRange ? (
-                <span className={`text-xl font-bold ${styles.dateText}`}>
+                <span className={`text-xl font-bold ${event.imageUrl ? 'text-white' : styles.dateText}`}>
                   {dateRange.range}
                 </span>
               ) : (
                 <>
-                  <span className={`text-2xl font-bold ${styles.dateText}`}>
+                  <span className={`text-2xl font-bold ${event.imageUrl ? 'text-white' : styles.dateText}`}>
                     {dateInfo.month}/{dateInfo.day}
                   </span>
-                  <span className={`text-sm ${styles.dateSubText}`}>
+                  <span className={`text-sm ${event.imageUrl ? 'text-white/80' : styles.dateSubText}`}>
                     ({dateInfo.weekday})
                   </span>
                 </>
@@ -119,21 +135,21 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
           )}
 
           {/* Title */}
-          <h3 className={`text-base sm:text-lg font-bold leading-snug line-clamp-3 mb-3 ${styles.titleText}`}>
+          <h3 className={`text-base sm:text-lg font-bold leading-snug line-clamp-3 mb-3 flex-grow ${event.imageUrl ? 'text-white' : styles.titleText}`}>
             {event.title}
           </h3>
 
           {/* Source tag */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-auto">
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-              variant === 'today' ? styles.tagBg : `${config.bgColor} ${config.color}`
+              event.imageUrl ? 'bg-white/20 text-white backdrop-blur-sm' : variant === 'today' ? styles.tagBg : `${config.bgColor} ${config.color}`
             }`}>
               <span>{config.emoji}</span>
               {config.label}
             </span>
 
             {/* Arrow */}
-            <span className={`flex items-center gap-1 text-sm opacity-60 group-hover:opacity-100 transition-all group-hover:translate-x-1 ${styles.arrowText}`}>
+            <span className={`flex items-center gap-1 text-sm opacity-60 group-hover:opacity-100 transition-all group-hover:translate-x-1 ${event.imageUrl ? 'text-white' : styles.arrowText}`}>
               詳細
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

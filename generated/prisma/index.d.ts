@@ -2262,6 +2262,7 @@ export namespace Prisma {
     sourceId: string | null
     title: string | null
     url: string | null
+    imageUrl: string | null
     createdAt: Date | null
     eventDate: Date | null
     eventEndDate: Date | null
@@ -2272,6 +2273,7 @@ export namespace Prisma {
     sourceId: string | null
     title: string | null
     url: string | null
+    imageUrl: string | null
     createdAt: Date | null
     eventDate: Date | null
     eventEndDate: Date | null
@@ -2282,6 +2284,7 @@ export namespace Prisma {
     sourceId: number
     title: number
     url: number
+    imageUrl: number
     createdAt: number
     eventDate: number
     eventEndDate: number
@@ -2294,6 +2297,7 @@ export namespace Prisma {
     sourceId?: true
     title?: true
     url?: true
+    imageUrl?: true
     createdAt?: true
     eventDate?: true
     eventEndDate?: true
@@ -2304,6 +2308,7 @@ export namespace Prisma {
     sourceId?: true
     title?: true
     url?: true
+    imageUrl?: true
     createdAt?: true
     eventDate?: true
     eventEndDate?: true
@@ -2314,6 +2319,7 @@ export namespace Prisma {
     sourceId?: true
     title?: true
     url?: true
+    imageUrl?: true
     createdAt?: true
     eventDate?: true
     eventEndDate?: true
@@ -2397,6 +2403,7 @@ export namespace Prisma {
     sourceId: string
     title: string
     url: string
+    imageUrl: string | null
     createdAt: Date
     eventDate: Date | null
     eventEndDate: Date | null
@@ -2424,6 +2431,7 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
@@ -2435,6 +2443,7 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
@@ -2446,6 +2455,7 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
@@ -2457,12 +2467,13 @@ export namespace Prisma {
     sourceId?: boolean
     title?: boolean
     url?: boolean
+    imageUrl?: boolean
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceId" | "title" | "url" | "createdAt" | "eventDate" | "eventEndDate", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceId" | "title" | "url" | "imageUrl" | "createdAt" | "eventDate" | "eventEndDate", ExtArgs["result"]["event"]>
   export type EventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }
@@ -2483,6 +2494,7 @@ export namespace Prisma {
       sourceId: string
       title: string
       url: string
+      imageUrl: string | null
       createdAt: Date
       eventDate: Date | null
       eventEndDate: Date | null
@@ -2914,6 +2926,7 @@ export namespace Prisma {
     readonly sourceId: FieldRef<"Event", 'String'>
     readonly title: FieldRef<"Event", 'String'>
     readonly url: FieldRef<"Event", 'String'>
+    readonly imageUrl: FieldRef<"Event", 'String'>
     readonly createdAt: FieldRef<"Event", 'DateTime'>
     readonly eventDate: FieldRef<"Event", 'DateTime'>
     readonly eventEndDate: FieldRef<"Event", 'DateTime'>
@@ -5407,6 +5420,7 @@ export namespace Prisma {
     sourceId: 'sourceId',
     title: 'title',
     url: 'url',
+    imageUrl: 'imageUrl',
     createdAt: 'createdAt',
     eventDate: 'eventDate',
     eventEndDate: 'eventEndDate'
@@ -5592,6 +5606,7 @@ export namespace Prisma {
     sourceId?: StringFilter<"Event"> | string
     title?: StringFilter<"Event"> | string
     url?: StringFilter<"Event"> | string
+    imageUrl?: StringNullableFilter<"Event"> | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableFilter<"Event"> | Date | string | null
@@ -5603,6 +5618,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     eventEndDate?: SortOrderInput | SortOrder
@@ -5617,6 +5633,7 @@ export namespace Prisma {
     sourceId?: StringFilter<"Event"> | string
     title?: StringFilter<"Event"> | string
     url?: StringFilter<"Event"> | string
+    imageUrl?: StringNullableFilter<"Event"> | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableFilter<"Event"> | Date | string | null
@@ -5628,6 +5645,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     eventEndDate?: SortOrderInput | SortOrder
@@ -5644,6 +5662,7 @@ export namespace Prisma {
     sourceId?: StringWithAggregatesFilter<"Event"> | string
     title?: StringWithAggregatesFilter<"Event"> | string
     url?: StringWithAggregatesFilter<"Event"> | string
+    imageUrl?: StringNullableWithAggregatesFilter<"Event"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
@@ -5823,6 +5842,7 @@ export namespace Prisma {
     id: string
     title: string
     url: string
+    imageUrl?: string | null
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
@@ -5834,6 +5854,7 @@ export namespace Prisma {
     sourceId: string
     title: string
     url: string
+    imageUrl?: string | null
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
@@ -5843,6 +5864,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5854,6 +5876,7 @@ export namespace Prisma {
     sourceId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5864,6 +5887,7 @@ export namespace Prisma {
     sourceId: string
     title: string
     url: string
+    imageUrl?: string | null
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
@@ -5873,6 +5897,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5883,6 +5908,7 @@ export namespace Prisma {
     sourceId?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6147,6 +6173,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
     eventDate?: SortOrder
     eventEndDate?: SortOrder
@@ -6157,6 +6184,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
     eventDate?: SortOrder
     eventEndDate?: SortOrder
@@ -6167,6 +6195,7 @@ export namespace Prisma {
     sourceId?: SortOrder
     title?: SortOrder
     url?: SortOrder
+    imageUrl?: SortOrder
     createdAt?: SortOrder
     eventDate?: SortOrder
     eventEndDate?: SortOrder
@@ -6519,6 +6548,7 @@ export namespace Prisma {
     id: string
     title: string
     url: string
+    imageUrl?: string | null
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
@@ -6528,6 +6558,7 @@ export namespace Prisma {
     id: string
     title: string
     url: string
+    imageUrl?: string | null
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
@@ -6567,6 +6598,7 @@ export namespace Prisma {
     sourceId?: StringFilter<"Event"> | string
     title?: StringFilter<"Event"> | string
     url?: StringFilter<"Event"> | string
+    imageUrl?: StringNullableFilter<"Event"> | string | null
     createdAt?: DateTimeFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableFilter<"Event"> | Date | string | null
@@ -6628,6 +6660,7 @@ export namespace Prisma {
     id: string
     title: string
     url: string
+    imageUrl?: string | null
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
@@ -6637,6 +6670,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6646,6 +6680,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6655,6 +6690,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     url?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

@@ -23,6 +23,7 @@ model Event {
   sourceId     String
   title        String
   url          String
+  imageUrl     String?
   createdAt    DateTime  @default(now())
   eventDate    DateTime?
   eventEndDate DateTime?
