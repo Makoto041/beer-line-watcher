@@ -102,10 +102,10 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
   return (
     <div
       ref={wrapperRef}
-      className={`-mx-4 scrollbar-hide ${
+      className={`scrollbar-hide ${
         shouldAnimate
           ? "marquee-container overflow-x-auto cursor-grab active:cursor-grabbing"
-          : "overflow-x-auto pb-2 px-4"
+          : "overflow-x-auto pb-2"
       }`}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -119,7 +119,7 @@ export function PickupCarousel({ children, speed = 30 }: PickupCarouselProps) {
     >
       <div
         ref={contentRef}
-        className={`flex gap-3 md:gap-4 ${useAnimation ? "animate-scroll-left" : ""} ${shouldAnimate ? "px-4" : ""}`}
+        className={`flex gap-3 md:gap-4 px-4 ${useAnimation ? "animate-scroll-left" : ""}`}
         style={useAnimation ? {
           animationDuration: `${speed}s`,
           animationPlayState: isPaused ? "paused" : "running"
