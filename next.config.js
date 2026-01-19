@@ -14,6 +14,11 @@ const config = {
         hostname: 'ms-cache.walkerplus.com',
         pathname: '/walkertouch/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.beerfestival.info',
+        pathname: '/wp-content/**',
+      },
     ],
   },
 };
