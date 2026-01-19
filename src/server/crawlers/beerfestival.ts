@@ -1,5 +1,6 @@
 import type { CrawledItem } from "./types";
 import { extractDateFromText } from "../utils/dateExtractor";
+import { fetchOgImagesForUrls } from "../utils/ogImageFetcher";
 
 const SOURCE_ID = "beerfestival-info";
 const BASE_URL = "https://www.beerfestival.info/";
@@ -119,7 +120,24 @@ export async function crawlBeerfestival(): Promise<CrawledItem[]> {
     console.error("beerfestival.info crawl error:", error);
   }
 
-  return dedupe(items);
+  const dedupedItems = dedupe(items);
+
+  // 詳細ページからOGP画像を取得
+  try {
+    const urls = dedupedItems.map((item) => item.url);
+    const ogImages = await fetchOgImagesForUrls(urls, 3);
+
+    for (const item of dedupedItems) {
+      const ogImage = ogImages.get(item.url);
+      if (ogImage) {
+        item.imageUrl = ogImage;
+      }
+    }
+  } catch (error) {
+    console.error("beerfestival.info OG image fetch error:", error);
+  }
+
+  return dedupedItems;
 }
 
 function dedupe(items: CrawledItem[]): CrawledItem[] {

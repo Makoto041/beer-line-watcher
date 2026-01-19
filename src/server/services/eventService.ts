@@ -54,14 +54,15 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
     const id = makeEventId(item);
     const exists = await prisma.event.findUnique({
       where: { id },
-      select: { eventDate: true, eventEndDate: true },
+      select: { eventDate: true, eventEndDate: true, imageUrl: true },
     });
 
-    // 既存イベントでも、スクレイピングで新たに eventDate/eventEndDate を取得できたら更新する
+    // 既存イベントでも、スクレイピングで新たに eventDate/eventEndDate/imageUrl を取得できたら更新する
     if (exists) {
       const needsUpdate =
         (item.eventDate && (!exists.eventDate || exists.eventDate.getTime() !== item.eventDate.getTime())) ||
-        (item.eventEndDate && (!exists.eventEndDate || exists.eventEndDate.getTime() !== item.eventEndDate.getTime()));
+        (item.eventEndDate && (!exists.eventEndDate || exists.eventEndDate.getTime() !== item.eventEndDate.getTime())) ||
+        (item.imageUrl && !exists.imageUrl);
 
       if (needsUpdate) {
         await prisma.event.update({
@@ -69,6 +70,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
           data: {
             eventDate: item.eventDate,
             eventEndDate: item.eventEndDate,
+            imageUrl: item.imageUrl || exists.imageUrl,
           },
         });
         updatedEvents.push({
@@ -76,7 +78,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
           url: item.url,
           sourceId: item.sourceId,
         });
-        console.log(`Updated event: "${item.title}" (date info updated)`);
+        console.log(`Updated event: "${item.title}" (date/image info updated)`);
       } else {
         skippedExisting++;
       }
@@ -97,6 +99,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
         sourceId: item.sourceId,
         title: item.title,
         url: item.url,
+        imageUrl: item.imageUrl,
         eventDate: item.eventDate,
         eventEndDate: item.eventEndDate,
       },
