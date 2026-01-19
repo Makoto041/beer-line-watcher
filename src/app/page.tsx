@@ -5,6 +5,7 @@ import { SourceTabs } from "./components/SourceTabs";
 import { SearchForm } from "./components/SearchForm";
 import { PickupCard } from "./components/PickupCard";
 import { PickupCarousel } from "./components/PickupCarousel";
+import { LineBotBanner, LineBotFooterLink } from "./components/LineBotBanner";
 import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
 import { removeDuplicates } from "@/server/utils/duplicateDetector";
 
@@ -252,6 +253,9 @@ export default async function Page({
         </div>
       </section>
 
+      {/* LINE Bot Banner - Hero position */}
+      {!source && !q && <LineBotBanner />}
+
       {/* Pickup Sections - Categorized by time */}
       {hasPickupEvents && !source && !q && (
         <section className="py-6 md:py-10 bg-gradient-to-b from-[#fbfbfd] to-white space-y-6 md:space-y-8">
@@ -399,20 +403,23 @@ export default async function Page({
               </div>
             </div>
 
-            {/* Sources - wrap on mobile */}
-            <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
-              {sources.map((s) => {
-                const config = SOURCE_CONFIG[s.id];
-                return (
-                  <span
-                    key={s.id}
-                    className={`inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm ${config?.bgColor || 'bg-gray-100'} ${config?.color || 'text-gray-600'}`}
-                  >
-                    <span>{config?.emoji || '📅'}</span>
-                    <span className="hidden sm:inline">{config?.label || s.name || s.id}</span>
-                  </span>
-                );
-              })}
+            {/* LINE Bot Link + Sources */}
+            <div className="flex flex-col items-center gap-3 md:gap-4">
+              <LineBotFooterLink />
+              <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
+                {sources.map((s) => {
+                  const config = SOURCE_CONFIG[s.id];
+                  return (
+                    <span
+                      key={s.id}
+                      className={`inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm ${config?.bgColor || 'bg-gray-100'} ${config?.color || 'text-gray-600'}`}
+                    >
+                      <span>{config?.emoji || '📅'}</span>
+                      <span className="hidden sm:inline">{config?.label || s.name || s.id}</span>
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
