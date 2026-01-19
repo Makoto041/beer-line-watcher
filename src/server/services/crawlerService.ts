@@ -143,12 +143,14 @@ export function formatCrawlerResultsForLine(
     displayEvents.forEach((event, index) => {
       const sourceName = getSourceDisplayName(event.sourceId);
       lines.push(`${index + 1}. [${sourceName}] ${event.title}`);
-      lines.push(`   ${event.url}\n`);
+      // URLは独立した行に配置（先頭に空白なし）
+      lines.push(event.url);
+      lines.push("");
     });
 
     if (newEvents.length > 3) {
       lines.push(`他${newEvents.length - 3}件の新着イベントがあります。`);
-      lines.push("詳しくはこちら:");
+      lines.push("詳しくはこちら↓");
       lines.push(EVENTS_PAGE_URL);
     }
   }
