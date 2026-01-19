@@ -250,11 +250,11 @@ export default async function Page({
           <div className="max-w-2xl mx-auto mt-6 md:mt-10">
             <SearchForm defaultValue={q} />
           </div>
+
+          {/* LINE Bot Banner - inside hero for better visibility on mobile */}
+          {!source && !q && <LineBotBanner />}
         </div>
       </section>
-
-      {/* LINE Bot Banner - Hero position */}
-      {!source && !q && <LineBotBanner />}
 
       {/* Pickup Sections - Categorized by time */}
       {hasPickupEvents && !source && !q && (
