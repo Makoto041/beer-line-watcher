@@ -131,26 +131,6 @@ export default async function Page({
 
   const hasPickupEvents = todayEvents.length > 0 || within3DaysEvents.length > 0 || within1WeekEvents.length > 0;
 
-  // Get latest update time per source
-  const sourceLatestUpdate = sources.reduce((acc, s) => {
-    const sourceEvents = events.filter(e => e.sourceId === s.id);
-    if (sourceEvents.length > 0) {
-      acc[s.id] = sourceEvents.reduce(
-        (latest, e) => e.createdAt > latest ? e.createdAt : latest,
-        sourceEvents[0]!.createdAt
-      );
-    }
-    return acc;
-  }, {} as Record<string, Date>);
-
-  // Format update time using JST
-  const formatUpdateTime = (date: Date) => formatDateTimeJST(date);
-
-  // Get overall latest update
-  const latestUpdateTime = Object.values(sourceLatestUpdate).length > 0
-    ? Object.values(sourceLatestUpdate).reduce((a, b) => a > b ? a : b)
-    : null;
-
   // Get event counts per source (from all events, not filtered)
   // Remove duplicates from all events first for accurate counts
   const allUniqueEvents = removeDuplicates(
@@ -169,6 +149,26 @@ export default async function Page({
     acc[s.id] = allEvents.filter(e => e.sourceId === s.id).length;
     return acc;
   }, {} as Record<string, number>);
+
+  // Get latest update time per source (from all events, not filtered)
+  const sourceLatestUpdate = sources.reduce((acc, s) => {
+    const sourceEvents = allEvents.filter(e => e.sourceId === s.id);
+    if (sourceEvents.length > 0) {
+      acc[s.id] = sourceEvents.reduce(
+        (latest, e) => e.createdAt > latest ? e.createdAt : latest,
+        sourceEvents[0]!.createdAt
+      );
+    }
+    return acc;
+  }, {} as Record<string, Date>);
+
+  // Format update time using JST
+  const formatUpdateTime = (date: Date) => formatDateTimeJST(date);
+
+  // Get overall latest update
+  const latestUpdateTime = Object.values(sourceLatestUpdate).length > 0
+    ? Object.values(sourceLatestUpdate).reduce((a, b) => a > b ? a : b)
+    : null;
 
   return (
     <main className="min-h-screen bg-[#fbfbfd] overflow-x-hidden">
