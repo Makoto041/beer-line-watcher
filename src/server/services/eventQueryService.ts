@@ -1,5 +1,13 @@
 import { prisma } from "@/server/db";
-import { EVENTS_PAGE_URL } from "@/server/constants";
+import { APP_URL, EVENTS_PAGE_URL } from "@/server/constants";
+
+/**
+ * Generate short URL for event (used in LINE messages)
+ * Format: https://beer-line-watcher.vercel.app/api/go?id=xxx
+ */
+export function getShortEventUrl(eventId: string): string {
+  return `${APP_URL}/api/go?id=${eventId}`;
+}
 
 /**
  * Get upcoming events (events with eventDate in the future or within last 30 days)
@@ -105,7 +113,7 @@ export async function getLatestEvents(
  * Only from Beergirl calendar, sorted by event date, max 5 items
  */
 export async function getThisWeeksEvents(): Promise<
-  Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+  Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
 > {
   const now = new Date();
   const startOfToday = new Date(now);
@@ -131,6 +139,7 @@ export async function getThisWeeksEvents(): Promise<
   });
 
   return events.map((event) => ({
+    id: event.id,
     title: event.title,
     url: event.url,
     sourceName: event.source.name,
@@ -144,7 +153,7 @@ export async function getThisWeeksEvents(): Promise<
 export async function getRecentEvents(
   limit: number = 5
 ): Promise<
-  Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+  Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
 > {
   const now = new Date();
   const startOfToday = new Date(now);
@@ -183,6 +192,7 @@ export async function getRecentEvents(
   });
 
   return events.map((event) => ({
+    id: event.id,
     title: event.title,
     url: event.url,
     sourceName: event.source.name,
@@ -192,9 +202,10 @@ export async function getRecentEvents(
 
 /**
  * Format events as LINE message text
+ * Uses short URLs to prevent long URLs from breaking in LINE messages
  */
 export function formatEventsForLine(
-  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+  events: Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
 ): string {
   if (events.length === 0) {
     return "今週のイベントが見つかりませんでした。";
@@ -206,8 +217,9 @@ export function formatEventsForLine(
     const dateStr = event.eventDate
       ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
       : "日付未定";
-    // タイトルとURLを別々の行に（URLは単独行で前後に余計な文字なし）
-    parts.push(`\n${index + 1}. [${dateStr}] ${event.title}\n${event.url}`);
+    // 短縮URLを使用（長いURLがLINEで途切れるのを防ぐ）
+    const shortUrl = getShortEventUrl(event.id);
+    parts.push(`\n${index + 1}. [${dateStr}] ${event.title}\n${shortUrl}`);
   });
 
   if (events.length === 5) {
@@ -219,9 +231,10 @@ export function formatEventsForLine(
 
 /**
  * Format recent events for "イベント" command
+ * Uses short URLs to prevent long URLs from breaking in LINE messages
  */
 export function formatRecentEventsForLine(
-  events: Array<{ title: string; url: string; sourceName: string; eventDate?: Date }>
+  events: Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
 ): string {
   if (events.length === 0) {
     return "現在登録されているイベントがありません。";
@@ -234,8 +247,9 @@ export function formatRecentEventsForLine(
       ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
       : "日程未定";
     const sourceEmoji = event.sourceName.includes("ビール女子") ? "🍺" : "🍷";
-    // タイトルとURLを別々の行に（URLは単独行で前後に余計な文字なし）
-    parts.push(`\n${index + 1}. ${sourceEmoji} [${dateStr}] ${event.title}\n${event.url}`);
+    // 短縮URLを使用（長いURLがLINEで途切れるのを防ぐ）
+    const shortUrl = getShortEventUrl(event.id);
+    parts.push(`\n${index + 1}. ${sourceEmoji} [${dateStr}] ${event.title}\n${shortUrl}`);
   });
 
   parts.push(`\n━━━━━━━━━━━━━━━━━━━━\n📱 すべてのイベントを見る↓\n${EVENTS_PAGE_URL}`);

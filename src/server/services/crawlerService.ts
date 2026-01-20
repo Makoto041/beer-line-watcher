@@ -4,6 +4,7 @@ import { crawlWalkerplus } from "@/server/crawlers/walkerplus";
 import { crawlBeerfestival } from "@/server/crawlers/beerfestival";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
 import { EVENTS_PAGE_URL } from "@/server/constants";
+import { getShortEventUrl } from "@/server/services/eventQueryService";
 
 interface SourceSummary {
   total: number;
@@ -18,7 +19,7 @@ interface SourceSummary {
  * Returns summary of crawled and new events
  */
 export async function crawlAndGetNewEvents(): Promise<{
-  newEvents: Array<{ title: string; url: string; sourceId: string }>;
+  newEvents: Array<{ id: string; title: string; url: string; sourceId: string }>;
   summary: {
     beergirlCalendar: SourceSummary;
     alwayslovebeerCalendar: SourceSummary;
@@ -26,7 +27,7 @@ export async function crawlAndGetNewEvents(): Promise<{
     beerfestival: SourceSummary;
   };
 }> {
-  const allNewEvents: Array<{ title: string; url: string; sourceId: string }> = [];
+  const allNewEvents: Array<{ id: string; title: string; url: string; sourceId: string }> = [];
 
   // Crawl Beergirl Google Calendar
   console.log("Crawling beergirl calendar...");
@@ -108,7 +109,7 @@ function getSourceDisplayName(sourceId: string): string {
  * Format crawler results as LINE message
  */
 export function formatCrawlerResultsForLine(
-  newEvents: Array<{ title: string; url: string; sourceId: string }>,
+  newEvents: Array<{ id: string; title: string; url: string; sourceId: string }>,
   summary: {
     beergirlCalendar: SourceSummary;
     alwayslovebeerCalendar: SourceSummary;
@@ -143,8 +144,9 @@ ${formatSourceSummary("🎪", "ビアフェス情報", summary.beerfestival)}
     const displayEvents = newEvents.slice(0, 3);
     displayEvents.forEach((event, index) => {
       const sourceName = getSourceDisplayName(event.sourceId);
-      // タイトルとURLを別々の行に（URLは単独行で前後に余計な文字なし）
-      message += `\n${index + 1}. [${sourceName}] ${event.title}\n${event.url}`;
+      // 短縮URLを使用（長いURLがLINEで途切れるのを防ぐ）
+      const shortUrl = getShortEventUrl(event.id);
+      message += `\n${index + 1}. [${sourceName}] ${event.title}\n${shortUrl}`;
     });
 
     if (newEvents.length > 3) {
