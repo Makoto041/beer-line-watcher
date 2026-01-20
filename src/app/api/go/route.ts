@@ -26,6 +26,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
+    // Validate redirect URL to prevent open redirect vulnerabilities
+    try {
+      const targetUrl = new URL(event.url);
+      if (targetUrl.protocol !== "http:" && targetUrl.protocol !== "https:") {
+        console.error("Invalid URL scheme:", event.url);
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+    } catch {
+      console.error("Invalid URL format:", event.url);
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
     return NextResponse.redirect(event.url);
   } catch (error) {
     console.error("Redirect error:", error);
