@@ -116,8 +116,6 @@ export function formatCrawlerResultsForLine(
     beerfestival: SourceSummary;
   }
 ): string {
-  const lines = ["🔄 最新情報を取得しました\n"];
-
   // Summary with detailed breakdown
   const formatSourceSummary = (emoji: string, name: string, s: SourceSummary) => {
     const parts = [`${emoji} ${name}: ${s.total}件取得`];
@@ -127,33 +125,32 @@ export function formatCrawlerResultsForLine(
     return parts.join(', ');
   };
 
-  lines.push("【取得結果】");
-  lines.push(formatSourceSummary("🍺", "ビール女子", summary.beergirlCalendar));
-  lines.push(formatSourceSummary("🗓️", "全国ビールイベント", summary.alwayslovebeerCalendar));
-  lines.push(formatSourceSummary("🍷", "ウォーカープラス", summary.walkerplus));
-  lines.push(formatSourceSummary("🎪", "ビアフェス情報", summary.beerfestival) + "\n");
+  let message = `🔄 最新情報を取得しました
+
+【取得結果】
+${formatSourceSummary("🍺", "ビール女子", summary.beergirlCalendar)}
+${formatSourceSummary("🗓️", "全国ビールイベント", summary.alwayslovebeerCalendar)}
+${formatSourceSummary("🍷", "ウォーカープラス", summary.walkerplus)}
+${formatSourceSummary("🎪", "ビアフェス情報", summary.beerfestival)}
+`;
 
   // Show new events (max 3 for new items)
   if (newEvents.length === 0) {
-    lines.push("新しいイベントはありませんでした。");
+    message += "\n新しいイベントはありませんでした。";
   } else {
-    lines.push(`【新着イベント】\n`);
+    message += "\n【新着イベント】";
 
     const displayEvents = newEvents.slice(0, 3);
     displayEvents.forEach((event, index) => {
       const sourceName = getSourceDisplayName(event.sourceId);
-      lines.push(`${index + 1}. [${sourceName}] ${event.title}`);
-      // URLは独立した行に配置（先頭に空白なし）
-      lines.push(event.url);
-      lines.push("");
+      // タイトルとURLを別々の行に（URLは単独行で前後に余計な文字なし）
+      message += `\n${index + 1}. [${sourceName}] ${event.title}\n${event.url}`;
     });
 
     if (newEvents.length > 3) {
-      lines.push(`他${newEvents.length - 3}件の新着イベントがあります。`);
-      lines.push("詳しくはこちら↓");
-      lines.push(EVENTS_PAGE_URL);
+      message += `\n\n他${newEvents.length - 3}件の新着イベントがあります。\n詳しくはこちら↓\n${EVENTS_PAGE_URL}`;
     }
   }
 
-  return lines.join("\n");
+  return message;
 }

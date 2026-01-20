@@ -200,25 +200,21 @@ export function formatEventsForLine(
     return "今週のイベントが見つかりませんでした。";
   }
 
-  const lines = ["📋 今週のイベント情報（開催日順）\n"];
+  const parts: string[] = ["📋 今週のイベント情報（開催日順）"];
 
   events.forEach((event, index) => {
     const dateStr = event.eventDate
       ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
       : "日付未定";
-    lines.push(`${index + 1}. [${dateStr}] ${event.title}`);
-    // URLは独立した行に配置（先頭に空白なし）
-    lines.push(event.url);
-    lines.push("");
+    // タイトルとURLを別々の行に（URLは単独行で前後に余計な文字なし）
+    parts.push(`\n${index + 1}. [${dateStr}] ${event.title}\n${event.url}`);
   });
 
   if (events.length === 5) {
-    lines.push("※表示は最大5件です。");
-    lines.push("詳しくはこちら↓");
-    lines.push(EVENTS_PAGE_URL);
+    parts.push(`\n※表示は最大5件です。\n詳しくはこちら↓\n${EVENTS_PAGE_URL}`);
   }
 
-  return lines.join("\n");
+  return parts.join("");
 }
 
 /**
@@ -231,22 +227,18 @@ export function formatRecentEventsForLine(
     return "現在登録されているイベントがありません。";
   }
 
-  const lines = ["🍺 直近のイベント情報\n"];
+  const parts: string[] = ["🍺 直近のイベント情報"];
 
   events.forEach((event, index) => {
     const dateStr = event.eventDate
       ? `${event.eventDate.getMonth() + 1}/${event.eventDate.getDate()}`
       : "日程未定";
     const sourceEmoji = event.sourceName.includes("ビール女子") ? "🍺" : "🍷";
-    lines.push(`${index + 1}. ${sourceEmoji} [${dateStr}] ${event.title}`);
-    // URLは独立した行に配置（先頭に空白なし）
-    lines.push(event.url);
-    lines.push("");
+    // タイトルとURLを別々の行に（URLは単独行で前後に余計な文字なし）
+    parts.push(`\n${index + 1}. ${sourceEmoji} [${dateStr}] ${event.title}\n${event.url}`);
   });
 
-  lines.push("━━━━━━━━━━━━━━━━━━━━");
-  lines.push("📱 すべてのイベントを見る↓");
-  lines.push(EVENTS_PAGE_URL);
+  parts.push(`\n━━━━━━━━━━━━━━━━━━━━\n📱 すべてのイベントを見る↓\n${EVENTS_PAGE_URL}`);
 
-  return lines.join("\n");
+  return parts.join("");
 }
