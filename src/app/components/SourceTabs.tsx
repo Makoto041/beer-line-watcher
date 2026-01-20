@@ -20,11 +20,12 @@ interface SourceTabsProps {
   sourceCounts: Record<string, number>;
   currentSource: string;
   sourceConfig: Record<string, SourceConfig>;
+  newArrivalsCount?: number;
 }
 
 const SCROLL_STORAGE_KEY = 'source-tabs-scroll';
 
-export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig }: SourceTabsProps) {
+export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig, newArrivalsCount = 0 }: SourceTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,26 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig 
               {totalCount}
             </span>
           </button>
+
+          {/* New arrivals */}
+          {newArrivalsCount > 0 && (
+            <button
+              onClick={() => handleSourceChange('new')}
+              className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                currentSource === 'new'
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25'
+                  : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
+              }`}
+            >
+              <span className="transition-transform group-hover:scale-110">✨</span>
+              <span>新着</span>
+              <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs ${
+                currentSource === 'new' ? 'bg-white/20' : 'bg-green-100 text-green-700'
+              }`}>
+                {newArrivalsCount}
+              </span>
+            </button>
+          )}
 
           {/* Individual sources */}
           {sources.map((source) => {

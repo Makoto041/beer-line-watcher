@@ -51,6 +51,10 @@ export default async function Page({
   // Use JST for all date comparisons
   const startOfTodayJST = getStartOfTodayJST();
 
+  // New arrivals: events created within last 3 days
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  const isNewArrivalsFilter = source === 'new';
+
   // Base where clause for upcoming events (without source filter)
   const baseWhere: Prisma.EventWhereInput = {
     OR: [
@@ -65,7 +69,8 @@ export default async function Page({
   // Build filtered where clause for display
   const filteredWhere: Prisma.EventWhereInput = {
     ...baseWhere,
-    ...(source && { sourceId: source }),
+    ...(source && !isNewArrivalsFilter && { sourceId: source }),
+    ...(isNewArrivalsFilter && { createdAt: { gte: threeDaysAgo } }),
     ...(q && { title: { contains: q, mode: 'insensitive' as const } }),
   };
 
@@ -149,6 +154,9 @@ export default async function Page({
     acc[s.id] = allEvents.filter(e => e.sourceId === s.id).length;
     return acc;
   }, {} as Record<string, number>);
+
+  // Count new arrivals (created within last 3 days)
+  const newArrivalsCount = allEvents.filter(e => e.createdAt >= threeDaysAgo).length;
 
   // Get latest update time per source (from all events, not filtered)
   const sourceLatestUpdate = sources.reduce((acc, s) => {
@@ -344,6 +352,7 @@ export default async function Page({
           sourceCounts={sourceCounts}
           currentSource={source}
           sourceConfig={SOURCE_CONFIG}
+          newArrivalsCount={newArrivalsCount}
         />
 
         {/* Events Grid */}
