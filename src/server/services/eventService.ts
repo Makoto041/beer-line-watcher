@@ -7,15 +7,15 @@ import { calculateDuplicateScore } from "../utils/duplicateDetector";
 const DUPLICATE_THRESHOLD = 0.6;
 
 export interface UpsertResult {
-  newEvents: Array<{ title: string; url: string; sourceId: string }>;
-  updatedEvents: Array<{ title: string; url: string; sourceId: string }>;
+  newEvents: Array<{ id: string; title: string; url: string; sourceId: string }>;
+  updatedEvents: Array<{ id: string; title: string; url: string; sourceId: string }>;
   skippedDuplicates: number;
   skippedExisting: number;
 }
 
 export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<UpsertResult> {
-  const newEvents: { title: string; url: string; sourceId: string }[] = [];
-  const updatedEvents: { title: string; url: string; sourceId: string }[] = [];
+  const newEvents: { id: string; title: string; url: string; sourceId: string }[] = [];
+  const updatedEvents: { id: string; title: string; url: string; sourceId: string }[] = [];
   let skippedDuplicates = 0;
   let skippedExisting = 0;
 
@@ -74,6 +74,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
           },
         });
         updatedEvents.push({
+          id,
           title: item.title,
           url: item.url,
           sourceId: item.sourceId,
@@ -116,6 +117,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
     });
 
     newEvents.push({
+      id,
       title: item.title,
       url: item.url,
       sourceId: item.sourceId,
