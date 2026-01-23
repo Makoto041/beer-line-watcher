@@ -2,6 +2,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { DotGothic16 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 
 const dotGothic = DotGothic16({
   weight: "400",
@@ -71,7 +72,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja" className="dark">
-      <body className={`${dotGothic.className} bg-[#0d1117] text-white`}>{children}</body>
+      <body className={`${dotGothic.className} bg-[#0d1117] text-white`}>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
