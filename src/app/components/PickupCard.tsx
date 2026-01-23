@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { formatDateJST, formatDateRangeJST } from "@/lib/date-utils";
+import { Icon, SourceIcon } from "./Icon";
 
 interface Event {
   id: string;
@@ -19,7 +20,7 @@ interface Event {
 }
 
 interface SourceConfig {
-  emoji: string;
+  icon: string;
   label: string;
   color: string;
   bgColor: string;
@@ -76,7 +77,7 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
   const styles = variantStyles[variant];
 
   const defaultConfig: SourceConfig = {
-    emoji: '📅',
+    icon: 'calendar',
     label: event.source.name || event.sourceId,
     color: 'text-gray-400',
     bgColor: 'bg-gray-800',
@@ -144,14 +145,14 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded border text-xs font-medium ${
               event.imageUrl ? 'bg-black/50 text-white border-white/20' : variant === 'today' ? styles.tagBg : `${config.bgColor} ${config.color} border-current/20`
             }`}>
-              <span>{config.emoji}</span>
+              <SourceIcon sourceId={event.sourceId} className="w-3 h-3" />
               {config.label}
             </span>
 
             {/* Arrow */}
             <span className={`flex items-center gap-1 text-sm opacity-60 group-hover:opacity-100 transition-all group-hover:translate-x-1 ${event.imageUrl ? 'text-white' : styles.arrowText}`}>
               詳細
-              <span className="text-amber-400">▶</span>
+              <Icon name="caret" className="w-3 h-3 text-amber-400" />
             </span>
           </div>
         </div>

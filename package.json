@@ -20,6 +20,10 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
     "@line/bot-sdk": "^10.5.0",
     "@prisma/client": "^6.19.0",
     "@t3-oss/env-nextjs": "^0.12.0",

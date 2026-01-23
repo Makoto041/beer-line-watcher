@@ -6,33 +6,34 @@ import { SearchForm } from "./components/SearchForm";
 import { PickupCard } from "./components/PickupCard";
 import { PickupCarousel } from "./components/PickupCarousel";
 import { LineBotBanner, LineBotFooterLink } from "./components/LineBotBanner";
+import { Icon, SourceIcon } from "./components/Icon";
 import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
 import { removeDuplicates } from "@/server/utils/duplicateDetector";
 
 export const dynamic = "force-dynamic";
 
-// Source configurations with colors
-const SOURCE_CONFIG: Record<string, { emoji: string; label: string; color: string; bgColor: string }> = {
+// Source configurations with colors (using icon names instead of emoji)
+const SOURCE_CONFIG: Record<string, { icon: string; label: string; color: string; bgColor: string }> = {
   'beergirl-calendar': {
-    emoji: '🍺',
+    icon: 'beer',
     label: 'ビール女子',
     color: 'text-amber-400',
     bgColor: 'bg-amber-900/30',
   },
   'alwayslovebeer-calendar': {
-    emoji: '🗓️',
+    icon: 'calendar',
     label: '全国ビールイベント',
     color: 'text-sky-400',
     bgColor: 'bg-sky-900/30',
   },
   'walkerplus-liquor-kanto': {
-    emoji: '🍷',
+    icon: 'wine',
     label: 'Walkerplus',
     color: 'text-purple-400',
     bgColor: 'bg-purple-900/30',
   },
   'beerfestival-info': {
-    emoji: '🎪',
+    icon: 'tent',
     label: 'ビアフェス情報',
     color: 'text-rose-400',
     bgColor: 'bg-rose-900/30',
@@ -198,9 +199,9 @@ export default async function Page({
           <div className="absolute top-20 right-[15%] opacity-20 animate-[slime-bounce_2s_ease-in-out_infinite]">
             <div className="pixel-beer-mini"></div>
           </div>
-          <div className="absolute bottom-20 left-[20%] text-lg opacity-25 animate-[sparkle-twinkle_2s_ease-in-out_infinite]">✦</div>
-          <div className="absolute top-1/3 right-[8%] text-sm opacity-20 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.5s]">★</div>
-          <div className="absolute bottom-1/4 right-[25%] text-lg opacity-20 animate-[sparkle-twinkle_2s_ease-in-out_infinite_1s]">✧</div>
+          <div className="absolute bottom-20 left-[20%] text-lg opacity-25 animate-[sparkle-twinkle_2s_ease-in-out_infinite]"><Icon name="star" className="w-4 h-4" /></div>
+          <div className="absolute top-1/3 right-[8%] text-sm opacity-20 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.5s]"><Icon name="star" className="w-3 h-3" /></div>
+          <div className="absolute bottom-1/4 right-[25%] text-lg opacity-20 animate-[sparkle-twinkle_2s_ease-in-out_infinite_1s]"><Icon name="star" className="w-4 h-4" /></div>
           <div className="absolute bottom-16 right-[10%] opacity-25 animate-[beer-wobble_2.5s_ease-in-out_infinite_0.5s]">
             <div className="pixel-beer-mini"></div>
           </div>
@@ -227,7 +228,7 @@ export default async function Page({
                       key={s.id}
                       className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] md:text-xs bg-black/20 text-gray-400 border border-gray-700/50"
                     >
-                      <span>{config?.emoji || '📅'}</span>
+                      <SourceIcon sourceId={s.id} className="w-3 h-3" />
                       <span className="hidden sm:inline">{config?.label || s.id}:</span>
                       <span className={lastUpdate ? 'text-gray-300' : 'text-red-400'}>
                         {lastUpdate ? formatUpdateTime(lastUpdate) : '未取得'}
@@ -243,11 +244,11 @@ export default async function Page({
               {/* Big pixel beer with sparkles */}
               <div className="relative inline-block">
                 {/* Sparkle effects around beer */}
-                <span className="absolute -top-8 -left-8 text-2xl text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
-                <span className="absolute -top-4 right-4 text-xl text-amber-300 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite_0.3s]">✧</span>
-                <span className="absolute top-1/4 -right-8 text-lg text-yellow-400 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.6s]">★</span>
-                <span className="absolute bottom-1/4 -left-10 text-xl text-amber-400 animate-[sparkle-twinkle_1.3s_ease-in-out_infinite_0.4s]">✦</span>
-                <span className="absolute -bottom-4 right-1/4 text-lg text-yellow-300 animate-[sparkle-twinkle_1.1s_ease-in-out_infinite_0.8s]">✧</span>
+                <span className="absolute -top-8 -left-8 text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]"><Icon name="star" className="w-6 h-6" /></span>
+                <span className="absolute -top-4 right-4 text-amber-300 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite_0.3s]"><Icon name="star" className="w-5 h-5" /></span>
+                <span className="absolute top-1/4 -right-8 text-yellow-400 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.6s]"><Icon name="star" className="w-4 h-4" /></span>
+                <span className="absolute bottom-1/4 -left-10 text-amber-400 animate-[sparkle-twinkle_1.3s_ease-in-out_infinite_0.4s]"><Icon name="star" className="w-5 h-5" /></span>
+                <span className="absolute -bottom-4 right-1/4 text-yellow-300 animate-[sparkle-twinkle_1.1s_ease-in-out_infinite_0.8s]"><Icon name="star" className="w-4 h-4" /></span>
 
                 {/* The big pixel beer - CSS art */}
                 <div className="pixel-beer pixel-beer-xlarge pixel-beer-shine pixel-slime treasure-shine"></div>
@@ -266,19 +267,19 @@ export default async function Page({
             <div className="text-center relative">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 md:mb-4 relative inline-block">
                 <span className="text-glow-gold text-amber-400">ビール・お酒イベント</span>
-                <span className="absolute -top-2 -right-4 text-sm animate-[sparkle-twinkle_1.5s_ease-in-out_infinite]" aria-hidden="true">✨</span>
+                <span className="absolute -top-2 -right-4 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-4 h-4 text-amber-400" /></span>
               </h1>
               <p className="text-sm sm:text-base md:text-lg text-gray-400">
-                <span className="inline-block text-amber-500" aria-hidden="true">▶ </span>
+                <span className="inline-block text-amber-500" aria-hidden="true"><Icon name="caret" className="w-3 h-3 mr-1" /></span>
                 全国のビールイベント情報を
                 <br className="sm:hidden" />
                 ひとつの場所で。
               </p>
               {/* Quest message style */}
               <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/50 to-amber-800/30 border-2 border-amber-500/50 rounded text-amber-300 text-xs md:text-sm quest-glow">
-                <span className="animate-[dq-blink_0.8s_step-end_infinite]" aria-hidden="true">▶</span>
+                <span className="animate-[dq-blink_0.8s_step-end_infinite]" aria-hidden="true"><Icon name="caret" className="w-3 h-3" /></span>
                 <span>冒険者よ、今日もビールを探しに行こう！</span>
-                <span className="animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true">✦</span>
+                <span className="animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
               </div>
             </div>
 
@@ -323,11 +324,11 @@ export default async function Page({
             <div className="max-w-6xl mx-auto confetti-container">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
                 <div className="dq-badge dq-badge-today flex items-center gap-2 sparkle">
-                  <span className="text-lg pixel-heart">🎉</span>
+                  <Icon name="party" className="w-4 h-4" />
                   <span className="rainbow-text font-bold">TODAY!</span>
                 </div>
                 <span className="text-xs md:text-sm text-gray-400">本日開催のイベント</span>
-                <span className="text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true">✦</span>
+                <span className="text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
               </div>
               <PickupCarousel speed={25}>
                 {todayEvents.map((event) => (
@@ -347,11 +348,11 @@ export default async function Page({
             <div className="max-w-6xl mx-auto">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
                 <div className="dq-badge dq-badge-soon flex items-center gap-2 level-up">
-                  <span className="text-lg">🔥</span>
+                  <Icon name="fire" className="w-4 h-4" />
                   <span className="font-bold">まもなく開催</span>
                 </div>
                 <span className="text-xs md:text-sm text-gray-400">3日以内</span>
-                <span className="text-orange-400 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite]" aria-hidden="true">★</span>
+                <span className="text-orange-400 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
               </div>
               <PickupCarousel speed={30}>
                 {within3DaysEvents.map((event) => (
@@ -371,11 +372,11 @@ export default async function Page({
             <div className="max-w-6xl mx-auto">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
                 <div className="dq-badge dq-badge-week flex items-center gap-2">
-                  <span className="text-lg">📅</span>
+                  <Icon name="calendar" className="w-4 h-4" />
                   <span className="font-bold">今週のイベント</span>
                 </div>
                 <span className="text-xs md:text-sm text-gray-400">1週間以内</span>
-                <span className="text-emerald-400 animate-[sparkle-twinkle_1.4s_ease-in-out_infinite]" aria-hidden="true">✧</span>
+                <span className="text-emerald-400 animate-[sparkle-twinkle_1.4s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
               </div>
               <PickupCarousel speed={35}>
                 {within1WeekEvents.map((event) => (
@@ -472,7 +473,7 @@ export default async function Page({
                         key={s.id}
                         className={`inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded text-xs md:text-sm ${config?.bgColor || 'bg-gray-800'} ${config?.color || 'text-gray-400'} border border-current/20`}
                       >
-                        <span>{config?.emoji || '📅'}</span>
+                        <SourceIcon sourceId={s.id} className="w-3 h-3 md:w-4 md:h-4" />
                         <span className="hidden sm:inline">{config?.label || s.name || s.id}</span>
                       </span>
                     );

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { formatDateJST, formatDateRangeJST, getEventStatusJST } from "@/lib/date-utils";
+import { Icon, SourceIcon } from "./Icon";
 
 interface Event {
   id: string;
@@ -19,7 +20,7 @@ interface Event {
 }
 
 interface SourceConfig {
-  emoji: string;
+  icon: string;
   label: string;
   color: string;
   bgColor: string;
@@ -39,7 +40,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
   const status = getEventStatusJST(event.eventDate, event.eventEndDate);
 
   const defaultConfig: SourceConfig = {
-    emoji: '📅',
+    icon: 'calendar',
     label: event.source.name || event.sourceId,
     color: 'text-gray-400',
     bgColor: 'bg-gray-800',
@@ -80,9 +81,9 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
                     ? 'dq-badge-soon'
                     : 'dq-badge-week'
               }`}>
-                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite]">✦</span>}
+                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite]"><Icon name="star" className="w-3 h-3" /></span>}
                 {status === 'today' ? '今日!' : status === 'soon' ? 'まもなく' : '今週'}
-                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite_0.4s]">✦</span>}
+                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite_0.4s]"><Icon name="star" className="w-3 h-3" /></span>}
               </div>
             )}
             {/* Date overlay on image */}
@@ -123,8 +124,8 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
                   )}
                 </div>
               ) : (
-                <div className="flex-shrink-0 w-16 h-16 rounded bg-gradient-to-b from-amber-900/50 to-amber-950/50 border border-amber-500/30 flex items-center justify-center text-3xl transition-transform group-hover:scale-105">
-                  {config.emoji}
+                <div className="flex-shrink-0 w-16 h-16 rounded bg-gradient-to-b from-amber-900/50 to-amber-950/50 border border-amber-500/30 flex items-center justify-center transition-transform group-hover:scale-105">
+                  <SourceIcon sourceId={event.sourceId} className="w-8 h-8 text-amber-400" />
                 </div>
               )}
 
@@ -151,14 +152,14 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
           {/* Source tag */}
           <div className="flex items-center justify-between">
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium ${config.bgColor} ${config.color} border border-current/20`}>
-              <span>{config.emoji}</span>
+              <SourceIcon sourceId={event.sourceId} className="w-3 h-3" />
               {config.label}
             </span>
 
             {/* Arrow icon */}
             <span className="flex items-center gap-1 text-sm text-gray-500 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">
               詳細
-              <span className="text-amber-400">▶</span>
+              <Icon name="caret" className="w-3 h-3 text-amber-400" />
             </span>
           </div>
         </div>

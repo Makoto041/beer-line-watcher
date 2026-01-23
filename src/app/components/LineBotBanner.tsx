@@ -1,5 +1,7 @@
 "use client";
 
+import { Icon } from "./Icon";
+
 const LINE_OFFICIAL_ACCOUNT_ID = "@472satqy";
 const LINE_ADD_FRIEND_URL = `https://line.me/R/ti/p/${LINE_OFFICIAL_ACCOUNT_ID}`;
 
@@ -37,7 +39,7 @@ export function LineBotBanner() {
 
         {/* Arrow */}
         <div className="flex-shrink-0 text-gray-500 group-hover:text-[#06C755] transition-colors">
-          <span className="text-lg group-hover:translate-x-0.5 transition-transform inline-block">▶</span>
+          <span className="group-hover:translate-x-0.5 transition-transform inline-block"><Icon name="caret" className="w-4 h-4" /></span>
         </div>
       </a>
     </div>

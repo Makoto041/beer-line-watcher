@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState, useEffect } from "react";
+import { Icon } from "./Icon";
 
 interface SearchFormProps {
   defaultValue: string;
@@ -34,8 +35,8 @@ export function SearchForm({ defaultValue }: SearchFormProps) {
       <div className="relative flex flex-col sm:flex-row gap-2 sm:gap-0">
         <div className="relative flex-1">
           {/* Search icon */}
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500/70 text-sm">
-            🔍
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500/70">
+            <Icon name="search" className="w-4 h-4" />
           </span>
           <input
             name="q"

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useEffect } from "react";
+import { Icon, SourceIcon } from "./Icon";
 
 interface Source {
   id: string;
@@ -9,7 +10,7 @@ interface Source {
 }
 
 interface SourceConfig {
-  emoji: string;
+  icon: string;
   label: string;
   color: string;
   bgColor: string;
@@ -67,7 +68,7 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
     <div className="dq-window-beer p-4">
       {/* Label */}
       <div className="flex items-center gap-2 mb-3 md:mb-4">
-        <span className="text-amber-400">▶</span>
+        <Icon name="caret" className="w-3 h-3 text-amber-400" />
         <span className="text-xs md:text-sm font-medium text-amber-400">ソースで絞り込み</span>
       </div>
 
@@ -83,7 +84,7 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
                 : 'dq-tab'
             }`}
           >
-            {!currentSource && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]">▶</span>}
+            {!currentSource && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]"><Icon name="caret" className="w-3 h-3" /></span>}
             <span>すべて</span>
             <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
               !currentSource ? 'bg-amber-500/20 text-amber-300' : 'bg-gray-700/50 text-gray-400'
@@ -102,8 +103,8 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
                   : 'dq-tab'
               }`}
             >
-              {currentSource === 'new' && <span className="text-emerald-400 animate-[dq-blink_0.6s_step-end_infinite]">▶</span>}
-              <span className="transition-transform group-hover:scale-110">✨</span>
+              {currentSource === 'new' && <span className="text-emerald-400 animate-[dq-blink_0.6s_step-end_infinite]"><Icon name="caret" className="w-3 h-3" /></span>}
+              <span className="transition-transform group-hover:scale-110"><Icon name="star" className="w-3 h-3" /></span>
               <span>新着</span>
               <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
                 currentSource === 'new' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-900/50 text-emerald-400'
@@ -129,9 +130,9 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
                     : 'dq-tab'
                 }`}
               >
-                {isActive && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]">▶</span>}
+                {isActive && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]"><Icon name="caret" className="w-3 h-3" /></span>}
                 <span className="transition-transform group-hover:scale-110">
-                  {config?.emoji || '📅'}
+                  <SourceIcon sourceId={source.id} className="w-4 h-4" />
                 </span>
                 <span className="hidden sm:inline">{config?.label || source.name || source.id}</span>
                 <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
