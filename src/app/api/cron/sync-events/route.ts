@@ -6,6 +6,7 @@ import { crawlBeerfestival } from "@/server/crawlers/beerfestival";
 import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
 import { sendLineBroadcast } from "@/server/services/lineService";
 import { EVENTS_PAGE_URL } from "@/server/constants";
+import { getShortEventUrl } from "@/server/services/eventQueryService";
 
 export const dynamic = "force-dynamic";
 
@@ -105,7 +106,7 @@ export async function GET(request: Request) {
 
     if (beergirlResult.newEvents.length) {
       beergirlResult.newEvents.forEach((n) =>
-        allNewMessages.push(`🍺[ビール女子] ${n.title}\n${n.url}`)
+        allNewMessages.push(`🍺[ビール女子] ${n.title}\n${getShortEventUrl(n.id)}`)
       );
     }
 
@@ -124,7 +125,7 @@ export async function GET(request: Request) {
 
     if (alwayslovebeerResult.newEvents.length) {
       alwayslovebeerResult.newEvents.forEach((n) =>
-        allNewMessages.push(`🗓️[全国ビールイベント] ${n.title}\n${n.url}`)
+        allNewMessages.push(`🗓️[全国ビールイベント] ${n.title}\n${getShortEventUrl(n.id)}`)
       );
     }
 
@@ -143,7 +144,7 @@ export async function GET(request: Request) {
 
     if (walkerplusResult.newEvents.length) {
       walkerplusResult.newEvents.forEach((n) =>
-        allNewMessages.push(`🍷[Walkerplus] ${n.title}\n${n.url}`)
+        allNewMessages.push(`🍷[Walkerplus] ${n.title}\n${getShortEventUrl(n.id)}`)
       );
     }
 
@@ -162,7 +163,7 @@ export async function GET(request: Request) {
 
     if (beerfestivalResult.newEvents.length) {
       beerfestivalResult.newEvents.forEach((n) =>
-        allNewMessages.push(`🎪[ビアフェス情報] ${n.title}\n${n.url}`)
+        allNewMessages.push(`🎪[ビアフェス情報] ${n.title}\n${getShortEventUrl(n.id)}`)
       );
     }
 
