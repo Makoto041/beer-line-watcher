@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { formatDateJST, formatDateRangeJST, getEventStatusJST } from "@/lib/date-utils";
+import { Icon, SourceIcon } from "./Icon";
 
 interface Event {
   id: string;
@@ -19,7 +20,7 @@ interface Event {
 }
 
 interface SourceConfig {
-  emoji: string;
+  icon: string;
   label: string;
   color: string;
   bgColor: string;
@@ -39,10 +40,10 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
   const status = getEventStatusJST(event.eventDate, event.eventEndDate);
 
   const defaultConfig: SourceConfig = {
-    emoji: '📅',
+    icon: 'calendar',
     label: event.source.name || event.sourceId,
-    color: 'text-gray-600',
-    bgColor: 'bg-gray-50',
+    color: 'text-[var(--text-muted)]',
+    bgColor: 'bg-[var(--bg-tertiary)]',
   };
 
   const config = sourceConfig || defaultConfig;
@@ -54,7 +55,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
       rel="noopener noreferrer"
       className="group block"
     >
-      <div className="bg-white rounded-[20px] shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_2px_4px_rgba(0,0,0,0.05),0_12px_24px_rgba(0,0,0,0.05)] transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:translate-y-[-8px] hover:scale-[1.02] hover:shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.1),0_32px_64px_rgba(0,0,0,0.1)] h-full overflow-hidden">
+      <div className="card h-full overflow-hidden">
         {/* Event Image or Top accent bar */}
         {event.imageUrl ? (
           <div className="relative w-full h-40 overflow-hidden">
@@ -62,28 +63,30 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
               src={event.imageUrl}
               alt={event.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
-            {/* Status badge on image */}
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-secondary)] via-transparent to-transparent" />
+            {/* Status badge */}
             {status && (
-              <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm ${
+              <div className={`absolute top-3 right-3 badge ${
                 status === 'today'
-                  ? 'bg-red-500/90 text-white animate-pulse'
+                  ? 'badge-today'
                   : status === 'soon'
-                    ? 'bg-amber-400/90 text-amber-900'
-                    : 'bg-emerald-400/90 text-emerald-900'
+                    ? 'badge-soon'
+                    : 'badge-week'
               }`}>
-                {status === 'today' ? '今日!' : status === 'soon' ? 'まもなく' : '今週'}
+                {status === 'today' ? '今日' : status === 'soon' ? 'まもなく' : '今週'}
               </div>
             )}
-            {/* Date overlay on image */}
+            {/* Date overlay */}
             {dateInfo && (
-              <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-xl shadow-lg">
+              <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded bg-black/60 backdrop-blur-sm">
                 {dateRange ? (
-                  <span className={`text-sm font-bold ${config.color}`}>{dateRange.range}</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">{dateRange.range}</span>
                 ) : (
-                  <span className={`text-sm font-bold ${config.color}`}>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
                     {dateInfo.month}/{dateInfo.day} ({dateInfo.weekday})
                   </span>
                 )}
@@ -91,7 +94,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
             )}
           </div>
         ) : (
-          <div className={`h-1 ${config.bgColor.replace('bg-', 'bg-gradient-to-r from-').replace('-50', '-400')} to-transparent`} />
+          <div className="h-1 bg-gradient-to-r from-amber-500 to-transparent" />
         )}
 
         <div className="p-5">
@@ -100,59 +103,57 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
             <div className="flex items-start justify-between gap-3 mb-4">
               {/* Date or Icon */}
               {dateInfo ? (
-                <div className={`flex-shrink-0 ${dateRange ? 'min-w-[4.5rem] px-2' : 'w-16'} h-16 rounded-2xl ${config.bgColor} flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
+                <div className={`flex-shrink-0 ${dateRange ? 'min-w-[4.5rem] px-2' : 'w-16'} h-16 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
                   {dateRange ? (
                     <>
-                      <span className="text-[10px] text-gray-500">開催期間</span>
-                      <span className={`text-base font-bold ${config.color} whitespace-nowrap`}>{dateRange.range}</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">開催期間</span>
+                      <span className="text-base font-bold text-amber-400 whitespace-nowrap">{dateRange.range}</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-xs text-gray-500">{dateInfo.month}月</span>
-                      <span className={`text-2xl font-bold ${config.color}`}>{dateInfo.day}</span>
-                      <span className="text-xs text-gray-500">({dateInfo.weekday})</span>
+                      <span className="text-xs text-[var(--text-muted)]">{dateInfo.month}月</span>
+                      <span className="text-2xl font-bold text-amber-400">{dateInfo.day}</span>
+                      <span className="text-xs text-[var(--text-muted)]">({dateInfo.weekday})</span>
                     </>
                   )}
                 </div>
               ) : (
-                <div className={`flex-shrink-0 w-16 h-16 rounded-2xl ${config.bgColor} flex items-center justify-center text-3xl transition-transform group-hover:scale-105`}>
-                  {config.emoji}
+                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] flex items-center justify-center transition-transform group-hover:scale-105">
+                  <SourceIcon sourceId={event.sourceId} className="w-8 h-8 text-[var(--text-muted)]" />
                 </div>
               )}
 
               {/* Status badge */}
               {status && (
-                <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                <div className={`badge ${
                   status === 'today'
-                    ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white animate-pulse'
+                    ? 'badge-today'
                     : status === 'soon'
-                      ? 'bg-gradient-to-r from-amber-400 to-yellow-400 text-amber-900'
-                      : 'bg-gradient-to-r from-emerald-400 to-green-400 text-emerald-900'
+                      ? 'badge-soon'
+                      : 'badge-week'
                 }`}>
-                  {status === 'today' ? '今日!' : status === 'soon' ? 'まもなく' : '今週'}
+                  {status === 'today' ? '今日' : status === 'soon' ? 'まもなく' : '今週'}
                 </div>
               )}
             </div>
           )}
 
           {/* Title */}
-          <h3 className="text-base font-semibold text-gray-900 leading-snug line-clamp-2 group-hover:text-amber-600 transition-colors mb-3">
+          <h3 className="text-base font-semibold text-[var(--text-primary)] leading-snug line-clamp-2 group-hover:text-amber-400 transition-colors mb-3">
             {event.title}
           </h3>
 
           {/* Source tag */}
           <div className="flex items-center justify-between">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.color}`}>
-              <span>{config.emoji}</span>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border-muted)]`}>
+              <SourceIcon sourceId={event.sourceId} className="w-3 h-3" />
               {config.label}
             </span>
 
             {/* Arrow icon */}
-            <span className="flex items-center gap-1 text-sm text-gray-400 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">
+            <span className="flex items-center gap-1 text-sm text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">
               詳細
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <Icon name="caret" className="w-3 h-3 text-amber-400" />
             </span>
           </div>
         </div>

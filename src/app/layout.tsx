@@ -1,10 +1,13 @@
 // src/app/layout.tsx
 import "./globals.css";
-import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { DotGothic16 } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
+const dotGothic = DotGothic16({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://beer-line-watcher.vercel.app"),
@@ -62,16 +65,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FFFBEB" },
-    { media: "(prefers-color-scheme: dark)", color: "#78350F" },
-  ],
+  themeColor: "#0d1117",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja">
-      <body className={inter.className}>{children}</body>
+    <html lang="ja" className="dark">
+      <body className={`${dotGothic.className} bg-[#0d1117] text-white`}>{children}</body>
     </html>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useEffect } from "react";
+import { Icon, SourceIcon } from "./Icon";
 
 interface Source {
   id: string;
@@ -9,7 +10,7 @@ interface Source {
 }
 
 interface SourceConfig {
-  emoji: string;
+  icon: string;
   label: string;
   color: string;
   bgColor: string;
@@ -32,7 +33,6 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
 
   // Save scroll position before navigation
   const handleSourceChange = (sourceId: string) => {
-    // Save current scroll position to sessionStorage
     if (scrollContainerRef.current) {
       sessionStorage.setItem(SCROLL_STORAGE_KEY, String(scrollContainerRef.current.scrollLeft));
     }
@@ -44,7 +44,6 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
       params.delete('source');
     }
     const queryString = params.toString();
-    // Use replace instead of push to avoid scroll reset
     router.replace(queryString ? `/?${queryString}` : '/', { scroll: false });
   };
 
@@ -52,7 +51,6 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
   useEffect(() => {
     const savedPosition = sessionStorage.getItem(SCROLL_STORAGE_KEY);
     if (scrollContainerRef.current && savedPosition) {
-      // Use requestAnimationFrame to ensure DOM is fully rendered
       requestAnimationFrame(() => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollLeft = Number(savedPosition);
@@ -64,30 +62,28 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
   const totalCount = Object.values(sourceCounts).reduce((a, b) => a + b, 0);
 
   return (
-    <div>
+    <div className="card p-4">
       {/* Label */}
-      <div className="flex items-center gap-2 mb-3 md:mb-4">
-        <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-        </svg>
-        <span className="text-xs md:text-sm font-medium text-gray-600">ソースで絞り込み</span>
+      <div className="flex items-center gap-2 mb-3">
+        <Icon name="caret" className="w-3 h-3 text-[var(--text-muted)]" />
+        <span className="text-xs md:text-sm font-medium text-[var(--text-secondary)]">ソースで絞り込み</span>
       </div>
 
-      {/* Tabs - horizontal scroll on mobile */}
+      {/* Tabs */}
       <div ref={scrollContainerRef} className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
         <div className="flex gap-2 min-w-max">
           {/* All sources */}
           <button
             onClick={() => handleSourceChange('')}
-            className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-150 whitespace-nowrap ${
               !currentSource
-                ? 'bg-gray-900 text-white shadow-lg shadow-gray-900/25'
-                : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
+                ? 'bg-[var(--bg-tertiary)] border border-[var(--accent-primary)] text-[var(--accent-primary)]'
+                : 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
             }`}
           >
             <span>すべて</span>
-            <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs ${
-              !currentSource ? 'bg-white/20' : 'bg-gray-100'
+            <span className={`px-1.5 py-0.5 rounded text-[10px] md:text-xs ${
+              !currentSource ? 'bg-[var(--accent-muted)] text-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
             }`}>
               {totalCount}
             </span>
@@ -97,16 +93,16 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
           {newArrivalsCount > 0 && (
             <button
               onClick={() => handleSourceChange('new')}
-              className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+              className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-150 whitespace-nowrap ${
                 currentSource === 'new'
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
+                  ? 'bg-[var(--bg-tertiary)] border border-emerald-500 text-emerald-400'
+                  : 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <span className="transition-transform group-hover:scale-110">✨</span>
+              <Icon name="star" className="w-3 h-3" />
               <span>新着</span>
-              <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs ${
-                currentSource === 'new' ? 'bg-white/20' : 'bg-green-100 text-green-700'
+              <span className={`px-1.5 py-0.5 rounded text-[10px] md:text-xs ${
+                currentSource === 'new' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-900/30 text-emerald-400'
               }`}>
                 {newArrivalsCount}
               </span>
@@ -123,21 +119,16 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
               <button
                 key={source.id}
                 onClick={() => handleSourceChange(source.id)}
-                className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-150 whitespace-nowrap ${
                   isActive
-                    ? `${config?.bgColor || 'bg-gray-100'} ${config?.color || 'text-gray-900'} shadow-lg`
-                    : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
+                    ? 'bg-[var(--bg-tertiary)] border border-[var(--accent-primary)] text-[var(--accent-primary)]'
+                    : 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
                 }`}
-                style={{
-                  boxShadow: isActive ? `0 10px 40px -10px ${getColorRgba(config?.color)}` : undefined
-                }}
               >
-                <span className="transition-transform group-hover:scale-110">
-                  {config?.emoji || '📅'}
-                </span>
+                <SourceIcon sourceId={source.id} className="w-4 h-4" />
                 <span className="hidden sm:inline">{config?.label || source.name || source.id}</span>
-                <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs ${
-                  isActive ? 'bg-black/10' : 'bg-gray-100'
+                <span className={`px-1.5 py-0.5 rounded text-[10px] md:text-xs ${
+                  isActive ? 'bg-[var(--accent-muted)] text-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
                 }`}>
                   {count}
                 </span>
@@ -148,15 +139,4 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
       </div>
     </div>
   );
-}
-
-// Helper to get rgba from Tailwind color class
-function getColorRgba(colorClass?: string): string {
-  const colorMap: Record<string, string> = {
-    'text-amber-600': 'rgba(217, 119, 6, 0.3)',
-    'text-purple-600': 'rgba(147, 51, 234, 0.3)',
-    'text-rose-600': 'rgba(225, 29, 72, 0.3)',
-    'text-sky-600': 'rgba(2, 132, 199, 0.3)',
-  };
-  return colorMap[colorClass || ''] || 'rgba(0, 0, 0, 0.1)';
 }

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { formatDateJST, formatDateRangeJST } from "@/lib/date-utils";
+import { Icon, SourceIcon } from "./Icon";
 
 interface Event {
   id: string;
@@ -19,7 +20,7 @@ interface Event {
 }
 
 interface SourceConfig {
-  emoji: string;
+  icon: string;
   label: string;
   color: string;
   bgColor: string;
@@ -31,40 +32,22 @@ interface PickupCardProps {
   variant?: 'today' | 'soon' | 'week';
 }
 
-// Variant styles
+// Simplified variant styles using border colors only
 const variantStyles = {
   today: {
-    container: 'bg-gradient-to-br from-red-500 via-orange-500 to-amber-500 text-white shadow-lg shadow-red-500/30',
-    dateBg: 'bg-white/20',
-    dateText: 'text-white',
-    dateSubText: 'text-white/80',
-    titleText: 'text-white',
-    tagBg: 'bg-white/20 text-white',
-    arrowText: 'text-white',
-    badge: 'TODAY!',
-    badgeClass: 'bg-white/20 animate-pulse',
+    borderColor: 'border-red-500/70',
+    badge: '今日',
+    badgeClass: 'badge-today',
   },
   soon: {
-    container: 'bg-gradient-to-br from-orange-100 to-amber-100 border border-orange-200/50 shadow-md',
-    dateBg: 'bg-white shadow-sm',
-    dateText: 'text-orange-600',
-    dateSubText: 'text-gray-500',
-    titleText: 'text-gray-900',
-    tagBg: '',
-    arrowText: 'text-orange-600',
+    borderColor: 'border-amber-500/50',
     badge: 'まもなく',
-    badgeClass: 'bg-orange-500 text-white',
+    badgeClass: 'badge-soon',
   },
   week: {
-    container: 'bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200/50 shadow-md',
-    dateBg: 'bg-white shadow-sm',
-    dateText: 'text-emerald-600',
-    dateSubText: 'text-gray-500',
-    titleText: 'text-gray-900',
-    tagBg: '',
-    arrowText: 'text-emerald-600',
+    borderColor: 'border-emerald-500/50',
     badge: '今週',
-    badgeClass: 'bg-emerald-500 text-white',
+    badgeClass: 'badge-week',
   },
 };
 
@@ -76,10 +59,10 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
   const styles = variantStyles[variant];
 
   const defaultConfig: SourceConfig = {
-    emoji: '📅',
+    icon: 'calendar',
     label: event.source.name || event.sourceId,
-    color: 'text-gray-600',
-    bgColor: 'bg-gray-50',
+    color: 'text-[var(--text-muted)]',
+    bgColor: 'bg-[var(--bg-tertiary)]',
   };
 
   const config = sourceConfig || defaultConfig;
@@ -91,7 +74,7 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
       rel="noopener noreferrer"
       className="group block flex-shrink-0 w-[300px] sm:w-[340px]"
     >
-      <div className={`relative h-full rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${event.imageUrl ? 'bg-gray-900' : styles.container}`}>
+      <div className={`relative h-full rounded-lg border bg-[var(--bg-secondary)] overflow-hidden transition-all duration-200 hover:bg-[var(--bg-tertiary)] ${styles.borderColor}`}>
         {/* Event Image Background */}
         {event.imageUrl && (
           <div className="absolute inset-0">
@@ -99,16 +82,16 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
               src={event.imageUrl}
               alt={event.title}
               fill
-              className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-110"
+              className="object-cover opacity-40 transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 300px, 340px"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-secondary)] via-[var(--bg-secondary)]/60 to-transparent" />
           </div>
         )}
 
         {/* Badge */}
         <div className="absolute top-3 right-3 z-10">
-          <span className={`px-3 py-1 backdrop-blur-sm rounded-full text-xs font-bold ${event.imageUrl ? 'bg-white/20 text-white' : styles.badgeClass}`}>
+          <span className={`badge ${styles.badgeClass}`}>
             {styles.badge}
           </span>
         </div>
@@ -116,17 +99,17 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
         <div className="relative z-10 p-5 flex flex-col h-full min-h-[180px]">
           {/* Date display */}
           {dateInfo && (
-            <div className={`inline-flex w-fit items-center gap-2 px-3 py-1.5 rounded-xl mb-3 ${event.imageUrl ? 'bg-white/20 backdrop-blur-sm' : styles.dateBg}`}>
+            <div className="inline-flex w-fit items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] mb-3">
               {dateRange ? (
-                <span className={`text-xl font-bold ${event.imageUrl ? 'text-white' : styles.dateText}`}>
+                <span className="text-xl font-bold text-amber-400">
                   {dateRange.range}
                 </span>
               ) : (
                 <>
-                  <span className={`text-2xl font-bold ${event.imageUrl ? 'text-white' : styles.dateText}`}>
+                  <span className="text-2xl font-bold text-amber-400">
                     {dateInfo.month}/{dateInfo.day}
                   </span>
-                  <span className={`text-sm ${event.imageUrl ? 'text-white/80' : styles.dateSubText}`}>
+                  <span className="text-sm text-[var(--text-muted)]">
                     ({dateInfo.weekday})
                   </span>
                 </>
@@ -135,25 +118,21 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
           )}
 
           {/* Title */}
-          <h3 className={`text-base sm:text-lg font-bold leading-snug line-clamp-3 mb-3 flex-grow ${event.imageUrl ? 'text-white' : styles.titleText}`}>
+          <h3 className="text-base sm:text-lg font-semibold leading-snug line-clamp-3 mb-3 flex-grow text-[var(--text-primary)] group-hover:text-amber-400 transition-colors">
             {event.title}
           </h3>
 
           {/* Source tag */}
           <div className="flex items-center justify-between mt-auto">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
-              event.imageUrl ? 'bg-white/20 text-white backdrop-blur-sm' : variant === 'today' ? styles.tagBg : `${config.bgColor} ${config.color}`
-            }`}>
-              <span>{config.emoji}</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border-muted)]">
+              <SourceIcon sourceId={event.sourceId} className="w-3 h-3" />
               {config.label}
             </span>
 
             {/* Arrow */}
-            <span className={`flex items-center gap-1 text-sm opacity-60 group-hover:opacity-100 transition-all group-hover:translate-x-1 ${event.imageUrl ? 'text-white' : styles.arrowText}`}>
+            <span className="flex items-center gap-1 text-sm text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">
               詳細
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <Icon name="caret" className="w-3 h-3 text-amber-400" />
             </span>
           </div>
         </div>
