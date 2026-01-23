@@ -445,3 +445,157 @@ html {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+
+/* ============================================
+   Pixel Art Beer Mug
+   ============================================ */
+
+.pixel-beer {
+  --pixel: 4px;
+  position: relative;
+  width: calc(var(--pixel) * 13);
+  height: calc(var(--pixel) * 16);
+}
+
+.pixel-beer-lg {
+  --pixel: 6px;
+}
+
+.pixel-beer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--pixel);
+  height: var(--pixel);
+  background: transparent;
+  box-shadow:
+    /* Row 0: Foam top */
+    calc(var(--pixel) * 2) 0 #fffef0,
+    calc(var(--pixel) * 3) 0 #fff8dc,
+    calc(var(--pixel) * 4) 0 #fffef0,
+    calc(var(--pixel) * 5) 0 #fff8dc,
+    calc(var(--pixel) * 6) 0 #fffef0,
+
+    /* Row 1: Foam */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 1) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 1) #fffef0,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 1) #fff8dc,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 1) #fffef0,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 1) #fff8dc,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 1) #fffef0,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 1) #c9a227,
+
+    /* Row 2: Foam bottom */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 2) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 2) #fff8dc,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 2) #fffef0,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 2) #fff8dc,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 2) #fffef0,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 2) #fff8dc,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 2) #c9a227,
+
+    /* Row 3: Beer top */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 3) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 3) #fde68a,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 3) #fcd34d,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 3) #fde68a,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 3) #fcd34d,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 3) #fde68a,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 3) #c9a227,
+
+    /* Row 4: Beer + handle start */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 4) #fbbf24,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 4) #f59e0b,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 4) #fbbf24,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 4) #f59e0b,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 4) #fbbf24,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 4) #e5c158,
+
+    /* Row 5: Beer + handle */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 5) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 5) #f59e0b,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 5) #d97706,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 5) #f59e0b,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 5) #d97706,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 5) #f59e0b,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 5) #c9a227,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 5) #f0d47a,
+    calc(var(--pixel) * 10) calc(var(--pixel) * 5) #c9a227,
+
+    /* Row 6: Beer + handle */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 6) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 6) #d97706,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 6) #b45309,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 6) #d97706,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 6) #b45309,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 6) #d97706,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 6) #c9a227,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 6) #f0d47a,
+    calc(var(--pixel) * 10) calc(var(--pixel) * 6) #c9a227,
+
+    /* Row 7: Beer + handle */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 7) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 7) #b45309,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 7) #92400e,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 7) #b45309,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 7) #92400e,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 7) #b45309,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 7) #c9a227,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 7) #f0d47a,
+    calc(var(--pixel) * 10) calc(var(--pixel) * 7) #c9a227,
+
+    /* Row 8: Beer + handle end */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 8) #92400e,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 8) #78350f,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 8) #92400e,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 8) #78350f,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 8) #92400e,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 8) #e5c158,
+
+    /* Row 9: Beer bottom */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 9) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 9) #78350f,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 9) #5c2d0e,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 9) #78350f,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 9) #5c2d0e,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 9) #78350f,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 9) #c9a227,
+
+    /* Row 10: Mug bottom */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 10) #a78419,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 10) #c9a227,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 10) #c9a227,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 10) #c9a227,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 10) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 10) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 10) #a78419,
+
+    /* Row 11: Base top */
+    calc(var(--pixel) * 0) calc(var(--pixel) * 11) #a78419,
+    calc(var(--pixel) * 1) calc(var(--pixel) * 11) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 11) #e5c158,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 11) #c9a227,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 11) #e5c158,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 11) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 11) #e5c158,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 11) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 11) #a78419,
+
+    /* Row 12: Base bottom */
+    calc(var(--pixel) * 0) calc(var(--pixel) * 12) #8b6914,
+    calc(var(--pixel) * 1) calc(var(--pixel) * 12) #a78419,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 12) #c9a227,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 12) #a78419,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 12) #c9a227,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 12) #a78419,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 12) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 12) #a78419,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 12) #8b6914;
+}

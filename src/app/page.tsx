@@ -220,15 +220,9 @@ export default async function Page({
               <div className="inline-flex items-center justify-center mb-5">
                 <div className="relative">
                   {/* Glow effect */}
-                  <div className="absolute inset-0 rounded-full bg-amber-500/20 blur-xl scale-150" />
-                  {/* Decorative dots */}
-                  <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400/60" />
-                  <div className="absolute -bottom-0.5 -left-1 w-1.5 h-1.5 rounded-full bg-amber-400/40" />
-                  <div className="absolute top-1/2 -right-3 w-1 h-1 rounded-full bg-amber-400/30" />
-                  {/* Icon container */}
-                  <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 flex items-center justify-center backdrop-blur-sm">
-                    <Icon name="beer" className="w-8 h-8 md:w-10 md:h-10 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
-                  </div>
+                  <div className="absolute inset-0 bg-amber-500/20 blur-2xl scale-150" />
+                  {/* Pixel art beer */}
+                  <div className="relative pixel-beer pixel-beer-lg" />
                 </div>
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 text-[var(--text-primary)]">
