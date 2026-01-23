@@ -33,7 +33,6 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
 
   // Save scroll position before navigation
   const handleSourceChange = (sourceId: string) => {
-    // Save current scroll position to sessionStorage
     if (scrollContainerRef.current) {
       sessionStorage.setItem(SCROLL_STORAGE_KEY, String(scrollContainerRef.current.scrollLeft));
     }
@@ -45,7 +44,6 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
       params.delete('source');
     }
     const queryString = params.toString();
-    // Use replace instead of push to avoid scroll reset
     router.replace(queryString ? `/?${queryString}` : '/', { scroll: false });
   };
 
@@ -53,7 +51,6 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
   useEffect(() => {
     const savedPosition = sessionStorage.getItem(SCROLL_STORAGE_KEY);
     if (scrollContainerRef.current && savedPosition) {
-      // Use requestAnimationFrame to ensure DOM is fully rendered
       requestAnimationFrame(() => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollLeft = Number(savedPosition);
@@ -65,29 +62,28 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
   const totalCount = Object.values(sourceCounts).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="dq-window-beer p-4">
+    <div className="card p-4">
       {/* Label */}
-      <div className="flex items-center gap-2 mb-3 md:mb-4">
-        <Icon name="caret" className="w-3 h-3 text-amber-400" />
-        <span className="text-xs md:text-sm font-medium text-amber-400">ソースで絞り込み</span>
+      <div className="flex items-center gap-2 mb-3">
+        <Icon name="caret" className="w-3 h-3 text-[var(--text-muted)]" />
+        <span className="text-xs md:text-sm font-medium text-[var(--text-secondary)]">ソースで絞り込み</span>
       </div>
 
-      {/* Tabs - horizontal scroll on mobile */}
+      {/* Tabs */}
       <div ref={scrollContainerRef} className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
         <div className="flex gap-2 min-w-max">
           {/* All sources */}
           <button
             onClick={() => handleSourceChange('')}
-            className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-150 whitespace-nowrap ${
               !currentSource
-                ? 'dq-tab-active'
-                : 'dq-tab'
+                ? 'bg-[var(--bg-tertiary)] border border-[var(--accent-primary)] text-[var(--accent-primary)]'
+                : 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
             }`}
           >
-            {!currentSource && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]"><Icon name="caret" className="w-3 h-3" /></span>}
             <span>すべて</span>
-            <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
-              !currentSource ? 'bg-amber-500/20 text-amber-300' : 'bg-gray-700/50 text-gray-400'
+            <span className={`px-1.5 py-0.5 rounded text-[10px] md:text-xs ${
+              !currentSource ? 'bg-[var(--accent-muted)] text-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
             }`}>
               {totalCount}
             </span>
@@ -97,17 +93,16 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
           {newArrivalsCount > 0 && (
             <button
               onClick={() => handleSourceChange('new')}
-              className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+              className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-150 whitespace-nowrap ${
                 currentSource === 'new'
-                  ? 'bg-gradient-to-b from-emerald-800 to-emerald-900 border-2 border-emerald-500 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                  : 'dq-tab'
+                  ? 'bg-[var(--bg-tertiary)] border border-emerald-500 text-emerald-400'
+                  : 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {currentSource === 'new' && <span className="text-emerald-400 animate-[dq-blink_0.6s_step-end_infinite]"><Icon name="caret" className="w-3 h-3" /></span>}
-              <span className="transition-transform group-hover:scale-110"><Icon name="star" className="w-3 h-3" /></span>
+              <Icon name="star" className="w-3 h-3" />
               <span>新着</span>
-              <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
-                currentSource === 'new' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-900/50 text-emerald-400'
+              <span className={`px-1.5 py-0.5 rounded text-[10px] md:text-xs ${
+                currentSource === 'new' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-900/30 text-emerald-400'
               }`}>
                 {newArrivalsCount}
               </span>
@@ -124,19 +119,16 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
               <button
                 key={source.id}
                 onClick={() => handleSourceChange(source.id)}
-                className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-150 whitespace-nowrap ${
                   isActive
-                    ? 'dq-tab-active'
-                    : 'dq-tab'
+                    ? 'bg-[var(--bg-tertiary)] border border-[var(--accent-primary)] text-[var(--accent-primary)]'
+                    : 'bg-transparent border border-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
                 }`}
               >
-                {isActive && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]"><Icon name="caret" className="w-3 h-3" /></span>}
-                <span className="transition-transform group-hover:scale-110">
-                  <SourceIcon sourceId={source.id} className="w-4 h-4" />
-                </span>
+                <SourceIcon sourceId={source.id} className="w-4 h-4" />
                 <span className="hidden sm:inline">{config?.label || source.name || source.id}</span>
-                <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
-                  isActive ? 'bg-amber-500/20 text-amber-300' : 'bg-gray-700/50 text-gray-400'
+                <span className={`px-1.5 py-0.5 rounded text-[10px] md:text-xs ${
+                  isActive ? 'bg-[var(--accent-muted)] text-[var(--accent-primary)]' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'
                 }`}>
                   {count}
                 </span>

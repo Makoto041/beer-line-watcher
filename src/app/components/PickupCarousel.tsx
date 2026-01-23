@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback, type ReactNode } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 interface PickupCarouselProps {
-  children: ReactNode;
+  children: React.ReactNode;
   speed?: number; // seconds for one complete scroll
 }
 

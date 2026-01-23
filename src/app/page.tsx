@@ -12,7 +12,7 @@ import { removeDuplicates } from "@/server/utils/duplicateDetector";
 
 export const dynamic = "force-dynamic";
 
-// Source configurations with colors (using icon names instead of emoji)
+// Source configurations with colors
 const SOURCE_CONFIG: Record<string, { icon: string; label: string; color: string; bgColor: string }> = {
   'beergirl-calendar': {
     icon: 'beer',
@@ -181,41 +181,17 @@ export default async function Page({
 
   return (
     <main className="min-h-screen bg-[#0d1117] overflow-x-hidden">
-      {/* Hero Section - DQ Style */}
-      <section className="relative overflow-hidden pt-8 pb-10 md:pt-12 md:pb-16">
-        {/* Background pattern - subtle pixel grid */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,215,0,0.1) 20px, rgba(255,215,0,0.1) 21px),
-                              repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,215,0,0.1) 20px, rgba(255,215,0,0.1) 21px)`
-          }} />
-        </div>
-
-        {/* Floating pixel decorations */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-          <div className="absolute top-10 left-[10%] opacity-30 animate-[beer-wobble_3s_ease-in-out_infinite]">
-            <div className="pixel-beer-mini"></div>
-          </div>
-          <div className="absolute top-20 right-[15%] opacity-20 animate-[slime-bounce_2s_ease-in-out_infinite]">
-            <div className="pixel-beer-mini"></div>
-          </div>
-          <div className="absolute bottom-20 left-[20%] text-lg opacity-25 animate-[sparkle-twinkle_2s_ease-in-out_infinite]"><Icon name="star" className="w-4 h-4" /></div>
-          <div className="absolute top-1/3 right-[8%] text-sm opacity-20 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.5s]"><Icon name="star" className="w-3 h-3" /></div>
-          <div className="absolute bottom-1/4 right-[25%] text-lg opacity-20 animate-[sparkle-twinkle_2s_ease-in-out_infinite_1s]"><Icon name="star" className="w-4 h-4" /></div>
-          <div className="absolute bottom-16 right-[10%] opacity-25 animate-[beer-wobble_2.5s_ease-in-out_infinite_0.5s]">
-            <div className="pixel-beer-mini"></div>
-          </div>
-        </div>
-
-        <div className="relative max-w-6xl mx-auto px-4">
-          {/* Title Window - DQ Style */}
-          <div className="dq-window p-6 md:p-8 mb-6 md:mb-8 treasure-shine">
-            {/* Update time badge */}
-            <div className="flex flex-col items-center gap-2 mb-4 md:mb-6">
+      {/* Hero Section */}
+      <section className="relative pt-8 pb-10 md:pt-12 md:pb-16">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Main Card */}
+          <div className="card p-6 md:p-8 mb-6 md:mb-8">
+            {/* Update time */}
+            <div className="flex flex-col items-center gap-2 mb-6 md:mb-8">
               {latestUpdateTime && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded bg-black/30 border border-amber-500/30 text-amber-400 text-xs md:text-sm">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-secondary)] text-xs md:text-sm">
                   <span className="opacity-70">最終更新:</span>
-                  <span>{formatUpdateTime(latestUpdateTime)}</span>
+                  <span className="text-[var(--text-primary)]">{formatUpdateTime(latestUpdateTime)}</span>
                 </span>
               )}
               {/* Source update times */}
@@ -226,11 +202,11 @@ export default async function Page({
                   return (
                     <span
                       key={s.id}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] md:text-xs bg-black/20 text-gray-400 border border-gray-700/50"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] md:text-xs bg-[var(--bg-tertiary)] text-[var(--text-muted)] border border-[var(--border-muted)]"
                     >
                       <SourceIcon sourceId={s.id} className="w-3 h-3" />
                       <span className="hidden sm:inline">{config?.label || s.id}:</span>
-                      <span className={lastUpdate ? 'text-gray-300' : 'text-red-400'}>
+                      <span className={lastUpdate ? 'text-[var(--text-secondary)]' : 'text-red-400'}>
                         {lastUpdate ? formatUpdateTime(lastUpdate) : '未取得'}
                       </span>
                     </span>
@@ -239,96 +215,64 @@ export default async function Page({
               </div>
             </div>
 
-            {/* Giant Pixel Art Beer - Hero */}
-            <div className="text-center relative mb-6" aria-hidden="true">
-              {/* Big pixel beer with sparkles */}
-              <div className="relative inline-block">
-                {/* Sparkle effects around beer */}
-                <span className="absolute -top-8 -left-8 text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]"><Icon name="star" className="w-6 h-6" /></span>
-                <span className="absolute -top-4 right-4 text-amber-300 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite_0.3s]"><Icon name="star" className="w-5 h-5" /></span>
-                <span className="absolute top-1/4 -right-8 text-yellow-400 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.6s]"><Icon name="star" className="w-4 h-4" /></span>
-                <span className="absolute bottom-1/4 -left-10 text-amber-400 animate-[sparkle-twinkle_1.3s_ease-in-out_infinite_0.4s]"><Icon name="star" className="w-5 h-5" /></span>
-                <span className="absolute -bottom-4 right-1/4 text-yellow-300 animate-[sparkle-twinkle_1.1s_ease-in-out_infinite_0.8s]"><Icon name="star" className="w-4 h-4" /></span>
-
-                {/* The big pixel beer - CSS art */}
-                <div className="pixel-beer pixel-beer-xlarge pixel-beer-shine pixel-slime treasure-shine"></div>
-
-                {/* Foam bubbles rising */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex gap-2">
-                  <span className="text-xs text-amber-200 animate-[level-up-float_2s_ease-out_infinite]">○</span>
-                  <span className="text-sm text-amber-100 animate-[level-up-float_2.5s_ease-out_infinite_0.3s]">○</span>
-                  <span className="text-xs text-amber-200 animate-[level-up-float_1.8s_ease-out_infinite_0.6s]">○</span>
-                  <span className="text-[10px] text-amber-300 animate-[level-up-float_2.2s_ease-out_infinite_0.9s]">○</span>
-                </div>
+            {/* Title */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center gap-2 mb-4">
+                <Icon name="beer" className="w-8 h-8 md:w-10 md:h-10 text-amber-400" />
               </div>
-            </div>
-
-            {/* Title - DQ Style */}
-            <div className="text-center relative">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 md:mb-4 relative inline-block">
-                <span className="text-glow-gold text-amber-400">ビール・お酒イベント</span>
-                <span className="absolute -top-2 -right-4 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-4 h-4 text-amber-400" /></span>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 text-[var(--text-primary)]">
+                ビール・お酒イベント
               </h1>
-              <p className="text-sm sm:text-base md:text-lg text-gray-400">
-                <span className="inline-block text-amber-500" aria-hidden="true"><Icon name="caret" className="w-3 h-3 mr-1" /></span>
-                全国のビールイベント情報を
-                <br className="sm:hidden" />
-                ひとつの場所で。
+              <p className="text-sm sm:text-base text-[var(--text-secondary)]">
+                全国のビールイベント情報をひとつの場所で。
               </p>
-              {/* Quest message style */}
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/50 to-amber-800/30 border-2 border-amber-500/50 rounded text-amber-300 text-xs md:text-sm quest-glow">
-                <span className="animate-[dq-blink_0.8s_step-end_infinite]" aria-hidden="true"><Icon name="caret" className="w-3 h-3" /></span>
-                <span>冒険者よ、今日もビールを探しに行こう！</span>
-                <span className="animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
-              </div>
             </div>
 
-            {/* Stats - DQ Status Style */}
-            <div className="flex justify-center gap-4 sm:gap-8 md:gap-12 mt-6 md:mt-8">
-              <div className="text-center dq-window-beer p-3 md:p-4 min-w-[80px] md:min-w-[100px]">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-400 text-glow-amber">
+            {/* Stats */}
+            <div className="flex justify-center gap-4 sm:gap-6 md:gap-8 mb-8">
+              <div className="text-center px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] min-w-[80px] md:min-w-[100px]">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-400">
                   {events.length}
                 </div>
-                <div className="text-xs text-gray-400 mt-0.5">イベント</div>
+                <div className="text-xs text-[var(--text-muted)] mt-0.5">イベント</div>
               </div>
-              <div className="text-center dq-window-beer p-3 md:p-4 min-w-[80px] md:min-w-[100px]">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-400 text-glow-amber">
+              <div className="text-center px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] min-w-[80px] md:min-w-[100px]">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-400">
                   {thisWeekEvents.length}
                 </div>
-                <div className="text-xs text-gray-400 mt-0.5">今週開催</div>
+                <div className="text-xs text-[var(--text-muted)] mt-0.5">今週開催</div>
               </div>
-              <div className="text-center dq-window-beer p-3 md:p-4 min-w-[80px] md:min-w-[100px]">
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-400 text-glow-amber">
+              <div className="text-center px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] min-w-[80px] md:min-w-[100px]">
+                <div className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-400">
                   {sources.length}
                 </div>
-                <div className="text-xs text-gray-400 mt-0.5">情報源</div>
+                <div className="text-xs text-[var(--text-muted)] mt-0.5">情報源</div>
               </div>
             </div>
 
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mt-6 md:mt-8">
+            <div className="max-w-2xl mx-auto">
               <SearchForm defaultValue={q} />
             </div>
           </div>
 
-          {/* LINE Bot Banner - inside hero for better visibility on mobile */}
+          {/* LINE Bot Banner */}
           {!source && !q && <LineBotBanner />}
         </div>
       </section>
 
-      {/* Pickup Sections - Categorized by time */}
+      {/* Pickup Sections */}
       {hasPickupEvents && !source && !q && (
         <section className="py-6 md:py-10 space-y-6 md:space-y-8">
           {/* TODAY */}
           {todayEvents.length > 0 && (
-            <div className="max-w-6xl mx-auto confetti-container">
+            <div className="max-w-6xl mx-auto">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
-                <div className="dq-badge dq-badge-today flex items-center gap-2 sparkle">
+                <span className="badge badge-today flex items-center gap-1.5 pulse-subtle">
                   <Icon name="party" className="w-4 h-4" />
-                  <span className="rainbow-text font-bold">TODAY!</span>
-                </div>
-                <span className="text-xs md:text-sm text-gray-400">本日開催のイベント</span>
-                <span className="text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
+                  <span className="font-semibold">TODAY!</span>
+                </span>
+                <span className="text-xs md:text-sm text-[var(--text-muted)]">本日開催のイベント</span>
               </div>
               <PickupCarousel speed={25}>
                 {todayEvents.map((event) => (
@@ -347,12 +291,11 @@ export default async function Page({
           {within3DaysEvents.length > 0 && (
             <div className="max-w-6xl mx-auto">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
-                <div className="dq-badge dq-badge-soon flex items-center gap-2 level-up">
+                <span className="badge badge-soon flex items-center gap-1.5">
                   <Icon name="fire" className="w-4 h-4" />
-                  <span className="font-bold">まもなく開催</span>
-                </div>
-                <span className="text-xs md:text-sm text-gray-400">3日以内</span>
-                <span className="text-orange-400 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
+                  <span className="font-semibold">まもなく開催</span>
+                </span>
+                <span className="text-xs md:text-sm text-[var(--text-muted)]">3日以内</span>
               </div>
               <PickupCarousel speed={30}>
                 {within3DaysEvents.map((event) => (
@@ -371,12 +314,11 @@ export default async function Page({
           {within1WeekEvents.length > 0 && (
             <div className="max-w-6xl mx-auto">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
-                <div className="dq-badge dq-badge-week flex items-center gap-2">
+                <span className="badge badge-week flex items-center gap-1.5">
                   <Icon name="calendar" className="w-4 h-4" />
-                  <span className="font-bold">今週のイベント</span>
-                </div>
-                <span className="text-xs md:text-sm text-gray-400">1週間以内</span>
-                <span className="text-emerald-400 animate-[sparkle-twinkle_1.4s_ease-in-out_infinite]" aria-hidden="true"><Icon name="star" className="w-3 h-3" /></span>
+                  <span className="font-semibold">今週のイベント</span>
+                </span>
+                <span className="text-xs md:text-sm text-[var(--text-muted)]">1週間以内</span>
               </div>
               <PickupCarousel speed={35}>
                 {within1WeekEvents.map((event) => (
@@ -407,18 +349,15 @@ export default async function Page({
         {/* Events Grid */}
         <section className="mt-6 md:mt-8">
           {events.length === 0 ? (
-            <div className="dq-window flex flex-col items-center justify-center py-16 md:py-24">
-              <div className="mb-4 md:mb-6 pixel-beer pixel-beer-large pixel-beer-shine"></div>
-              <h3 className="text-xl md:text-2xl font-bold text-amber-400 text-glow-gold mb-2">
+            <div className="card flex flex-col items-center justify-center py-16 md:py-24">
+              <Icon name="beer" className="w-16 h-16 text-[var(--text-muted)] mb-4" />
+              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] mb-2">
                 イベントが見つかりません
               </h3>
-              <p className="text-sm md:text-base text-gray-400 mb-4 md:mb-6">
+              <p className="text-sm md:text-base text-[var(--text-secondary)] mb-6">
                 条件を変更して再度お試しください
               </p>
-              <a
-                href="/"
-                className="dq-button"
-              >
+              <a href="/" className="btn btn-primary">
                 すべて表示
               </a>
             </div>
@@ -436,29 +375,29 @@ export default async function Page({
           )}
         </section>
 
-        {/* Load More (if needed) */}
+        {/* Load More */}
         {events.length >= 50 && (
           <div className="flex justify-center mt-8 md:mt-12">
-            <p className="text-gray-500 text-xs md:text-sm">
+            <p className="text-[var(--text-muted)] text-xs md:text-sm">
               最大50件を表示しています
             </p>
           </div>
         )}
       </div>
 
-      {/* Footer - DQ Style */}
-      <footer className="border-t border-amber-900/30 mt-10 md:mt-16">
+      {/* Footer */}
+      <footer className="border-t border-[var(--border-default)] mt-10 md:mt-16">
         <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
-          <div className="dq-window p-6 md:p-8">
+          <div className="card p-6 md:p-8">
             <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between md:gap-8">
               {/* Logo */}
               <div className="flex items-center gap-3 md:gap-4">
-                <div className="p-1 md:p-2 rounded bg-gradient-to-br from-amber-500/20 to-amber-700/20 border-2 border-amber-400/50 pixel-beer-shine">
-                  <div className="pixel-beer-mini"></div>
+                <div className="p-2 md:p-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)]">
+                  <Icon name="beer" className="w-6 h-6 md:w-8 md:h-8 text-amber-400" />
                 </div>
                 <div className="text-center md:text-left">
-                  <div className="font-bold text-amber-400 text-sm md:text-base text-glow-gold">ビールイベント通知Bot</div>
-                  <div className="text-xs md:text-sm text-gray-500">毎日自動でイベント情報を更新</div>
+                  <div className="font-bold text-[var(--text-primary)] text-sm md:text-base">ビールイベント通知Bot</div>
+                  <div className="text-xs md:text-sm text-[var(--text-muted)]">毎日自動でイベント情報を更新</div>
                 </div>
               </div>
 
@@ -471,7 +410,7 @@ export default async function Page({
                     return (
                       <span
                         key={s.id}
-                        className={`inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded text-xs md:text-sm ${config?.bgColor || 'bg-gray-800'} ${config?.color || 'text-gray-400'} border border-current/20`}
+                        className="inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded text-xs md:text-sm bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border-muted)]"
                       >
                         <SourceIcon sourceId={s.id} className="w-3 h-3 md:w-4 md:h-4" />
                         <span className="hidden sm:inline">{config?.label || s.name || s.id}</span>
@@ -482,7 +421,7 @@ export default async function Page({
               </div>
             </div>
 
-            <div className="text-center text-xs md:text-sm text-gray-600 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-gray-700/50">
+            <div className="text-center text-xs md:text-sm text-[var(--text-muted)] mt-6 md:mt-8 pt-6 md:pt-8 border-t border-[var(--border-muted)]">
               Made by MAKOTO IWABUCHI
             </div>
           </div>

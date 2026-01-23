@@ -42,15 +42,11 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
   const defaultConfig: SourceConfig = {
     icon: 'calendar',
     label: event.source.name || event.sourceId,
-    color: 'text-gray-400',
-    bgColor: 'bg-gray-800',
+    color: 'text-[var(--text-muted)]',
+    bgColor: 'bg-[var(--bg-tertiary)]',
   };
 
   const config = sourceConfig || defaultConfig;
-
-  // Add special effects for today events
-  const isToday = status === 'today';
-  const isSoon = status === 'soon';
 
   return (
     <a
@@ -59,7 +55,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
       rel="noopener noreferrer"
       className="group block"
     >
-      <div className={`dq-card h-full overflow-hidden excitement-shake ${isToday ? 'quest-glow' : ''} ${isSoon ? 'treasure-shine' : ''}`}>
+      <div className="card h-full overflow-hidden">
         {/* Event Image or Top accent bar */}
         {event.imageUrl ? (
           <div className="relative w-full h-40 overflow-hidden">
@@ -67,32 +63,30 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
               src={event.imageUrl}
               alt={event.title}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
-            {/* Dark overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f0a] via-transparent to-transparent" />
-            {/* Status badge on image with sparkle */}
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-secondary)] via-transparent to-transparent" />
+            {/* Status badge */}
             {status && (
-              <div className={`absolute top-3 right-3 dq-badge flex items-center gap-1 ${
+              <div className={`absolute top-3 right-3 badge ${
                 status === 'today'
-                  ? 'dq-badge-today sparkle'
+                  ? 'badge-today'
                   : status === 'soon'
-                    ? 'dq-badge-soon'
-                    : 'dq-badge-week'
+                    ? 'badge-soon'
+                    : 'badge-week'
               }`}>
-                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite]"><Icon name="star" className="w-3 h-3" /></span>}
-                {status === 'today' ? '今日!' : status === 'soon' ? 'まもなく' : '今週'}
-                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite_0.4s]"><Icon name="star" className="w-3 h-3" /></span>}
+                {status === 'today' ? '今日' : status === 'soon' ? 'まもなく' : '今週'}
               </div>
             )}
-            {/* Date overlay on image */}
+            {/* Date overlay */}
             {dateInfo && (
-              <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded bg-black/70 border border-amber-500/50">
+              <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded bg-black/60 backdrop-blur-sm">
                 {dateRange ? (
-                  <span className="text-sm font-bold text-amber-400">{dateRange.range}</span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">{dateRange.range}</span>
                 ) : (
-                  <span className="text-sm font-bold text-amber-400">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
                     {dateInfo.month}/{dateInfo.day} ({dateInfo.weekday})
                   </span>
                 )}
@@ -109,55 +103,55 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
             <div className="flex items-start justify-between gap-3 mb-4">
               {/* Date or Icon */}
               {dateInfo ? (
-                <div className={`flex-shrink-0 ${dateRange ? 'min-w-[4.5rem] px-2' : 'w-16'} h-16 rounded bg-gradient-to-b from-amber-900/50 to-amber-950/50 border border-amber-500/30 flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
+                <div className={`flex-shrink-0 ${dateRange ? 'min-w-[4.5rem] px-2' : 'w-16'} h-16 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] flex flex-col items-center justify-center transition-transform group-hover:scale-105`}>
                   {dateRange ? (
                     <>
-                      <span className="text-[10px] text-gray-500">開催期間</span>
+                      <span className="text-[10px] text-[var(--text-muted)]">開催期間</span>
                       <span className="text-base font-bold text-amber-400 whitespace-nowrap">{dateRange.range}</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-xs text-gray-500">{dateInfo.month}月</span>
+                      <span className="text-xs text-[var(--text-muted)]">{dateInfo.month}月</span>
                       <span className="text-2xl font-bold text-amber-400">{dateInfo.day}</span>
-                      <span className="text-xs text-gray-500">({dateInfo.weekday})</span>
+                      <span className="text-xs text-[var(--text-muted)]">({dateInfo.weekday})</span>
                     </>
                   )}
                 </div>
               ) : (
-                <div className="flex-shrink-0 w-16 h-16 rounded bg-gradient-to-b from-amber-900/50 to-amber-950/50 border border-amber-500/30 flex items-center justify-center transition-transform group-hover:scale-105">
-                  <SourceIcon sourceId={event.sourceId} className="w-8 h-8 text-amber-400" />
+                <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-default)] flex items-center justify-center transition-transform group-hover:scale-105">
+                  <SourceIcon sourceId={event.sourceId} className="w-8 h-8 text-[var(--text-muted)]" />
                 </div>
               )}
 
               {/* Status badge */}
               {status && (
-                <div className={`dq-badge ${
+                <div className={`badge ${
                   status === 'today'
-                    ? 'dq-badge-today'
+                    ? 'badge-today'
                     : status === 'soon'
-                      ? 'dq-badge-soon'
-                      : 'dq-badge-week'
+                      ? 'badge-soon'
+                      : 'badge-week'
                 }`}>
-                  {status === 'today' ? '今日!' : status === 'soon' ? 'まもなく' : '今週'}
+                  {status === 'today' ? '今日' : status === 'soon' ? 'まもなく' : '今週'}
                 </div>
               )}
             </div>
           )}
 
           {/* Title */}
-          <h3 className="text-base font-bold text-gray-100 leading-snug line-clamp-2 group-hover:text-amber-400 transition-colors mb-3">
+          <h3 className="text-base font-semibold text-[var(--text-primary)] leading-snug line-clamp-2 group-hover:text-amber-400 transition-colors mb-3">
             {event.title}
           </h3>
 
           {/* Source tag */}
           <div className="flex items-center justify-between">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium ${config.bgColor} ${config.color} border border-current/20`}>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[var(--bg-tertiary)] text-[var(--text-secondary)] border border-[var(--border-muted)]`}>
               <SourceIcon sourceId={event.sourceId} className="w-3 h-3" />
               {config.label}
             </span>
 
             {/* Arrow icon */}
-            <span className="flex items-center gap-1 text-sm text-gray-500 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">
+            <span className="flex items-center gap-1 text-sm text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1">
               詳細
               <Icon name="caret" className="w-3 h-3 text-amber-400" />
             </span>

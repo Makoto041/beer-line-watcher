@@ -1,6 +1,5 @@
 // src/app/layout.tsx
 import "./globals.css";
-import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { DotGothic16 } from "next/font/google";
 
@@ -69,7 +68,7 @@ export const viewport: Viewport = {
   themeColor: "#0d1117",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja" className="dark">
       <body className={`${dotGothic.className} bg-[#0d1117] text-white`}>{children}</body>

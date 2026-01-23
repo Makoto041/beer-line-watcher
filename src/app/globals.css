@@ -6,551 +6,199 @@
 }
 
 /* ============================================
-   Dragon Quest × Beer Theme - Dark Mode
+   Clean Dark Theme - Monochrome + Accent
    ============================================ */
 
 /* Color Variables */
 :root {
-  --dq-bg-dark: #0d1117;
-  --dq-bg-window: #1a1f2e;
-  --dq-border-gold: #ffd700;
-  --dq-border-amber: #f59e0b;
-  --dq-text-white: #ffffff;
-  --dq-text-gold: #ffd700;
-  --dq-text-amber: #fbbf24;
-  --dq-accent-red: #ef4444;
-  --dq-accent-green: #22c55e;
-  --dq-accent-blue: #3b82f6;
-  --dq-beer-amber: #d97706;
-  --dq-beer-foam: #fef3c7;
+  /* Base colors */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-elevated: #1c2128;
+
+  /* Border colors */
+  --border-default: #30363d;
+  --border-emphasis: #484f58;
+  --border-muted: #21262d;
+
+  /* Text colors */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+
+  /* Accent color (amber for beer theme) */
+  --accent-primary: #f59e0b;
+  --accent-hover: #fbbf24;
+  --accent-muted: rgba(245, 158, 11, 0.15);
+
+  /* Status colors */
+  --status-today: #ef4444;
+  --status-soon: #f59e0b;
+  --status-week: #22c55e;
 }
 
-/* DQ-style Window */
-.dq-window {
-  background: linear-gradient(180deg, #2a1810 0%, #1a0f0a 100%);
-  border: 3px solid var(--dq-border-gold);
-  border-radius: 4px;
-  box-shadow:
-    inset 0 0 0 1px #3a2a1a,
-    inset 0 0 0 3px rgba(255, 215, 0, 0.3),
-    0 8px 32px rgba(0, 0, 0, 0.6);
-  position: relative;
-}
+/* ============================================
+   Base Components
+   ============================================ */
 
-/* Window with amber/beer theme */
-.dq-window-beer {
-  background: linear-gradient(180deg, #2a1810 0%, #1a0f0a 100%);
-  border: 3px solid var(--dq-border-amber);
-  border-radius: 4px;
-  box-shadow:
-    inset 0 0 0 1px #3a2a1a,
-    inset 0 0 0 3px rgba(245, 158, 11, 0.3),
-    0 8px 32px rgba(0, 0, 0, 0.6);
-}
-
-/* Corner decorations for DQ window */
-.dq-window::before,
-.dq-window::after,
-.dq-window-beer::before,
-.dq-window-beer::after {
-  content: "◆";
-  position: absolute;
-  color: var(--dq-border-gold);
-  font-size: 10px;
-  line-height: 1;
-}
-
-.dq-window::before,
-.dq-window-beer::before {
-  top: -6px;
-  left: -6px;
-}
-
-.dq-window::after,
-.dq-window-beer::after {
-  top: -6px;
-  right: -6px;
-}
-
-/* DQ-style Button */
-.dq-button {
-  background: linear-gradient(180deg, #4a3a2a 0%, #2a1a0a 100%);
-  border: 2px solid var(--dq-border-gold);
-  border-radius: 4px;
-  color: var(--dq-text-gold);
-  padding: 8px 16px;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-  box-shadow:
-    inset -2px -2px 0 rgba(0, 0, 0, 0.4),
-    inset 2px 2px 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.1s ease;
-  cursor: pointer;
-}
-
-.dq-button:hover {
-  background: linear-gradient(180deg, #5a4a3a 0%, #3a2a1a 100%);
-  transform: translateY(-1px);
-}
-
-.dq-button:active {
-  transform: translateY(1px);
-  box-shadow:
-    inset 2px 2px 0 rgba(0, 0, 0, 0.4),
-    inset -2px -2px 0 rgba(255, 255, 255, 0.1);
-}
-
-/* DQ Cursor for selected items */
-.dq-cursor::before {
-  content: "▶";
-  margin-right: 8px;
-  color: var(--dq-text-gold);
-  animation: dq-blink 0.6s step-end infinite;
-}
-
-/* DQ-style Input */
-.dq-input {
-  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
-  border: 2px solid var(--dq-border-gold);
-  border-radius: 4px;
-  color: var(--dq-text-white);
-  padding: 12px 16px;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-.dq-input::placeholder {
-  color: rgba(255, 215, 0, 0.5);
-}
-
-.dq-input:focus {
-  outline: none;
-  border-color: var(--dq-text-amber);
-  box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.5),
-    0 0 0 2px rgba(251, 191, 36, 0.3);
-}
-
-/* DQ-style Card */
-.dq-card {
-  background: linear-gradient(180deg, #2a1810 0%, #1a0f0a 100%);
-  border: 2px solid var(--dq-border-amber);
-  border-radius: 4px;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 215, 0, 0.2),
-    0 4px 16px rgba(0, 0, 0, 0.4);
+/* Card component */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
   transition: all 0.2s ease;
 }
 
-.dq-card:hover {
-  border-color: var(--dq-border-gold);
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 215, 0, 0.4),
-    0 8px 24px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(255, 215, 0, 0.1);
+.card:hover {
+  border-color: var(--border-emphasis);
+  background: var(--bg-tertiary);
 }
 
-/* DQ-style Tab */
-.dq-tab {
-  background: linear-gradient(180deg, #3a2a1a 0%, #2a1a0a 100%);
-  border: 2px solid transparent;
-  border-radius: 4px;
-  color: rgba(255, 255, 255, 0.7);
+/* Card with accent */
+.card-accent {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.card-accent:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-muted);
+}
+
+/* Button */
+.btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-emphasis);
+}
+
+.btn-primary {
+  background: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  color: #000;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+/* Input */
+.input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  padding: 12px 16px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+
+/* ============================================
+   Tab Components
+   ============================================ */
+
+.tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-secondary);
   padding: 8px 16px;
   transition: all 0.15s ease;
 }
 
-.dq-tab:hover {
-  background: linear-gradient(180deg, #4a3a2a 0%, #3a2a1a 100%);
-  color: var(--dq-text-white);
+.tab:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
-.dq-tab-active {
-  background: linear-gradient(180deg, #4a3520 0%, #3a2510 100%);
-  border-color: var(--dq-border-gold);
-  color: var(--dq-text-gold);
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
-}
-
-/* Status Badges */
-.dq-badge {
-  padding: 4px 12px;
-  border-radius: 2px;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dq-badge-today {
-  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
-  border: 1px solid #ef4444;
-  color: white;
-  animation: dq-pulse 1s ease-in-out infinite;
-}
-
-.dq-badge-soon {
-  background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
-  border: 1px solid #f59e0b;
-  color: white;
-}
-
-.dq-badge-week {
-  background: linear-gradient(180deg, #059669 0%, #065f46 100%);
-  border: 1px solid #10b981;
-  color: white;
-}
-
-/* Beer-themed decorations */
-.beer-icon {
-  display: inline-block;
-  animation: beer-wobble 2s ease-in-out infinite;
+.tab-active {
+  background: var(--bg-tertiary);
+  border-color: var(--border-emphasis);
+  color: var(--text-primary);
 }
 
 /* ============================================
-   Pixel Art & Excitement Effects
+   Badge Components
    ============================================ */
 
-/* Sparkle effect */
-.sparkle {
-  position: relative;
-}
-
-.sparkle::before,
-.sparkle::after {
-  content: "✦";
-  position: absolute;
-  color: #ffd700;
+.badge {
+  padding: 4px 10px;
+  border-radius: 4px;
   font-size: 12px;
-  animation: sparkle-twinkle 1.5s ease-in-out infinite;
+  font-weight: 500;
 }
 
-.sparkle::before {
-  top: -8px;
-  right: -8px;
-  animation-delay: 0s;
+.badge-today {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.sparkle::after {
-  bottom: -8px;
-  left: -8px;
-  animation-delay: 0.75s;
+.badge-soon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-@keyframes sparkle-twinkle {
-  0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+.badge-week {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-/* Floating stars background */
-.pixel-stars {
-  position: relative;
-  overflow: hidden;
+.badge-new {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.pixel-stars::before {
-  content: "★ ✦ ☆ ✧ ★ ✦ ☆ ✧ ★ ✦";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  font-size: 14px;
-  letter-spacing: 40px;
-  color: rgba(255, 215, 0, 0.3);
-  animation: float-stars 20s linear infinite;
-  pointer-events: none;
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+/* Subtle pulse for important items */
+.pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }
 
-@keyframes float-stars {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-200px); }
-}
-
-/* Pixel art slime decoration */
-.pixel-slime {
-  display: inline-block;
-  animation: slime-bounce 1s ease-in-out infinite;
-}
-
-@keyframes slime-bounce {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  30% { transform: translateY(-10px) scaleY(1.1); }
-  50% { transform: translateY(0) scaleY(0.9) scaleX(1.1); }
-  70% { transform: translateY(-5px) scaleY(1); }
-}
-
-/* Level up effect */
-.level-up {
-  position: relative;
-}
-
-.level-up::after {
-  content: "▲";
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #ffd700;
-  font-size: 16px;
-  animation: level-up-float 2s ease-out infinite;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-}
-
-@keyframes level-up-float {
-  0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
-}
-
-/* Quest discovered effect */
-.quest-glow {
-  animation: quest-pulse 2s ease-in-out infinite;
-  position: relative;
-}
-
-.quest-glow::before {
-  content: "!";
-  position: absolute;
-  top: -15px;
-  right: -10px;
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(180deg, #ffd700 0%, #f59e0b 100%);
-  border: 2px solid #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  color: #1a0f0a;
-  animation: quest-exclamation 1s ease-in-out infinite;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
-}
-
-@keyframes quest-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
-  50% { box-shadow: 0 0 20px 5px rgba(255, 215, 0, 0.2); }
-}
-
-@keyframes quest-exclamation {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
-
-/* Treasure chest shine */
-.treasure-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.treasure-shine::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent 40%,
-    rgba(255, 215, 0, 0.3) 50%,
-    transparent 60%
-  );
-  animation: treasure-gleam 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes treasure-gleam {
-  0% { transform: translateX(-100%) rotate(45deg); }
-  100% { transform: translateX(100%) rotate(45deg); }
-}
-
-/* Pixel border animation */
-.pixel-border-animated {
-  position: relative;
-}
-
-.pixel-border-animated::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(90deg,
-    #ffd700, #f59e0b, #ffd700, #f59e0b, #ffd700
-  );
-  background-size: 200% 100%;
-  animation: border-flow 2s linear infinite;
-  z-index: -1;
-  border-radius: 6px;
-}
-
-@keyframes border-flow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-
-/* Pixel heart animation */
-.pixel-heart {
-  display: inline-block;
-  color: #ef4444;
-  animation: heart-beat 1s ease-in-out infinite;
-}
-
-@keyframes heart-beat {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.1); }
-  50% { transform: scale(1); }
-  75% { transform: scale(1.15); }
-}
-
-/* Discovery flash */
-.discovery-flash {
-  animation: discovery 0.5s ease-out;
-}
-
-@keyframes discovery {
-  0% {
-    filter: brightness(1);
-    transform: scale(1);
-  }
-  50% {
-    filter: brightness(2);
-    transform: scale(1.05);
-  }
-  100% {
-    filter: brightness(1);
-    transform: scale(1);
-  }
-}
-
-/* Pixel confetti */
-.confetti-container {
-  position: relative;
-  overflow: visible;
-}
-
-.confetti-container::before,
-.confetti-container::after {
-  position: absolute;
-  font-size: 16px;
-  animation: confetti-fall 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.confetti-container::before {
-  content: "🎉";
-  top: -20px;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.confetti-container::after {
-  content: "✨";
-  top: -20px;
-  right: 10%;
-  animation-delay: 1.5s;
-}
-
-@keyframes confetti-fall {
-  0% { opacity: 0; transform: translateY(-10px) rotate(0deg); }
-  20% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(30px) rotate(360deg); }
-}
-
-/* Pixel rain effect */
-.pixel-rain {
-  position: relative;
-}
-
-.pixel-rain::before {
-  content: "⬢ ⬡ ⬢ ⬡ ⬢ ⬡";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  font-size: 8px;
-  letter-spacing: 20px;
-  color: rgba(255, 215, 0, 0.2);
-  animation: pixel-rain-fall 4s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes pixel-rain-fall {
-  0% { transform: translateY(-20px); opacity: 0; }
-  10% { opacity: 0.5; }
-  90% { opacity: 0.5; }
-  100% { transform: translateY(100px); opacity: 0; }
-}
-
-/* Excitement shake */
-.excitement-shake:hover {
-  animation: excitement 0.3s ease-in-out;
-}
-
-@keyframes excitement {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px) rotate(-1deg); }
-  75% { transform: translateX(3px) rotate(1deg); }
-}
-
-/* Rainbow text for special items */
-.rainbow-text {
-  background: linear-gradient(
-    90deg,
-    #ff6b6b, #ffd700, #4ade80, #60a5fa, #a78bfa, #ff6b6b
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: rainbow-flow 3s linear infinite;
-}
-
-@keyframes rainbow-flow {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-
-/* Pixel-style text glow */
-.text-glow-gold {
-  text-shadow:
-    0 0 4px rgba(255, 215, 0, 0.8),
-    0 0 8px rgba(255, 215, 0, 0.4);
-}
-
-.text-glow-amber {
-  text-shadow:
-    0 0 4px rgba(251, 191, 36, 0.8),
-    0 0 8px rgba(251, 191, 36, 0.4);
-}
-
-/* Animations */
-@keyframes dq-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes dq-pulse {
+@keyframes pulse-subtle {
   0%, 100% {
     opacity: 1;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
   }
   50% {
-    opacity: 0.85;
-    box-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+    opacity: 0.7;
   }
 }
 
-@keyframes beer-wobble {
-  0%, 100% { transform: rotate(-2deg); }
-  50% { transform: rotate(2deg); }
+/* Slide up animation */
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
 }
 
-@keyframes dq-typewriter {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes dq-slide-up {
+@keyframes slide-up {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -561,58 +209,56 @@
   }
 }
 
-@keyframes dq-fade-in {
+/* Fade in animation */
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+@keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Utility animations */
-.animate-dq-slide-up {
-  animation: dq-slide-up 0.3s ease-out forwards;
-}
-
-.animate-dq-fade-in {
-  animation: dq-fade-in 0.4s ease-out forwards;
-}
-
 /* Staggered delays */
-.dq-stagger-1 { animation-delay: 0.05s; }
-.dq-stagger-2 { animation-delay: 0.1s; }
-.dq-stagger-3 { animation-delay: 0.15s; }
-.dq-stagger-4 { animation-delay: 0.2s; }
-.dq-stagger-5 { animation-delay: 0.25s; }
-.dq-stagger-6 { animation-delay: 0.3s; }
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
 
-/* Scrollbar - DQ themed */
+/* ============================================
+   Scrollbar
+   ============================================ */
+
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a0f0a;
-  border: 1px solid #3a2a1a;
+  background: var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #4a3a2a 0%, #2a1a0a 100%);
-  border: 2px solid #5a4a3a;
-  border-radius: 2px;
+  background: var(--bg-tertiary);
+  border-radius: 5px;
+  border: 2px solid var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #5a4a3a 0%, #3a2a1a 100%);
+  background: var(--border-emphasis);
 }
 
 /* Selection */
 ::selection {
-  background: rgba(255, 215, 0, 0.3);
-  color: white;
+  background: var(--accent-muted);
+  color: var(--text-primary);
 }
 
 /* Focus visible */
 :focus-visible {
-  outline: 2px solid var(--dq-border-gold);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
@@ -626,7 +272,10 @@
   display: none;
 }
 
-/* Auto-scroll animation for pickup cards */
+/* ============================================
+   Carousel / Marquee
+   ============================================ */
+
 @keyframes scroll-left {
   0% {
     transform: translateX(0);
@@ -644,7 +293,6 @@
   animation-play-state: paused;
 }
 
-/* Marquee container */
 .marquee-container {
   display: flex;
   overflow: hidden;
@@ -665,392 +313,9 @@
 }
 
 /* ============================================
-   Pixel Art Beer Mug (CSS Box-Shadow)
+   Accessibility
    ============================================ */
 
-/* ビールジョッキ Pixel Art - Big Classic Beer Mug */
-.pixel-beer {
-  --pixel: 4px;
-  position: relative;
-  width: calc(var(--pixel) * 16);
-  height: calc(var(--pixel) * 18);
-  margin: 20px auto;
-}
-
-.pixel-beer-large {
-  --pixel: 6px;
-}
-
-.pixel-beer-xlarge {
-  --pixel: 8px;
-}
-
-/* ジョッキ本体 - Beer Mug Body */
-.pixel-beer::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--pixel);
-  height: var(--pixel);
-  background: transparent;
-  box-shadow:
-    /* ========== Row 0: 泡のモコモコ上部 ========== */
-    calc(var(--pixel) * 3) 0 #fffef0,
-    calc(var(--pixel) * 4) 0 #fff8dc,
-    calc(var(--pixel) * 5) 0 #fffef0,
-    calc(var(--pixel) * 6) 0 #fff8dc,
-    calc(var(--pixel) * 7) 0 #fffef0,
-
-    /* ========== Row 1: 泡のモコモコ ========== */
-    calc(var(--pixel) * 2) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 1) #fff8dc,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 1) #fff8dc,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 1) #fff8dc,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 1) #fffef0,
-
-    /* ========== Row 2: 泡とジョッキ縁 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 2) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 2) #fffef0,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 2) #fff8dc,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 2) #fffef0,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 2) #fff8dc,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 2) #fffef0,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 2) #fff8dc,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 2) #fffef0,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 2) #c9a227,
-
-    /* ========== Row 3: 泡下部 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 3) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 3) #fff8dc,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 3) #fffef0,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 3) #fff8dc,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 3) #fffef0,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 3) #fff8dc,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 3) #fffef0,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 3) #fff8dc,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 3) #c9a227,
-
-    /* ========== Row 4: ビール最上部 (明るい黄金色) ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 4) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 4) #fef3c7,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 4) #fde68a,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 4) #fef3c7,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 4) #fde68a,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 4) #fef3c7,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 4) #fde68a,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 4) #fef3c7,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 4) #c9a227,
-
-    /* ========== Row 5: ビール上部 + 取っ手開始 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 5) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 5) #fde68a,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 5) #fcd34d,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 5) #fde68a,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 5) #fcd34d,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 5) #fde68a,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 5) #fcd34d,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 5) #fde68a,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 5) #c9a227,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 5) #c9a227,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 5) #e5c158,
-
-    /* ========== Row 6: ビール + 取っ手上部 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 6) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 6) #fbbf24,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 6) #f59e0b,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 6) #fbbf24,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 6) #f59e0b,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 6) #fbbf24,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 6) #f59e0b,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 6) #fbbf24,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 6) #c9a227,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 6) #f0d47a,
-    calc(var(--pixel) * 12) calc(var(--pixel) * 6) #c9a227,
-
-    /* ========== Row 7: ビール中段 + 取っ手 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 7) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 7) #f59e0b,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 7) #d97706,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 7) #f59e0b,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 7) #d97706,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 7) #f59e0b,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 7) #d97706,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 7) #f59e0b,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 7) #c9a227,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 7) #f0d47a,
-    calc(var(--pixel) * 12) calc(var(--pixel) * 7) #c9a227,
-
-    /* ========== Row 8: ビール中段 + 取っ手 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 8) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 8) #d97706,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 8) #b45309,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 8) #d97706,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 8) #b45309,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 8) #d97706,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 8) #b45309,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 8) #d97706,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 8) #c9a227,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 8) #f0d47a,
-    calc(var(--pixel) * 12) calc(var(--pixel) * 8) #c9a227,
-
-    /* ========== Row 9: ビール中段 + 取っ手 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 9) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 9) #b45309,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 9) #92400e,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 9) #b45309,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 9) #92400e,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 9) #b45309,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 9) #92400e,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 9) #b45309,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 9) #c9a227,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 9) #f0d47a,
-    calc(var(--pixel) * 12) calc(var(--pixel) * 9) #c9a227,
-
-    /* ========== Row 10: ビール下段 + 取っ手終了 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 10) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 10) #92400e,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 10) #78350f,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 10) #92400e,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 10) #78350f,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 10) #92400e,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 10) #78350f,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 10) #92400e,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 10) #c9a227,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 10) #c9a227,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 10) #e5c158,
-
-    /* ========== Row 11: ビール底部 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 11) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 11) #78350f,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 11) #5c2d0e,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 11) #78350f,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 11) #5c2d0e,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 11) #78350f,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 11) #5c2d0e,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 11) #78350f,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 11) #c9a227,
-
-    /* ========== Row 12: ジョッキ底部 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 12) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 12) #5c2d0e,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 12) #78350f,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 12) #5c2d0e,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 12) #78350f,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 12) #5c2d0e,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 12) #78350f,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 12) #5c2d0e,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 12) #c9a227,
-
-    /* ========== Row 13: ジョッキ底縁 ========== */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 13) #a78419,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 13) #c9a227,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 13) #c9a227,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 13) #c9a227,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 13) #c9a227,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 13) #c9a227,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 13) #c9a227,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 13) #c9a227,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 13) #a78419,
-
-    /* ========== Row 14: 台座上部 ========== */
-    calc(var(--pixel) * 0) calc(var(--pixel) * 14) #a78419,
-    calc(var(--pixel) * 1) calc(var(--pixel) * 14) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 14) #e5c158,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 14) #c9a227,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 14) #e5c158,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 14) #c9a227,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 14) #e5c158,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 14) #c9a227,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 14) #e5c158,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 14) #c9a227,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 14) #a78419,
-
-    /* ========== Row 15: 台座下部 ========== */
-    calc(var(--pixel) * 0) calc(var(--pixel) * 15) #8b6914,
-    calc(var(--pixel) * 1) calc(var(--pixel) * 15) #a78419,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 15) #c9a227,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 15) #a78419,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 15) #c9a227,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 15) #a78419,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 15) #c9a227,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 15) #a78419,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 15) #c9a227,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 15) #a78419,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 15) #8b6914;
-}
-
-/* キラキラエフェクト - Sparkle Effect */
-.pixel-beer::after {
-  content: "";
-  position: absolute;
-  width: var(--pixel);
-  height: var(--pixel);
-  background: transparent;
-  animation: beer-sparkle 1.5s ease-in-out infinite;
-  box-shadow:
-    calc(var(--pixel) * 3) calc(var(--pixel) * 5) #fff,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 6) rgba(255, 255, 255, 0.7),
-    calc(var(--pixel) * 4) calc(var(--pixel) * 8) rgba(255, 255, 255, 0.5);
-}
-
-@keyframes beer-sparkle {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes bubble-rise {
-  0%, 100% {
-    transform: translateY(0);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(calc(var(--pixel) * -2));
-    opacity: 1;
-  }
-}
-
-/* Small pixel beer icon - Mini version */
-.pixel-beer-mini {
-  --pixel: 3px;
-  width: calc(var(--pixel) * 12);
-  height: calc(var(--pixel) * 14);
-  position: relative;
-  display: inline-block;
-  margin: 0 4px;
-}
-
-.pixel-beer-mini::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--pixel);
-  height: var(--pixel);
-  background: transparent;
-  box-shadow:
-    /* Row 0: 泡モコモコ */
-    calc(var(--pixel) * 2) 0 #fffef0,
-    calc(var(--pixel) * 3) 0 #fff8dc,
-    calc(var(--pixel) * 4) 0 #fffef0,
-    calc(var(--pixel) * 5) 0 #fff8dc,
-
-    /* Row 1: 泡 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 1) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 1) #fff8dc,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 1) #fff8dc,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 1) #c9a227,
-
-    /* Row 2: 泡下 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 2) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 2) #fff8dc,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 2) #fffef0,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 2) #fff8dc,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 2) #fffef0,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 2) #c9a227,
-
-    /* Row 3: ビール上 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 3) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 3) #fde68a,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 3) #fcd34d,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 3) #fde68a,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 3) #fcd34d,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 3) #c9a227,
-
-    /* Row 4: ビール + 取っ手 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 4) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 4) #fbbf24,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 4) #f59e0b,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 4) #fbbf24,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 4) #f59e0b,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 4) #c9a227,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 4) #c9a227,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 4) #e5c158,
-
-    /* Row 5: ビール + 取っ手 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 5) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 5) #f59e0b,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 5) #d97706,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 5) #f59e0b,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 5) #d97706,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 5) #c9a227,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 5) #f0d47a,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 5) #c9a227,
-
-    /* Row 6: ビール + 取っ手 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 6) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 6) #d97706,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 6) #b45309,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 6) #d97706,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 6) #b45309,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 6) #c9a227,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 6) #f0d47a,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 6) #c9a227,
-
-    /* Row 7: ビール + 取っ手終了 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 7) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 7) #b45309,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 7) #92400e,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 7) #b45309,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 7) #92400e,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 7) #c9a227,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 7) #c9a227,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 7) #e5c158,
-
-    /* Row 8: ビール底 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 8) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 8) #92400e,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 8) #78350f,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 8) #92400e,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 8) #78350f,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 8) #c9a227,
-
-    /* Row 9: ジョッキ底 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 9) #a78419,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 9) #c9a227,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 9) #c9a227,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 9) #c9a227,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 9) #c9a227,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 9) #a78419,
-
-    /* Row 10: 台座 */
-    calc(var(--pixel) * 0) calc(var(--pixel) * 10) #a78419,
-    calc(var(--pixel) * 1) calc(var(--pixel) * 10) #c9a227,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 10) #e5c158,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 10) #c9a227,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 10) #e5c158,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 10) #c9a227,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 10) #e5c158,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 10) #a78419;
-}
-
-/* Animated shine on beer */
-.pixel-beer-shine {
-  position: relative;
-}
-
-.pixel-beer-shine::before {
-  animation: beer-shine 3s ease-in-out infinite;
-}
-
-@keyframes beer-shine {
-  0%, 100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.2);
-  }
-}
-
-/* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -1062,4 +327,121 @@
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
+}
+
+/* ============================================
+   Legacy class aliases (for gradual migration)
+   ============================================ */
+
+/* These map old DQ classes to new classes for compatibility */
+.dq-window {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+}
+
+.dq-window-beer {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+}
+
+.dq-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.dq-card:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dq-button {
+  background: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: 6px;
+  color: #000;
+  padding: 8px 16px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.dq-button:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.dq-input {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  padding: 12px 16px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dq-input::placeholder {
+  color: var(--text-muted);
+}
+
+.dq-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+
+.dq-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  transition: all 0.15s ease;
+}
+
+.dq-tab:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.dq-tab-active {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.dq-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dq-badge-today {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+.dq-badge-soon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.dq-badge-week {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Blink animation for DQ cursor (simplified) */
+@keyframes dq-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
