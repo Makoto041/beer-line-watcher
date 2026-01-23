@@ -138,8 +138,7 @@ exports.Prisma.EventScalarFieldEnum = {
   imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   eventDate: 'eventDate',
-  eventEndDate: 'eventEndDate',
-  notifiedAt: 'notifiedAt'
+  eventEndDate: 'eventEndDate'
 };
 
 exports.Prisma.LineSubscriberScalarFieldEnum = {
