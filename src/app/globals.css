@@ -668,12 +668,11 @@
    Pixel Art Beer Mug (CSS Box-Shadow)
    ============================================ */
 
-/* Base pixel size - adjust for different scales */
-/* ビールジョッキ Pixel Art - Classic Beer Mug */
+/* ビールジョッキ Pixel Art - Refined Classic Beer Mug */
 .pixel-beer {
   --pixel: 4px;
   position: relative;
-  width: calc(var(--pixel) * 14);
+  width: calc(var(--pixel) * 12);
   height: calc(var(--pixel) * 14);
   margin: 20px auto;
 }
@@ -690,128 +689,105 @@
 .pixel-beer::before {
   content: "";
   position: absolute;
+  left: 0;
+  top: 0;
   width: var(--pixel);
   height: var(--pixel);
   background: transparent;
   box-shadow:
-    /* === 泡 (Foam) Row 0-1 === */
-    /* 泡の上部 - ふわふわ感 */
-    calc(var(--pixel) * 3) calc(var(--pixel) * 0) #fffef0,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 0) #fff8dc,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 0) #fffef0,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 0) #fff8dc,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 0) #fffef0,
-    /* 泡の本体 - Row 1 */
+    /* ========== Row 0: 泡のトップ (Foam Top) ========== */
+    calc(var(--pixel) * 3) 0 #fffef0,
+    calc(var(--pixel) * 4) 0 #fff8dc,
+    calc(var(--pixel) * 5) 0 #fffef0,
+
+    /* ========== Row 1: 泡 (Foam) ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 1) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 1) #fffef0,
     calc(var(--pixel) * 4) calc(var(--pixel) * 1) #fff8dc,
     calc(var(--pixel) * 5) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 1) #fff8dc,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 1) #c9a227,
-    /* 泡の底部 - Row 2 */
+    calc(var(--pixel) * 6) calc(var(--pixel) * 1) #c9a227,
+
+    /* ========== Row 2: 泡とビール境界 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 2) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 2) #fff8dc,
     calc(var(--pixel) * 4) calc(var(--pixel) * 2) #fffef0,
     calc(var(--pixel) * 5) calc(var(--pixel) * 2) #fff8dc,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 2) #fffef0,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 2) #fff8dc,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 2) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 2) #c9a227,
 
-    /* === ビール上部 (Beer Top) Row 3 === */
+    /* ========== Row 3: ビール上部 (Beer Top - Light) ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 3) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 3) #fde68a,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 3) #fbbf24,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 3) #fcd34d,
     calc(var(--pixel) * 5) calc(var(--pixel) * 3) #fde68a,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 3) #fbbf24,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 3) #fde68a,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 3) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 3) #c9a227,
 
-    /* === 取っ手上部 + ビール Row 4 === */
-    calc(var(--pixel) * 9) calc(var(--pixel) * 4) #c9a227,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 4) #e5c158,
+    /* ========== Row 4: ビール + 取っ手開始 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 4) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 4) #fbbf24,
     calc(var(--pixel) * 4) calc(var(--pixel) * 4) #f59e0b,
     calc(var(--pixel) * 5) calc(var(--pixel) * 4) #fbbf24,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 4) #f59e0b,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 4) #fbbf24,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 4) #e5c158,
 
-    /* === 取っ手 + ビール Row 5 === */
-    calc(var(--pixel) * 10) calc(var(--pixel) * 5) #f0d47a,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 5) #c9a227,
+    /* ========== Row 5: ビール + 取っ手 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 5) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 5) #f59e0b,
     calc(var(--pixel) * 4) calc(var(--pixel) * 5) #d97706,
     calc(var(--pixel) * 5) calc(var(--pixel) * 5) #f59e0b,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 5) #d97706,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 5) #f59e0b,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 5) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 5) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 5) #f0d47a,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 5) #c9a227,
 
-    /* === 取っ手 + ビール Row 6 === */
-    calc(var(--pixel) * 10) calc(var(--pixel) * 6) #f0d47a,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 6) #c9a227,
+    /* ========== Row 6: ビール中段 + 取っ手 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 6) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 6) #d97706,
     calc(var(--pixel) * 4) calc(var(--pixel) * 6) #b45309,
     calc(var(--pixel) * 5) calc(var(--pixel) * 6) #d97706,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 6) #b45309,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 6) #d97706,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 6) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 6) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 6) #f0d47a,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 6) #c9a227,
 
-    /* === 取っ手 + ビール Row 7 === */
-    calc(var(--pixel) * 10) calc(var(--pixel) * 7) #f0d47a,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 7) #c9a227,
+    /* ========== Row 7: ビール中段 + 取っ手 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 7) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 7) #b45309,
     calc(var(--pixel) * 4) calc(var(--pixel) * 7) #92400e,
     calc(var(--pixel) * 5) calc(var(--pixel) * 7) #b45309,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 7) #92400e,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 7) #b45309,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 7) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 7) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 8) #f0d47a,
+    calc(var(--pixel) * 9) calc(var(--pixel) * 7) #c9a227,
 
-    /* === 取っ手 + ビール Row 8 === */
-    calc(var(--pixel) * 10) calc(var(--pixel) * 8) #f0d47a,
-    calc(var(--pixel) * 11) calc(var(--pixel) * 8) #c9a227,
+    /* ========== Row 8: ビール下段 + 取っ手終了 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 8) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 8) #92400e,
     calc(var(--pixel) * 4) calc(var(--pixel) * 8) #78350f,
     calc(var(--pixel) * 5) calc(var(--pixel) * 8) #92400e,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 8) #78350f,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 8) #92400e,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 8) #e5c158,
 
-    /* === 取っ手下部 + ビール Row 9 === */
-    calc(var(--pixel) * 9) calc(var(--pixel) * 9) #c9a227,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 9) #e5c158,
+    /* ========== Row 9: ビール底部 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 9) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 9) #78350f,
     calc(var(--pixel) * 4) calc(var(--pixel) * 9) #5c2d0e,
     calc(var(--pixel) * 5) calc(var(--pixel) * 9) #78350f,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 9) #5c2d0e,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 9) #78350f,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 9) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 9) #c9a227,
 
-    /* === ジョッキ底部 Row 10 === */
+    /* ========== Row 10: ジョッキ底 ========== */
     calc(var(--pixel) * 2) calc(var(--pixel) * 10) #c9a227,
     calc(var(--pixel) * 3) calc(var(--pixel) * 10) #5c2d0e,
     calc(var(--pixel) * 4) calc(var(--pixel) * 10) #78350f,
     calc(var(--pixel) * 5) calc(var(--pixel) * 10) #5c2d0e,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 10) #78350f,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 10) #5c2d0e,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 10) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 10) #c9a227,
 
-    /* === 台座 Row 11 === */
+    /* ========== Row 11: 台座 (Base) ========== */
     calc(var(--pixel) * 1) calc(var(--pixel) * 11) #a78419,
     calc(var(--pixel) * 2) calc(var(--pixel) * 11) #c9a227,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 11) #c9a227,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 11) #e5c158,
     calc(var(--pixel) * 4) calc(var(--pixel) * 11) #c9a227,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 11) #c9a227,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 11) #e5c158,
     calc(var(--pixel) * 6) calc(var(--pixel) * 11) #c9a227,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 11) #c9a227,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 11) #c9a227,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 11) #a78419;
+    calc(var(--pixel) * 7) calc(var(--pixel) * 11) #a78419;
 }
 
 /* キラキラエフェクト - Sparkle Effect */
@@ -823,13 +799,13 @@
   background: transparent;
   animation: beer-sparkle 1.5s ease-in-out infinite;
   box-shadow:
-    calc(var(--pixel) * 4) calc(var(--pixel) * 4) #fff,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 5) rgba(255, 255, 255, 0.7);
+    calc(var(--pixel) * 3) calc(var(--pixel) * 4) #fff,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 5) rgba(255, 255, 255, 0.6);
 }
 
 @keyframes beer-sparkle {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 0.3;
   }
   50% {
     opacity: 1;
@@ -850,8 +826,8 @@
 /* Small pixel beer icon - Mini version */
 .pixel-beer-mini {
   --pixel: 3px;
-  width: calc(var(--pixel) * 14);
-  height: calc(var(--pixel) * 12);
+  width: calc(var(--pixel) * 10);
+  height: calc(var(--pixel) * 11);
   position: relative;
   display: inline-block;
   margin: 0 4px;
@@ -860,81 +836,82 @@
 .pixel-beer-mini::before {
   content: "";
   position: absolute;
+  left: 0;
+  top: 0;
   width: var(--pixel);
   height: var(--pixel);
   background: transparent;
   box-shadow:
-    /* Mini foam */
+    /* Row 0: 泡トップ */
     calc(var(--pixel) * 2) 0 #fffef0,
     calc(var(--pixel) * 3) 0 #fff8dc,
     calc(var(--pixel) * 4) 0 #fffef0,
-    calc(var(--pixel) * 5) 0 #fff8dc,
-    calc(var(--pixel) * 6) 0 #fffef0,
-    /* Row 1 - foam in mug */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 1) #6b7280,
+
+    /* Row 1: 泡 */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 1) #c9a227,
     calc(var(--pixel) * 2) calc(var(--pixel) * 1) #fffef0,
     calc(var(--pixel) * 3) calc(var(--pixel) * 1) #fff8dc,
     calc(var(--pixel) * 4) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 1) #fff8dc,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 1) #fffef0,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 1) #6b7280,
-    /* Row 2 - beer + handle start */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 2) #6b7280,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 2) #fbbf24,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 2) #fde68a,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 2) #fbbf24,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 2) #fde68a,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 2) #fbbf24,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 2) #6b7280,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 2) #6b7280,
-    /* Row 3 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 3) #6b7280,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 3) #f59e0b,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 3) #fbbf24,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 3) #f59e0b,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 3) #fbbf24,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 3) #f59e0b,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 3) #6b7280,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 3) #9ca3af,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 3) #6b7280,
-    /* Row 4 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 4) #6b7280,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 4) #d97706,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 4) #f59e0b,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 4) #d97706,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 4) #f59e0b,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 4) #d97706,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 4) #6b7280,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 4) #d1d5db,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 4) #6b7280,
-    /* Row 5 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 5) #6b7280,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 5) #b45309,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 5) #d97706,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 5) #b45309,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 5) #d97706,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 5) #b45309,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 5) #6b7280,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 5) #d1d5db,
-    calc(var(--pixel) * 10) calc(var(--pixel) * 5) #6b7280,
-    /* Row 6 */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 6) #6b7280,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 6) #92400e,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 6) #b45309,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 6) #92400e,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 6) #b45309,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 6) #92400e,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 6) #6b7280,
-    calc(var(--pixel) * 8) calc(var(--pixel) * 6) #6b7280,
-    calc(var(--pixel) * 9) calc(var(--pixel) * 6) #6b7280,
-    /* Row 7 - base */
-    calc(var(--pixel) * 1) calc(var(--pixel) * 7) #9ca3af,
-    calc(var(--pixel) * 2) calc(var(--pixel) * 7) #6b7280,
-    calc(var(--pixel) * 3) calc(var(--pixel) * 7) #6b7280,
-    calc(var(--pixel) * 4) calc(var(--pixel) * 7) #6b7280,
-    calc(var(--pixel) * 5) calc(var(--pixel) * 7) #6b7280,
-    calc(var(--pixel) * 6) calc(var(--pixel) * 7) #6b7280,
-    calc(var(--pixel) * 7) calc(var(--pixel) * 7) #9ca3af;
+    calc(var(--pixel) * 5) calc(var(--pixel) * 1) #c9a227,
+
+    /* Row 2: ビール上 */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 2) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 2) #fde68a,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 2) #fbbf24,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 2) #fde68a,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 2) #c9a227,
+
+    /* Row 3: ビール + 取っ手 */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 3) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 3) #fbbf24,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 3) #f59e0b,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 3) #fbbf24,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 3) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 3) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 3) #e5c158,
+
+    /* Row 4: ビール + 取っ手 */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 4) #f59e0b,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 4) #d97706,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 4) #f59e0b,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 4) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 4) #f0d47a,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 4) #c9a227,
+
+    /* Row 5: ビール + 取っ手 */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 5) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 5) #d97706,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 5) #b45309,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 5) #d97706,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 5) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 5) #f0d47a,
+    calc(var(--pixel) * 8) calc(var(--pixel) * 5) #c9a227,
+
+    /* Row 6: ビール下 + 取っ手終了 */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 6) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 6) #b45309,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 6) #92400e,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 6) #b45309,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 6) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 6) #c9a227,
+    calc(var(--pixel) * 7) calc(var(--pixel) * 6) #e5c158,
+
+    /* Row 7: 底 */
+    calc(var(--pixel) * 1) calc(var(--pixel) * 7) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 7) #92400e,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 7) #78350f,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 7) #92400e,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 7) #c9a227,
+
+    /* Row 8: 台座 */
+    calc(var(--pixel) * 0) calc(var(--pixel) * 8) #a78419,
+    calc(var(--pixel) * 1) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 2) calc(var(--pixel) * 8) #e5c158,
+    calc(var(--pixel) * 3) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 4) calc(var(--pixel) * 8) #e5c158,
+    calc(var(--pixel) * 5) calc(var(--pixel) * 8) #c9a227,
+    calc(var(--pixel) * 6) calc(var(--pixel) * 8) #a78419;
 }
 
 /* Animated shine on beer */
