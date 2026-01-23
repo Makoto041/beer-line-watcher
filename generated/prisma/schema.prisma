@@ -27,6 +27,7 @@ model Event {
   createdAt    DateTime  @default(now())
   eventDate    DateTime?
   eventEndDate DateTime?
+  notifiedAt   DateTime? // When this event was broadcast to LINE (null = not yet notified)
   source       Source    @relation(fields: [sourceId], references: [id])
 }
 

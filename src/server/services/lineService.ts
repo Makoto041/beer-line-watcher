@@ -27,11 +27,20 @@ function shouldNotify(
   return daysSinceLastNotification >= notificationDays;
 }
 
-export async function sendLineBroadcast(message: string) {
+/**
+ * Send LINE broadcast with event notification tracking
+ * @param message The message to send
+ * @param eventIds List of event IDs included in this notification (to mark as notified on success)
+ * @returns Object containing success status and whether any recipients were notified
+ */
+export async function sendLineBroadcast(
+  message: string,
+  eventIds?: string[]
+): Promise<{ sent: boolean; recipientCount: number }> {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
   if (!token) {
     console.warn("LINE_CHANNEL_ACCESS_TOKEN not set");
-    return;
+    return { sent: false, recipientCount: 0 };
   }
 
   const now = new Date();
@@ -63,7 +72,7 @@ export async function sendLineBroadcast(message: string) {
 
   if (userIds.length === 0 && eligibleGroups.length === 0) {
     console.log("No recipients to send message to (all filtered by notification interval)");
-    return;
+    return { sent: false, recipientCount: 0 };
   }
 
   console.log(
@@ -128,6 +137,9 @@ export async function sendLineBroadcast(message: string) {
     }
   }
 
+  const totalSuccessful = successfulUserIds.length + successfulGroupIds.length;
+  const anySent = totalSuccessful > 0;
+
   // 3) Update lastNotifiedAt for successful recipients
   if (successfulUserIds.length > 0) {
     await prisma.lineSubscriber.updateMany({
@@ -144,4 +156,15 @@ export async function sendLineBroadcast(message: string) {
     });
     console.log(`Updated lastNotifiedAt for ${successfulGroupIds.length} groups`);
   }
+
+  // 4) Mark events as notified if any recipients were successfully notified
+  if (anySent && eventIds && eventIds.length > 0) {
+    await prisma.event.updateMany({
+      where: { id: { in: eventIds } },
+      data: { notifiedAt: now },
+    });
+    console.log(`Marked ${eventIds.length} events as notified`);
+  }
+
+  return { sent: anySent, recipientCount: totalSuccessful };
 }
