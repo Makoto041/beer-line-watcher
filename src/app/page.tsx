@@ -190,9 +190,18 @@ export default async function Page({
           }} />
         </div>
 
+        {/* Floating pixel decorations */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-10 left-[10%] text-2xl opacity-30 animate-[beer-wobble_3s_ease-in-out_infinite]">🍺</div>
+          <div className="absolute top-20 right-[15%] text-xl opacity-20 animate-[slime-bounce_2s_ease-in-out_infinite]">🍻</div>
+          <div className="absolute bottom-20 left-[20%] text-lg opacity-25 animate-[sparkle-twinkle_2s_ease-in-out_infinite]">✦</div>
+          <div className="absolute top-1/3 right-[8%] text-sm opacity-20 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.5s]">★</div>
+          <div className="absolute bottom-1/4 right-[25%] text-lg opacity-20 animate-[sparkle-twinkle_2s_ease-in-out_infinite_1s]">✧</div>
+        </div>
+
         <div className="relative max-w-6xl mx-auto px-4">
           {/* Title Window - DQ Style */}
-          <div className="dq-window p-6 md:p-8 mb-6 md:mb-8">
+          <div className="dq-window p-6 md:p-8 mb-6 md:mb-8 treasure-shine">
             {/* Update time badge */}
             <div className="flex flex-col items-center gap-2 mb-4 md:mb-6">
               {latestUpdateTime && (
@@ -222,16 +231,49 @@ export default async function Page({
               </div>
             </div>
 
+            {/* Giant Pixel Art Beer - Hero */}
+            <div className="text-center relative mb-6">
+              {/* Big pixel beer with sparkles */}
+              <div className="relative inline-block">
+                {/* Sparkle effects around beer */}
+                <span className="absolute -top-4 -left-4 text-2xl text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
+                <span className="absolute -top-2 right-0 text-xl text-amber-300 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite_0.3s]">✧</span>
+                <span className="absolute top-1/4 -right-6 text-lg text-yellow-400 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.6s]">★</span>
+                <span className="absolute bottom-1/4 -left-6 text-xl text-amber-400 animate-[sparkle-twinkle_1.3s_ease-in-out_infinite_0.4s]">✦</span>
+                <span className="absolute -bottom-2 right-1/4 text-lg text-yellow-300 animate-[sparkle-twinkle_1.1s_ease-in-out_infinite_0.8s]">✧</span>
+
+                {/* The big pixel beer */}
+                <div className="text-[80px] sm:text-[100px] md:text-[120px] lg:text-[150px] leading-none pixel-slime treasure-shine">
+                  🍺
+                </div>
+
+                {/* Foam bubbles */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-1">
+                  <span className="text-xs text-amber-200 animate-[level-up-float_2s_ease-out_infinite]">○</span>
+                  <span className="text-sm text-amber-100 animate-[level-up-float_2.5s_ease-out_infinite_0.3s]">○</span>
+                  <span className="text-xs text-amber-200 animate-[level-up-float_1.8s_ease-out_infinite_0.6s]">○</span>
+                </div>
+              </div>
+            </div>
+
             {/* Title - DQ Style */}
-            <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 md:mb-4">
+            <div className="text-center relative">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 md:mb-4 relative inline-block">
                 <span className="text-glow-gold text-amber-400">ビール・お酒イベント</span>
+                <span className="absolute -top-2 -right-4 text-sm animate-[sparkle-twinkle_1.5s_ease-in-out_infinite]">✨</span>
               </h1>
               <p className="text-sm sm:text-base md:text-lg text-gray-400">
+                <span className="inline-block text-amber-500">▶ </span>
                 全国のビールイベント情報を
                 <br className="sm:hidden" />
                 ひとつの場所で。
               </p>
+              {/* Quest message style */}
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/50 to-amber-800/30 border-2 border-amber-500/50 rounded text-amber-300 text-xs md:text-sm quest-glow">
+                <span className="animate-[dq-blink_0.8s_step-end_infinite]">▶</span>
+                <span>冒険者よ、今日もビールを探しに行こう！</span>
+                <span className="animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
+              </div>
             </div>
 
             {/* Stats - DQ Status Style */}
@@ -272,13 +314,14 @@ export default async function Page({
         <section className="py-6 md:py-10 space-y-6 md:space-y-8">
           {/* TODAY */}
           {todayEvents.length > 0 && (
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-6xl mx-auto confetti-container">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
-                <div className="dq-badge dq-badge-today flex items-center gap-2">
-                  <span className="text-lg">🎉</span>
-                  <span>TODAY!</span>
+                <div className="dq-badge dq-badge-today flex items-center gap-2 sparkle">
+                  <span className="text-lg pixel-heart">🎉</span>
+                  <span className="rainbow-text font-bold">TODAY!</span>
                 </div>
-                <span className="text-xs md:text-sm text-gray-500">本日開催のイベント</span>
+                <span className="text-xs md:text-sm text-gray-400">本日開催のイベント</span>
+                <span className="text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
               </div>
               <PickupCarousel speed={25}>
                 {todayEvents.map((event) => (
@@ -297,11 +340,12 @@ export default async function Page({
           {within3DaysEvents.length > 0 && (
             <div className="max-w-6xl mx-auto">
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
-                <div className="dq-badge dq-badge-soon flex items-center gap-2">
+                <div className="dq-badge dq-badge-soon flex items-center gap-2 level-up">
                   <span className="text-lg">🔥</span>
-                  <span>まもなく開催</span>
+                  <span className="font-bold">まもなく開催</span>
                 </div>
-                <span className="text-xs md:text-sm text-gray-500">3日以内</span>
+                <span className="text-xs md:text-sm text-gray-400">3日以内</span>
+                <span className="text-orange-400 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite]">★</span>
               </div>
               <PickupCarousel speed={30}>
                 {within3DaysEvents.map((event) => (
@@ -322,9 +366,10 @@ export default async function Page({
               <div className="px-4 mb-3 md:mb-4 flex items-center gap-2">
                 <div className="dq-badge dq-badge-week flex items-center gap-2">
                   <span className="text-lg">📅</span>
-                  <span>今週のイベント</span>
+                  <span className="font-bold">今週のイベント</span>
                 </div>
-                <span className="text-xs md:text-sm text-gray-500">1週間以内</span>
+                <span className="text-xs md:text-sm text-gray-400">1週間以内</span>
+                <span className="text-emerald-400 animate-[sparkle-twinkle_1.4s_ease-in-out_infinite]">✧</span>
               </div>
               <PickupCarousel speed={35}>
                 {within1WeekEvents.map((event) => (

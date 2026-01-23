@@ -47,6 +47,10 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
 
   const config = sourceConfig || defaultConfig;
 
+  // Add special effects for today events
+  const isToday = status === 'today';
+  const isSoon = status === 'soon';
+
   return (
     <a
       href={event.url}
@@ -54,7 +58,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
       rel="noopener noreferrer"
       className="group block"
     >
-      <div className="dq-card h-full overflow-hidden">
+      <div className={`dq-card h-full overflow-hidden excitement-shake ${isToday ? 'quest-glow' : ''} ${isSoon ? 'treasure-shine' : ''}`}>
         {/* Event Image or Top accent bar */}
         {event.imageUrl ? (
           <div className="relative w-full h-40 overflow-hidden">
@@ -67,16 +71,18 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
             />
             {/* Dark overlay for better text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#1a0f0a] via-transparent to-transparent" />
-            {/* Status badge on image */}
+            {/* Status badge on image with sparkle */}
             {status && (
-              <div className={`absolute top-3 right-3 dq-badge ${
+              <div className={`absolute top-3 right-3 dq-badge flex items-center gap-1 ${
                 status === 'today'
-                  ? 'dq-badge-today'
+                  ? 'dq-badge-today sparkle'
                   : status === 'soon'
                     ? 'dq-badge-soon'
                     : 'dq-badge-week'
               }`}>
+                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite]">✦</span>}
                 {status === 'today' ? '今日!' : status === 'soon' ? 'まもなく' : '今週'}
+                {status === 'today' && <span className="animate-[sparkle-twinkle_0.8s_ease-in-out_infinite_0.4s]">✦</span>}
               </div>
             )}
             {/* Date overlay on image */}

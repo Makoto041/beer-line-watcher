@@ -207,6 +207,305 @@
   animation: beer-wobble 2s ease-in-out infinite;
 }
 
+/* ============================================
+   Pixel Art & Excitement Effects
+   ============================================ */
+
+/* Sparkle effect */
+.sparkle {
+  position: relative;
+}
+
+.sparkle::before,
+.sparkle::after {
+  content: "✦";
+  position: absolute;
+  color: #ffd700;
+  font-size: 12px;
+  animation: sparkle-twinkle 1.5s ease-in-out infinite;
+}
+
+.sparkle::before {
+  top: -8px;
+  right: -8px;
+  animation-delay: 0s;
+}
+
+.sparkle::after {
+  bottom: -8px;
+  left: -8px;
+  animation-delay: 0.75s;
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+/* Floating stars background */
+.pixel-stars {
+  position: relative;
+  overflow: hidden;
+}
+
+.pixel-stars::before {
+  content: "★ ✦ ☆ ✧ ★ ✦ ☆ ✧ ★ ✦";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 14px;
+  letter-spacing: 40px;
+  color: rgba(255, 215, 0, 0.3);
+  animation: float-stars 20s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes float-stars {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-200px); }
+}
+
+/* Pixel art slime decoration */
+.pixel-slime {
+  display: inline-block;
+  animation: slime-bounce 1s ease-in-out infinite;
+}
+
+@keyframes slime-bounce {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  30% { transform: translateY(-10px) scaleY(1.1); }
+  50% { transform: translateY(0) scaleY(0.9) scaleX(1.1); }
+  70% { transform: translateY(-5px) scaleY(1); }
+}
+
+/* Level up effect */
+.level-up {
+  position: relative;
+}
+
+.level-up::after {
+  content: "▲";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ffd700;
+  font-size: 16px;
+  animation: level-up-float 2s ease-out infinite;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+}
+
+@keyframes level-up-float {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
+}
+
+/* Quest discovered effect */
+.quest-glow {
+  animation: quest-pulse 2s ease-in-out infinite;
+  position: relative;
+}
+
+.quest-glow::before {
+  content: "!";
+  position: absolute;
+  top: -15px;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(180deg, #ffd700 0%, #f59e0b 100%);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #1a0f0a;
+  animation: quest-exclamation 1s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+@keyframes quest-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+  50% { box-shadow: 0 0 20px 5px rgba(255, 215, 0, 0.2); }
+}
+
+@keyframes quest-exclamation {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Treasure chest shine */
+.treasure-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.treasure-shine::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(255, 215, 0, 0.3) 50%,
+    transparent 60%
+  );
+  animation: treasure-gleam 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes treasure-gleam {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Pixel border animation */
+.pixel-border-animated {
+  position: relative;
+}
+
+.pixel-border-animated::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(90deg,
+    #ffd700, #f59e0b, #ffd700, #f59e0b, #ffd700
+  );
+  background-size: 200% 100%;
+  animation: border-flow 2s linear infinite;
+  z-index: -1;
+  border-radius: 6px;
+}
+
+@keyframes border-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Pixel heart animation */
+.pixel-heart {
+  display: inline-block;
+  color: #ef4444;
+  animation: heart-beat 1s ease-in-out infinite;
+}
+
+@keyframes heart-beat {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.15); }
+}
+
+/* Discovery flash */
+.discovery-flash {
+  animation: discovery 0.5s ease-out;
+}
+
+@keyframes discovery {
+  0% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(2);
+    transform: scale(1.05);
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+
+/* Pixel confetti */
+.confetti-container {
+  position: relative;
+  overflow: visible;
+}
+
+.confetti-container::before,
+.confetti-container::after {
+  position: absolute;
+  font-size: 16px;
+  animation: confetti-fall 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.confetti-container::before {
+  content: "🎉";
+  top: -20px;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.confetti-container::after {
+  content: "✨";
+  top: -20px;
+  right: 10%;
+  animation-delay: 1.5s;
+}
+
+@keyframes confetti-fall {
+  0% { opacity: 0; transform: translateY(-10px) rotate(0deg); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(30px) rotate(360deg); }
+}
+
+/* Pixel rain effect */
+.pixel-rain::before {
+  content: "⬢ ⬡ ⬢ ⬡ ⬢ ⬡";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  font-size: 8px;
+  letter-spacing: 20px;
+  color: rgba(255, 215, 0, 0.2);
+  animation: pixel-rain-fall 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes pixel-rain-fall {
+  0% { transform: translateY(-20px); opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { transform: translateY(100px); opacity: 0; }
+}
+
+/* Excitement shake */
+.excitement-shake:hover {
+  animation: excitement 0.3s ease-in-out;
+}
+
+@keyframes excitement {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px) rotate(-1deg); }
+  75% { transform: translateX(3px) rotate(1deg); }
+}
+
+/* Rainbow text for special items */
+.rainbow-text {
+  background: linear-gradient(
+    90deg,
+    #ff6b6b, #ffd700, #4ade80, #60a5fa, #a78bfa, #ff6b6b
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow-flow 3s linear infinite;
+}
+
+@keyframes rainbow-flow {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
 /* Pixel-style text glow */
 .text-glow-gold {
   text-shadow:
