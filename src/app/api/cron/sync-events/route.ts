@@ -16,13 +16,14 @@ const MAX_LINE_CHARS = 5000;
 
 /**
  * Build LINE message from event items with character limit enforcement
+ * Returns the message and the count of items actually included
  */
 function buildLineMessage(
   header: string,
   items: string[],
   overflowUrlSuffix: string
-): string {
-  if (items.length === 0) return "";
+): { message: string; includedCount: number } {
+  if (items.length === 0) return { message: "", includedCount: 0 };
 
   const separator = "\n\n";
 
@@ -34,7 +35,7 @@ function buildLineMessage(
 
   // If everything fits, return as-is
   if (fullMessage.length <= MAX_LINE_CHARS) {
-    return fullMessage;
+    return { message: fullMessage, includedCount: items.length };
   }
 
   // Otherwise, we need to truncate and add overflow suffix
@@ -71,7 +72,7 @@ function buildLineMessage(
     result = result.slice(0, MAX_LINE_CHARS - 3) + "...";
   }
 
-  return result;
+  return { message: result, includedCount };
 }
 
 export async function GET(request: Request) {
@@ -206,15 +207,21 @@ export async function GET(request: Request) {
 
     if (allMessages.length > 0) {
       console.log(`Sending ${allMessages.length} unnotified events to LINE...`);
-      const text = buildLineMessage(
+      const { message: text, includedCount } = buildLineMessage(
         "🍺 新着ビールイベント\n\n",
         allMessages,
         EVENTS_PAGE_URL
       );
-      console.log(`Message length: ${text.length} characters`);
-      const result = await sendLineBroadcast(text, eventIds);
+      console.log(`Message length: ${text.length} characters (${includedCount}/${allMessages.length} events included)`);
+
+      // Only mark events that were actually included in the message
+      const includedEventIds = eventIds.slice(0, includedCount);
+      const result = await sendLineBroadcast(text, includedEventIds);
       if (result.sent) {
         console.log(`LINE broadcast sent successfully to ${result.recipientCount} recipients`);
+        if (includedCount < allMessages.length) {
+          console.log(`${allMessages.length - includedCount} events were truncated and will be included in the next notification`);
+        }
       } else {
         console.log("No recipients were eligible for notification (events will be carried over to next run)");
       }
