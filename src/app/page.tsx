@@ -191,7 +191,7 @@ export default async function Page({
         </div>
 
         {/* Floating pixel decorations */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
           <div className="absolute top-10 left-[10%] opacity-30 animate-[beer-wobble_3s_ease-in-out_infinite]">
             <div className="pixel-beer-mini"></div>
           </div>
@@ -239,7 +239,7 @@ export default async function Page({
             </div>
 
             {/* Giant Pixel Art Beer - Hero */}
-            <div className="text-center relative mb-6">
+            <div className="text-center relative mb-6" aria-hidden="true">
               {/* Big pixel beer with sparkles */}
               <div className="relative inline-block">
                 {/* Sparkle effects around beer */}
@@ -266,19 +266,19 @@ export default async function Page({
             <div className="text-center relative">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 md:mb-4 relative inline-block">
                 <span className="text-glow-gold text-amber-400">ビール・お酒イベント</span>
-                <span className="absolute -top-2 -right-4 text-sm animate-[sparkle-twinkle_1.5s_ease-in-out_infinite]">✨</span>
+                <span className="absolute -top-2 -right-4 text-sm animate-[sparkle-twinkle_1.5s_ease-in-out_infinite]" aria-hidden="true">✨</span>
               </h1>
               <p className="text-sm sm:text-base md:text-lg text-gray-400">
-                <span className="inline-block text-amber-500">▶ </span>
+                <span className="inline-block text-amber-500" aria-hidden="true">▶ </span>
                 全国のビールイベント情報を
                 <br className="sm:hidden" />
                 ひとつの場所で。
               </p>
               {/* Quest message style */}
               <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-900/50 to-amber-800/30 border-2 border-amber-500/50 rounded text-amber-300 text-xs md:text-sm quest-glow">
-                <span className="animate-[dq-blink_0.8s_step-end_infinite]">▶</span>
+                <span className="animate-[dq-blink_0.8s_step-end_infinite]" aria-hidden="true">▶</span>
                 <span>冒険者よ、今日もビールを探しに行こう！</span>
-                <span className="animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
+                <span className="animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true">✦</span>
               </div>
             </div>
 
@@ -327,7 +327,7 @@ export default async function Page({
                   <span className="rainbow-text font-bold">TODAY!</span>
                 </div>
                 <span className="text-xs md:text-sm text-gray-400">本日開催のイベント</span>
-                <span className="text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
+                <span className="text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]" aria-hidden="true">✦</span>
               </div>
               <PickupCarousel speed={25}>
                 {todayEvents.map((event) => (
@@ -351,7 +351,7 @@ export default async function Page({
                   <span className="font-bold">まもなく開催</span>
                 </div>
                 <span className="text-xs md:text-sm text-gray-400">3日以内</span>
-                <span className="text-orange-400 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite]">★</span>
+                <span className="text-orange-400 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite]" aria-hidden="true">★</span>
               </div>
               <PickupCarousel speed={30}>
                 {within3DaysEvents.map((event) => (
@@ -375,7 +375,7 @@ export default async function Page({
                   <span className="font-bold">今週のイベント</span>
                 </div>
                 <span className="text-xs md:text-sm text-gray-400">1週間以内</span>
-                <span className="text-emerald-400 animate-[sparkle-twinkle_1.4s_ease-in-out_infinite]">✧</span>
+                <span className="text-emerald-400 animate-[sparkle-twinkle_1.4s_ease-in-out_infinite]" aria-hidden="true">✧</span>
               </div>
               <PickupCarousel speed={35}>
                 {within1WeekEvents.map((event) => (
