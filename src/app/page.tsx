@@ -192,11 +192,18 @@ export default async function Page({
 
         {/* Floating pixel decorations */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-10 left-[10%] text-2xl opacity-30 animate-[beer-wobble_3s_ease-in-out_infinite]">🍺</div>
-          <div className="absolute top-20 right-[15%] text-xl opacity-20 animate-[slime-bounce_2s_ease-in-out_infinite]">🍻</div>
+          <div className="absolute top-10 left-[10%] opacity-30 animate-[beer-wobble_3s_ease-in-out_infinite]">
+            <div className="pixel-beer-mini"></div>
+          </div>
+          <div className="absolute top-20 right-[15%] opacity-20 animate-[slime-bounce_2s_ease-in-out_infinite]">
+            <div className="pixel-beer-mini"></div>
+          </div>
           <div className="absolute bottom-20 left-[20%] text-lg opacity-25 animate-[sparkle-twinkle_2s_ease-in-out_infinite]">✦</div>
           <div className="absolute top-1/3 right-[8%] text-sm opacity-20 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.5s]">★</div>
           <div className="absolute bottom-1/4 right-[25%] text-lg opacity-20 animate-[sparkle-twinkle_2s_ease-in-out_infinite_1s]">✧</div>
+          <div className="absolute bottom-16 right-[10%] opacity-25 animate-[beer-wobble_2.5s_ease-in-out_infinite_0.5s]">
+            <div className="pixel-beer-mini"></div>
+          </div>
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4">
@@ -236,22 +243,21 @@ export default async function Page({
               {/* Big pixel beer with sparkles */}
               <div className="relative inline-block">
                 {/* Sparkle effects around beer */}
-                <span className="absolute -top-4 -left-4 text-2xl text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
-                <span className="absolute -top-2 right-0 text-xl text-amber-300 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite_0.3s]">✧</span>
-                <span className="absolute top-1/4 -right-6 text-lg text-yellow-400 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.6s]">★</span>
-                <span className="absolute bottom-1/4 -left-6 text-xl text-amber-400 animate-[sparkle-twinkle_1.3s_ease-in-out_infinite_0.4s]">✦</span>
-                <span className="absolute -bottom-2 right-1/4 text-lg text-yellow-300 animate-[sparkle-twinkle_1.1s_ease-in-out_infinite_0.8s]">✧</span>
+                <span className="absolute -top-8 -left-8 text-2xl text-amber-400 animate-[sparkle-twinkle_1s_ease-in-out_infinite]">✦</span>
+                <span className="absolute -top-4 right-4 text-xl text-amber-300 animate-[sparkle-twinkle_1.2s_ease-in-out_infinite_0.3s]">✧</span>
+                <span className="absolute top-1/4 -right-8 text-lg text-yellow-400 animate-[sparkle-twinkle_1.5s_ease-in-out_infinite_0.6s]">★</span>
+                <span className="absolute bottom-1/4 -left-10 text-xl text-amber-400 animate-[sparkle-twinkle_1.3s_ease-in-out_infinite_0.4s]">✦</span>
+                <span className="absolute -bottom-4 right-1/4 text-lg text-yellow-300 animate-[sparkle-twinkle_1.1s_ease-in-out_infinite_0.8s]">✧</span>
 
-                {/* The big pixel beer */}
-                <div className="text-[80px] sm:text-[100px] md:text-[120px] lg:text-[150px] leading-none pixel-slime treasure-shine">
-                  🍺
-                </div>
+                {/* The big pixel beer - CSS art */}
+                <div className="pixel-beer pixel-beer-xlarge pixel-beer-shine pixel-slime treasure-shine"></div>
 
-                {/* Foam bubbles */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-1">
+                {/* Foam bubbles rising */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex gap-2">
                   <span className="text-xs text-amber-200 animate-[level-up-float_2s_ease-out_infinite]">○</span>
                   <span className="text-sm text-amber-100 animate-[level-up-float_2.5s_ease-out_infinite_0.3s]">○</span>
                   <span className="text-xs text-amber-200 animate-[level-up-float_1.8s_ease-out_infinite_0.6s]">○</span>
+                  <span className="text-[10px] text-amber-300 animate-[level-up-float_2.2s_ease-out_infinite_0.9s]">○</span>
                 </div>
               </div>
             </div>
@@ -401,7 +407,7 @@ export default async function Page({
         <section className="mt-6 md:mt-8">
           {events.length === 0 ? (
             <div className="dq-window flex flex-col items-center justify-center py-16 md:py-24">
-              <div className="text-5xl md:text-7xl mb-4 md:mb-6 beer-icon">🍺</div>
+              <div className="mb-4 md:mb-6 pixel-beer pixel-beer-large pixel-beer-shine"></div>
               <h3 className="text-xl md:text-2xl font-bold text-amber-400 text-glow-gold mb-2">
                 イベントが見つかりません
               </h3>
@@ -446,8 +452,8 @@ export default async function Page({
             <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between md:gap-8">
               {/* Logo */}
               <div className="flex items-center gap-3 md:gap-4">
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xl md:text-2xl border-2 border-amber-400 beer-icon">
-                  🍺
+                <div className="p-1 md:p-2 rounded bg-gradient-to-br from-amber-500/20 to-amber-700/20 border-2 border-amber-400/50 pixel-beer-shine">
+                  <div className="pixel-beer-mini"></div>
                 </div>
                 <div className="text-center md:text-left">
                   <div className="font-bold text-amber-400 text-sm md:text-base text-glow-gold">ビールイベント通知Bot</div>
