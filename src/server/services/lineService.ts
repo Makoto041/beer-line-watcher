@@ -155,8 +155,6 @@ export async function sendLineNotifications(): Promise<{
     return { sent: false, userCount: 0, groupCount: 0, totalEvents: 0 };
   }
 
-  const now = new Date();
-
   // Get all subscribers and groups with their notification settings
   const subscribers = await prisma.lineSubscriber.findMany({
     select: { userId: true, notificationDays: true, lastNotifiedAt: true },
@@ -183,8 +181,11 @@ export async function sendLineNotifications(): Promise<{
     return { sent: false, userCount: 0, groupCount: 0, totalEvents: 0 };
   }
 
-  const successfulUserIds: string[] = [];
-  const successfulGroupIds: string[] = [];
+  // Track successful recipients and their newest event createdAt
+  // We use the newest createdAt instead of `now` to avoid skipping events
+  // created during the notification window
+  const successfulUsers: Array<{ userId: string; newestEventCreatedAt: Date }> = [];
+  const successfulGroups: Array<{ groupId: string; newestEventCreatedAt: Date }> = [];
   let maxEventsNotified = 0;
 
   // Group subscribers by lastNotifiedAt to minimize event queries
@@ -207,6 +208,9 @@ export async function sendLineNotifications(): Promise<{
       console.log(`No new events for users with lastNotifiedAt=${lastNotifiedAt?.toISOString() ?? "null"}`);
       continue;
     }
+
+    // Get the newest createdAt from the events (events are sorted desc by createdAt)
+    const newestEventCreatedAt = events[0]!.createdAt;
 
     maxEventsNotified = Math.max(maxEventsNotified, events.length);
     const message = buildLineMessage(events, EVENTS_PAGE_URL);
@@ -236,7 +240,9 @@ export async function sendLineNotifications(): Promise<{
         console.error("LINE multicast error", res.status, body);
       } else {
         console.log(`Sent to user batch ${Math.floor(i / batchSize) + 1} successfully`);
-        successfulUserIds.push(...batch);
+        batch.forEach((userId) => {
+          successfulUsers.push({ userId, newestEventCreatedAt });
+        });
       }
     }
   }
@@ -249,6 +255,9 @@ export async function sendLineNotifications(): Promise<{
       console.log(`No new events for ${group.type} ${group.id}`);
       continue;
     }
+
+    // Get the newest createdAt from the events (events are sorted desc by createdAt)
+    const newestEventCreatedAt = events[0]!.createdAt;
 
     maxEventsNotified = Math.max(maxEventsNotified, events.length);
     const message = buildLineMessage(events, EVENTS_PAGE_URL);
@@ -276,33 +285,39 @@ export async function sendLineNotifications(): Promise<{
       );
     } else {
       console.log(`Sent message to ${group.type} ${group.id}`);
-      successfulGroupIds.push(group.id);
+      successfulGroups.push({ groupId: group.id, newestEventCreatedAt });
     }
   }
 
-  const anySent = successfulUserIds.length > 0 || successfulGroupIds.length > 0;
+  const anySent = successfulUsers.length > 0 || successfulGroups.length > 0;
 
   // Update lastNotifiedAt for successful recipients
-  if (successfulUserIds.length > 0) {
-    await prisma.lineSubscriber.updateMany({
-      where: { userId: { in: successfulUserIds } },
-      data: { lastNotifiedAt: now },
+  // Use the newest event createdAt instead of `now` to avoid skipping events
+  // created during the notification window
+  for (const { userId, newestEventCreatedAt } of successfulUsers) {
+    await prisma.lineSubscriber.update({
+      where: { userId },
+      data: { lastNotifiedAt: newestEventCreatedAt },
     });
-    console.log(`Updated lastNotifiedAt for ${successfulUserIds.length} users`);
+  }
+  if (successfulUsers.length > 0) {
+    console.log(`Updated lastNotifiedAt for ${successfulUsers.length} users`);
   }
 
-  if (successfulGroupIds.length > 0) {
-    await prisma.lineGroup.updateMany({
-      where: { id: { in: successfulGroupIds } },
-      data: { lastNotifiedAt: now },
+  for (const { groupId, newestEventCreatedAt } of successfulGroups) {
+    await prisma.lineGroup.update({
+      where: { id: groupId },
+      data: { lastNotifiedAt: newestEventCreatedAt },
     });
-    console.log(`Updated lastNotifiedAt for ${successfulGroupIds.length} groups`);
+  }
+  if (successfulGroups.length > 0) {
+    console.log(`Updated lastNotifiedAt for ${successfulGroups.length} groups`);
   }
 
   return {
     sent: anySent,
-    userCount: successfulUserIds.length,
-    groupCount: successfulGroupIds.length,
+    userCount: successfulUsers.length,
+    groupCount: successfulGroups.length,
     totalEvents: maxEventsNotified,
   };
 }
