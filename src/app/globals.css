@@ -457,6 +457,10 @@
 }
 
 /* Pixel rain effect */
+.pixel-rain {
+  position: relative;
+}
+
 .pixel-rain::before {
   content: "⬢ ⬡ ⬢ ⬡ ⬢ ⬡";
   position: absolute;
