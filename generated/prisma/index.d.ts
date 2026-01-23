@@ -2266,6 +2266,7 @@ export namespace Prisma {
     createdAt: Date | null
     eventDate: Date | null
     eventEndDate: Date | null
+    notifiedAt: Date | null
   }
 
   export type EventMaxAggregateOutputType = {
@@ -2277,6 +2278,7 @@ export namespace Prisma {
     createdAt: Date | null
     eventDate: Date | null
     eventEndDate: Date | null
+    notifiedAt: Date | null
   }
 
   export type EventCountAggregateOutputType = {
@@ -2288,6 +2290,7 @@ export namespace Prisma {
     createdAt: number
     eventDate: number
     eventEndDate: number
+    notifiedAt: number
     _all: number
   }
 
@@ -2301,6 +2304,7 @@ export namespace Prisma {
     createdAt?: true
     eventDate?: true
     eventEndDate?: true
+    notifiedAt?: true
   }
 
   export type EventMaxAggregateInputType = {
@@ -2312,6 +2316,7 @@ export namespace Prisma {
     createdAt?: true
     eventDate?: true
     eventEndDate?: true
+    notifiedAt?: true
   }
 
   export type EventCountAggregateInputType = {
@@ -2323,6 +2328,7 @@ export namespace Prisma {
     createdAt?: true
     eventDate?: true
     eventEndDate?: true
+    notifiedAt?: true
     _all?: true
   }
 
@@ -2407,6 +2413,7 @@ export namespace Prisma {
     createdAt: Date
     eventDate: Date | null
     eventEndDate: Date | null
+    notifiedAt: Date | null
     _count: EventCountAggregateOutputType | null
     _min: EventMinAggregateOutputType | null
     _max: EventMaxAggregateOutputType | null
@@ -2435,6 +2442,7 @@ export namespace Prisma {
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
+    notifiedAt?: boolean
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
 
@@ -2447,6 +2455,7 @@ export namespace Prisma {
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
+    notifiedAt?: boolean
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
 
@@ -2459,6 +2468,7 @@ export namespace Prisma {
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
+    notifiedAt?: boolean
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["event"]>
 
@@ -2471,9 +2481,10 @@ export namespace Prisma {
     createdAt?: boolean
     eventDate?: boolean
     eventEndDate?: boolean
+    notifiedAt?: boolean
   }
 
-  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceId" | "title" | "url" | "imageUrl" | "createdAt" | "eventDate" | "eventEndDate", ExtArgs["result"]["event"]>
+  export type EventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sourceId" | "title" | "url" | "imageUrl" | "createdAt" | "eventDate" | "eventEndDate" | "notifiedAt", ExtArgs["result"]["event"]>
   export type EventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     source?: boolean | SourceDefaultArgs<ExtArgs>
   }
@@ -2498,6 +2509,7 @@ export namespace Prisma {
       createdAt: Date
       eventDate: Date | null
       eventEndDate: Date | null
+      notifiedAt: Date | null
     }, ExtArgs["result"]["event"]>
     composites: {}
   }
@@ -2930,6 +2942,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Event", 'DateTime'>
     readonly eventDate: FieldRef<"Event", 'DateTime'>
     readonly eventEndDate: FieldRef<"Event", 'DateTime'>
+    readonly notifiedAt: FieldRef<"Event", 'DateTime'>
   }
     
 
@@ -5423,7 +5436,8 @@ export namespace Prisma {
     imageUrl: 'imageUrl',
     createdAt: 'createdAt',
     eventDate: 'eventDate',
-    eventEndDate: 'eventEndDate'
+    eventEndDate: 'eventEndDate',
+    notifiedAt: 'notifiedAt'
   };
 
   export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
@@ -5610,6 +5624,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableFilter<"Event"> | Date | string | null
+    notifiedAt?: DateTimeNullableFilter<"Event"> | Date | string | null
     source?: XOR<SourceScalarRelationFilter, SourceWhereInput>
   }
 
@@ -5622,6 +5637,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     eventEndDate?: SortOrderInput | SortOrder
+    notifiedAt?: SortOrderInput | SortOrder
     source?: SourceOrderByWithRelationInput
   }
 
@@ -5637,6 +5653,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableFilter<"Event"> | Date | string | null
+    notifiedAt?: DateTimeNullableFilter<"Event"> | Date | string | null
     source?: XOR<SourceScalarRelationFilter, SourceWhereInput>
   }, "id">
 
@@ -5649,6 +5666,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     eventDate?: SortOrderInput | SortOrder
     eventEndDate?: SortOrderInput | SortOrder
+    notifiedAt?: SortOrderInput | SortOrder
     _count?: EventCountOrderByAggregateInput
     _max?: EventMaxOrderByAggregateInput
     _min?: EventMinOrderByAggregateInput
@@ -5666,6 +5684,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
+    notifiedAt?: DateTimeNullableWithAggregatesFilter<"Event"> | Date | string | null
   }
 
   export type LineSubscriberWhereInput = {
@@ -5846,6 +5865,7 @@ export namespace Prisma {
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
+    notifiedAt?: Date | string | null
     source: SourceCreateNestedOneWithoutEventsInput
   }
 
@@ -5858,6 +5878,7 @@ export namespace Prisma {
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
+    notifiedAt?: Date | string | null
   }
 
   export type EventUpdateInput = {
@@ -5868,6 +5889,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     source?: SourceUpdateOneRequiredWithoutEventsNestedInput
   }
 
@@ -5880,6 +5902,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type EventCreateManyInput = {
@@ -5891,6 +5914,7 @@ export namespace Prisma {
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
+    notifiedAt?: Date | string | null
   }
 
   export type EventUpdateManyMutationInput = {
@@ -5901,6 +5925,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type EventUncheckedUpdateManyInput = {
@@ -5912,6 +5937,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LineSubscriberCreateInput = {
@@ -6177,6 +6203,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     eventDate?: SortOrder
     eventEndDate?: SortOrder
+    notifiedAt?: SortOrder
   }
 
   export type EventMaxOrderByAggregateInput = {
@@ -6188,6 +6215,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     eventDate?: SortOrder
     eventEndDate?: SortOrder
+    notifiedAt?: SortOrder
   }
 
   export type EventMinOrderByAggregateInput = {
@@ -6199,6 +6227,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     eventDate?: SortOrder
     eventEndDate?: SortOrder
+    notifiedAt?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -6552,6 +6581,7 @@ export namespace Prisma {
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
+    notifiedAt?: Date | string | null
   }
 
   export type EventUncheckedCreateWithoutSourceInput = {
@@ -6562,6 +6592,7 @@ export namespace Prisma {
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
+    notifiedAt?: Date | string | null
   }
 
   export type EventCreateOrConnectWithoutSourceInput = {
@@ -6602,6 +6633,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Event"> | Date | string
     eventDate?: DateTimeNullableFilter<"Event"> | Date | string | null
     eventEndDate?: DateTimeNullableFilter<"Event"> | Date | string | null
+    notifiedAt?: DateTimeNullableFilter<"Event"> | Date | string | null
   }
 
   export type SourceCreateWithoutEventsInput = {
@@ -6664,6 +6696,7 @@ export namespace Prisma {
     createdAt?: Date | string
     eventDate?: Date | string | null
     eventEndDate?: Date | string | null
+    notifiedAt?: Date | string | null
   }
 
   export type EventUpdateWithoutSourceInput = {
@@ -6674,6 +6707,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type EventUncheckedUpdateWithoutSourceInput = {
@@ -6684,6 +6718,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type EventUncheckedUpdateManyWithoutSourceInput = {
@@ -6694,6 +6729,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     eventDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     eventEndDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notifiedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 

@@ -7,6 +7,7 @@ import { upsertEventsAndGetNewOnes } from "@/server/services/eventService";
 import { sendLineBroadcast } from "@/server/services/lineService";
 import { EVENTS_PAGE_URL } from "@/server/constants";
 import { getShortEventUrl } from "@/server/services/eventQueryService";
+import { prisma } from "@/server/db";
 
 export const dynamic = "force-dynamic";
 
@@ -167,23 +168,64 @@ export async function GET(request: Request) {
       );
     }
 
-    if (allNewMessages.length) {
-      console.log(`Sending ${allNewMessages.length} new events to LINE...`);
+    // Get all unnotified events (notifiedAt is null) including any from previous runs
+    // that weren't notified because no recipients were eligible at that time
+    const unnotifiedEvents = await prisma.event.findMany({
+      where: {
+        notifiedAt: null,
+        // Only include events created within last 7 days to avoid notifying very old events
+        createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+      },
+      include: { source: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    console.log(`Found ${unnotifiedEvents.length} unnotified events (including ${allNewMessages.length} from this crawl)`);
+
+    // Build messages from all unnotified events
+    const sourceEmojis: Record<string, string> = {
+      "beergirl-calendar": "🍺",
+      "alwayslovebeer-calendar": "🗓️",
+      "walkerplus": "🍷",
+      "beerfestival": "🎪",
+    };
+    const sourceLabels: Record<string, string> = {
+      "beergirl-calendar": "ビール女子",
+      "alwayslovebeer-calendar": "全国ビールイベント",
+      "walkerplus": "Walkerplus",
+      "beerfestival": "ビアフェス情報",
+    };
+
+    const allMessages = unnotifiedEvents.map((e) => {
+      const emoji = sourceEmojis[e.sourceId] || "📅";
+      const label = sourceLabels[e.sourceId] || e.source.name;
+      return `${emoji}[${label}] ${e.title}\n${getShortEventUrl(e.id)}`;
+    });
+
+    const eventIds = unnotifiedEvents.map((e) => e.id);
+
+    if (allMessages.length > 0) {
+      console.log(`Sending ${allMessages.length} unnotified events to LINE...`);
       const text = buildLineMessage(
-        "🍺 今週の新着ビールイベント\n\n",
-        allNewMessages,
+        "🍺 新着ビールイベント\n\n",
+        allMessages,
         EVENTS_PAGE_URL
       );
       console.log(`Message length: ${text.length} characters`);
-      await sendLineBroadcast(text);
-      console.log("LINE broadcast sent successfully");
+      const result = await sendLineBroadcast(text, eventIds);
+      if (result.sent) {
+        console.log(`LINE broadcast sent successfully to ${result.recipientCount} recipients`);
+      } else {
+        console.log("No recipients were eligible for notification (events will be carried over to next run)");
+      }
     } else {
-      console.log("No new events to send");
+      console.log("No unnotified events to send");
     }
 
     return NextResponse.json({
       success: true,
       newCount: allNewMessages.length,
+      unnotifiedCount: unnotifiedEvents.length,
       crawled: crawledCounts,
     });
   } catch (error) {
