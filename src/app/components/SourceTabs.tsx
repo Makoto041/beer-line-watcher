@@ -64,13 +64,11 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
   const totalCount = Object.values(sourceCounts).reduce((a, b) => a + b, 0);
 
   return (
-    <div>
+    <div className="dq-window-beer p-4">
       {/* Label */}
       <div className="flex items-center gap-2 mb-3 md:mb-4">
-        <svg className="w-4 h-4 md:w-5 md:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-        </svg>
-        <span className="text-xs md:text-sm font-medium text-gray-600">ソースで絞り込み</span>
+        <span className="text-amber-400">▶</span>
+        <span className="text-xs md:text-sm font-medium text-amber-400">ソースで絞り込み</span>
       </div>
 
       {/* Tabs - horizontal scroll on mobile */}
@@ -79,15 +77,16 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
           {/* All sources */}
           <button
             onClick={() => handleSourceChange('')}
-            className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
               !currentSource
-                ? 'bg-gray-900 text-white shadow-lg shadow-gray-900/25'
-                : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
+                ? 'dq-tab-active'
+                : 'dq-tab'
             }`}
           >
+            {!currentSource && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]">▶</span>}
             <span>すべて</span>
-            <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs ${
-              !currentSource ? 'bg-white/20' : 'bg-gray-100'
+            <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
+              !currentSource ? 'bg-amber-500/20 text-amber-300' : 'bg-gray-700/50 text-gray-400'
             }`}>
               {totalCount}
             </span>
@@ -97,16 +96,17 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
           {newArrivalsCount > 0 && (
             <button
               onClick={() => handleSourceChange('new')}
-              className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+              className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                 currentSource === 'new'
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
+                  ? 'bg-gradient-to-b from-emerald-800 to-emerald-900 border-2 border-emerald-500 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                  : 'dq-tab'
               }`}
             >
+              {currentSource === 'new' && <span className="text-emerald-400 animate-[dq-blink_0.6s_step-end_infinite]">▶</span>}
               <span className="transition-transform group-hover:scale-110">✨</span>
               <span>新着</span>
-              <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs ${
-                currentSource === 'new' ? 'bg-white/20' : 'bg-green-100 text-green-700'
+              <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
+                currentSource === 'new' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-900/50 text-emerald-400'
               }`}>
                 {newArrivalsCount}
               </span>
@@ -123,21 +123,19 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
               <button
                 key={source.id}
                 onClick={() => handleSourceChange(source.id)}
-                className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`group relative inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded text-xs md:text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                   isActive
-                    ? `${config?.bgColor || 'bg-gray-100'} ${config?.color || 'text-gray-900'} shadow-lg`
-                    : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm border border-gray-200'
+                    ? 'dq-tab-active'
+                    : 'dq-tab'
                 }`}
-                style={{
-                  boxShadow: isActive ? `0 10px 40px -10px ${getColorRgba(config?.color)}` : undefined
-                }}
               >
+                {isActive && <span className="text-amber-400 animate-[dq-blink_0.6s_step-end_infinite]">▶</span>}
                 <span className="transition-transform group-hover:scale-110">
                   {config?.emoji || '📅'}
                 </span>
                 <span className="hidden sm:inline">{config?.label || source.name || source.id}</span>
-                <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[10px] md:text-xs ${
-                  isActive ? 'bg-black/10' : 'bg-gray-100'
+                <span className={`px-1.5 md:px-2 py-0.5 rounded text-[10px] md:text-xs ${
+                  isActive ? 'bg-amber-500/20 text-amber-300' : 'bg-gray-700/50 text-gray-400'
                 }`}>
                   {count}
                 </span>
@@ -148,15 +146,4 @@ export function SourceTabs({ sources, sourceCounts, currentSource, sourceConfig,
       </div>
     </div>
   );
-}
-
-// Helper to get rgba from Tailwind color class
-function getColorRgba(colorClass?: string): string {
-  const colorMap: Record<string, string> = {
-    'text-amber-600': 'rgba(217, 119, 6, 0.3)',
-    'text-purple-600': 'rgba(147, 51, 234, 0.3)',
-    'text-rose-600': 'rgba(225, 29, 72, 0.3)',
-    'text-sky-600': 'rgba(2, 132, 199, 0.3)',
-  };
-  return colorMap[colorClass || ''] || 'rgba(0, 0, 0, 0.1)';
 }
