@@ -13,6 +13,7 @@ import {
   formatCrawlerResultsForLine,
 } from "@/server/services/crawlerService";
 import { buildLineFlexMessage, type LineMessage } from "@/server/services/lineService";
+import { filterDeliverableByRegion } from "@/server/utils/regionFilter";
 import { EVENTS_PAGE_URL } from "@/server/constants";
 import crypto from "crypto";
 
@@ -100,11 +101,13 @@ async function pushMessages(to: string, messages: LineMessage[]) {
 // Build the [summary text, optional carousel] messages for 最新情報取得
 async function buildLatestInfoMessages(): Promise<LineMessage[]> {
   const { newEvents, summary } = await crawlAndGetNewEvents();
-  const summaryText = formatCrawlerResultsForLine(newEvents, summary);
+  // Deliver only Kanto-area (or region-unknown) events over LINE.
+  const deliverable = filterDeliverableByRegion(newEvents);
+  const summaryText = formatCrawlerResultsForLine(deliverable, summary);
   const messages: LineMessage[] = [{ type: "text", text: summaryText }];
 
-  if (newEvents.length > 0) {
-    const cards = await getEventCardsByIds(newEvents.map((e) => e.id));
+  if (deliverable.length > 0) {
+    const cards = await getEventCardsByIds(deliverable.map((e) => e.id));
     if (cards.length > 0) {
       messages.push(
         buildLineFlexMessage(cards, EVENTS_PAGE_URL, {

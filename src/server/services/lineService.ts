@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/server/db";
 import { EVENTS_PAGE_URL } from "@/server/constants";
 import { getShortEventUrl } from "@/server/services/eventQueryService";
+import { isDeliverableRegion } from "@/server/utils/regionFilter";
 
 const LINE_MULTICAST_ENDPOINT = "https://api.line.me/v2/bot/message/multicast";
 const LINE_PUSH_ENDPOINT = "https://api.line.me/v2/bot/message/push";
@@ -332,13 +333,16 @@ async function getEventsForRecipient(
     ? lastNotifiedAt
     : sevenDaysAgo;
 
-  return prisma.event.findMany({
+  const events = await prisma.event.findMany({
     where: {
       createdAt: { gt: createdAfter },
     },
     include: { source: true },
     orderBy: { createdAt: "desc" },
   });
+
+  // Deliver only Kanto-area (or region-unknown) events over LINE.
+  return events.filter((e) => isDeliverableRegion(e.title));
 }
 
 /**
