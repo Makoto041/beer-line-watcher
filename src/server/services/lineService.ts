@@ -6,9 +6,6 @@ import { getShortEventUrl } from "@/server/services/eventQueryService";
 const LINE_MULTICAST_ENDPOINT = "https://api.line.me/v2/bot/message/multicast";
 const LINE_PUSH_ENDPOINT = "https://api.line.me/v2/bot/message/push";
 
-// LINE message character limit
-const MAX_LINE_CHARS = 5000;
-
 // Source display configuration
 const SOURCE_EMOJIS: Record<string, string> = {
   "beergirl-calendar": "🍺",
@@ -28,8 +25,26 @@ interface EventForNotification {
   title: string;
   sourceId: string;
   createdAt: Date;
+  url: string;
+  imageUrl: string | null;
+  eventDate: Date | null;
+  eventEndDate: Date | null;
   source: { name: string };
 }
+
+// LINE message shapes used by the notification senders
+type LineMessage =
+  | { type: "text"; text: string }
+  | { type: "flex"; altText: string; contents: unknown };
+
+// Flex carousel constraints
+const MAX_CAROUSEL_BUBBLES = 12; // LINE hard limit
+const MAX_EVENT_CARDS = MAX_CAROUSEL_BUBBLES - 1; // reserve 1 for the "see all" card
+const MAX_ALT_TEXT_CHARS = 400; // LINE altText limit
+// Accent color for CTA buttons (beer amber)
+const ACCENT_COLOR = "#C8741E";
+const SUBTLE_COLOR = "#999999";
+const TEXT_COLOR = "#333333";
 
 /**
  * 通知間隔（notificationDays）に基づいて通知対象かどうかを判定
@@ -54,64 +69,215 @@ function shouldNotify(
   return daysSinceLastNotification >= notificationDays;
 }
 
+const WEEKDAY_JA = ["日", "月", "火", "水", "木", "金", "土"];
+
 /**
- * Build LINE message from events with character limit enforcement
+ * Format an event date range as "6/20(土)" or "6/20(土)〜6/22(月)".
+ * Uses the same getMonth()/getDate() convention as the rest of the app
+ * (eventDate is stored at 0:00) so display stays consistent.
  */
-function buildLineMessage(
-  events: EventForNotification[],
-  overflowUrlSuffix: string
-): string {
-  if (events.length === 0) return "";
+function formatEventDate(start: Date | null, end: Date | null): string | null {
+  if (!start) return null;
+  const fmt = (d: Date) =>
+    `${d.getMonth() + 1}/${d.getDate()}(${WEEKDAY_JA[d.getDay()]})`;
+  if (end && end.getTime() !== start.getTime()) {
+    return `${fmt(start)}〜${fmt(end)}`;
+  }
+  return fmt(start);
+}
 
-  const header = "🍺 新着ビールイベント\n\n";
-  const separator = "\n\n";
+// LINE Flex image requirements: HTTPS, JPEG/PNG, URL <= 2000 chars.
+const LINE_FLEX_IMAGE_MAX_URL = 2000;
 
-  const items = events.map((e) => {
-    const emoji = SOURCE_EMOJIS[e.sourceId] || "📅";
-    const label = SOURCE_LABELS[e.sourceId] || e.source.name;
-    return `${emoji}[${label}] ${e.title}\n${getShortEventUrl(e.id)}`;
+/**
+ * Whether a scraped imageUrl is safe to use as a Flex hero image.
+ * LINE rejects an unsupported image URL with a 400 for the ENTIRE
+ * multicast/push, so one bad og:image would block the whole batch.
+ * We only accept HTTPS JPEG/PNG and fall back to the text card otherwise.
+ */
+function isLineFlexImageUrl(imageUrl: string | null): imageUrl is string {
+  if (typeof imageUrl !== "string") return false;
+  if (!imageUrl.startsWith("https://")) return false;
+  if (imageUrl.length > LINE_FLEX_IMAGE_MAX_URL) return false;
+  let pathname: string;
+  try {
+    pathname = new URL(imageUrl).pathname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return /\.(jpe?g|png)$/.test(pathname);
+}
+
+/**
+ * Build the carousel altText (shown in the notification banner / talk list
+ * and as a fallback on clients that cannot render Flex messages).
+ */
+function buildAltText(events: EventForNotification[]): string {
+  const head = `🍺 新着ビールイベントが${events.length}件届きました`;
+  const firstTitle = events[0]?.title;
+  const text = firstTitle ? `${head}\n・${firstTitle} ほか` : head;
+  return text.length > MAX_ALT_TEXT_CHARS
+    ? text.slice(0, MAX_ALT_TEXT_CHARS - 1) + "…"
+    : text;
+}
+
+/**
+ * Build a single event bubble. Image-rich (hero) when imageUrl is a valid
+ * HTTPS image, otherwise a text-only card with a thin separator (hybrid).
+ */
+function buildEventBubble(event: EventForNotification): unknown {
+  const emoji = SOURCE_EMOJIS[event.sourceId] || "📅";
+  const label = SOURCE_LABELS[event.sourceId] || event.source.name;
+  const detailUrl = getShortEventUrl(event.id);
+  const dateStr = formatEventDate(event.eventDate, event.eventEndDate);
+  // Only use the hero image when it meets LINE's Flex image requirements
+  // (HTTPS JPEG/PNG); otherwise fall back to the text card.
+  const hasImage = isLineFlexImageUrl(event.imageUrl);
+
+  const bodyContents: unknown[] = [
+    {
+      type: "text",
+      text: `${emoji} ${label}`,
+      size: "xs",
+      color: SUBTLE_COLOR,
+      weight: "bold",
+    },
+  ];
+
+  // Text-only card gets a thin separator under the source label.
+  if (!hasImage) {
+    bodyContents.push({ type: "separator", margin: "sm" });
+  }
+
+  bodyContents.push({
+    type: "text",
+    text: event.title,
+    weight: "bold",
+    size: "md",
+    color: TEXT_COLOR,
+    wrap: true,
+    maxLines: 3,
+    margin: "md",
   });
 
-  // First, try to include all items without overflow suffix
-  let fullMessage = header;
-  for (let i = 0; i < items.length; i++) {
-    fullMessage += (i === 0 ? "" : separator) + items[i];
+  if (dateStr) {
+    bodyContents.push({
+      type: "text",
+      text: `📅 ${dateStr}`,
+      size: "sm",
+      color: "#666666",
+      wrap: true,
+      margin: "sm",
+    });
   }
 
-  // If everything fits, return as-is
-  if (fullMessage.length <= MAX_LINE_CHARS) {
-    return fullMessage;
+  return {
+    type: "bubble",
+    size: "kilo",
+    ...(hasImage
+      ? {
+          hero: {
+            type: "image",
+            url: event.imageUrl,
+            size: "full",
+            aspectRatio: "20:13",
+            aspectMode: "cover",
+            action: { type: "uri", uri: detailUrl },
+          },
+        }
+      : {}),
+    body: {
+      type: "box",
+      layout: "vertical",
+      spacing: "none",
+      contents: bodyContents,
+    },
+    footer: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "button",
+          style: "primary",
+          height: "sm",
+          color: ACCENT_COLOR,
+          action: { type: "uri", label: "詳細を見る", uri: detailUrl },
+        },
+      ],
+    },
+  };
+}
+
+/**
+ * Build the trailing "see all" bubble. Shows "他N件" when some events were
+ * not included in the carousel.
+ */
+function buildSeeAllBubble(remaining: number, overflowUrl: string): unknown {
+  const contents: unknown[] = [];
+  if (remaining > 0) {
+    contents.push({
+      type: "text",
+      text: `他 ${remaining} 件`,
+      weight: "bold",
+      size: "xl",
+      align: "center",
+      color: TEXT_COLOR,
+    });
   }
+  contents.push({
+    type: "text",
+    text: "すべてのイベントを見る",
+    size: "sm",
+    color: SUBTLE_COLOR,
+    align: "center",
+    wrap: true,
+  });
 
-  // Otherwise, we need to truncate and add overflow suffix
-  let result = header;
-  let includedCount = 0;
+  return {
+    type: "bubble",
+    size: "kilo",
+    body: {
+      type: "box",
+      layout: "vertical",
+      justifyContent: "center",
+      spacing: "md",
+      contents,
+    },
+    footer: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "button",
+          style: "primary",
+          height: "sm",
+          color: TEXT_COLOR,
+          action: { type: "uri", label: "一覧を見る", uri: overflowUrl },
+        },
+      ],
+    },
+  };
+}
 
-  for (const item of items) {
-    const nextAddition = (includedCount === 0 ? "" : separator) + item;
-    const potentialLength = result.length + nextAddition.length;
+/**
+ * Build a LINE Flex carousel message from events (horizontal swipe).
+ * Shows up to MAX_EVENT_CARDS event cards plus a trailing "see all" card.
+ */
+function buildLineFlexMessage(
+  events: EventForNotification[],
+  overflowUrl: string
+): LineMessage {
+  const shown = events.slice(0, MAX_EVENT_CARDS);
+  const remaining = events.length - shown.length;
 
-    const remainingIfBreak = items.length - includedCount;
-    const suffixIfBreak = `\n\n…他${remainingIfBreak}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`;
+  const bubbles: unknown[] = shown.map(buildEventBubble);
+  bubbles.push(buildSeeAllBubble(remaining, overflowUrl));
 
-    if (potentialLength + suffixIfBreak.length > MAX_LINE_CHARS) {
-      break;
-    }
-
-    result += nextAddition;
-    includedCount++;
-  }
-
-  const remainingCount = items.length - includedCount;
-  if (remainingCount > 0) {
-    result += `\n\n…他${remainingCount}件あります。\n詳しくはこちら: ${overflowUrlSuffix}`;
-  }
-
-  if (result.length > MAX_LINE_CHARS) {
-    result = result.slice(0, MAX_LINE_CHARS - 3) + "...";
-  }
-
-  return result;
+  return {
+    type: "flex",
+    altText: buildAltText(events),
+    contents: { type: "carousel", contents: bubbles },
+  };
 }
 
 /**
@@ -213,7 +379,7 @@ export async function sendLineNotifications(): Promise<{
     const newestEventCreatedAt = events[0]!.createdAt;
 
     maxEventsNotified = Math.max(maxEventsNotified, events.length);
-    const message = buildLineMessage(events, EVENTS_PAGE_URL);
+    const message = buildLineFlexMessage(events, EVENTS_PAGE_URL);
     const userIds = subs.map((s) => s.userId);
 
     console.log(`Sending ${events.length} events to ${userIds.length} users (lastNotifiedAt=${lastNotifiedAt?.toISOString() ?? "null"})`);
@@ -231,7 +397,7 @@ export async function sendLineNotifications(): Promise<{
         },
         body: JSON.stringify({
           to: batch,
-          messages: [{ type: "text", text: message }],
+          messages: [message],
         }),
       });
 
@@ -260,7 +426,7 @@ export async function sendLineNotifications(): Promise<{
     const newestEventCreatedAt = events[0]!.createdAt;
 
     maxEventsNotified = Math.max(maxEventsNotified, events.length);
-    const message = buildLineMessage(events, EVENTS_PAGE_URL);
+    const message = buildLineFlexMessage(events, EVENTS_PAGE_URL);
 
     console.log(`Sending ${events.length} events to ${group.type} ${group.id}`);
 
@@ -272,7 +438,7 @@ export async function sendLineNotifications(): Promise<{
       },
       body: JSON.stringify({
         to: group.id,
-        messages: [{ type: "text", text: message }],
+        messages: [message],
       }),
     });
 
