@@ -4,6 +4,7 @@ import { prisma } from "@/server/db";
 import {
   getThisWeeksEvents,
   getRecentEvents,
+  getEventCardsByIds,
   formatEventsForLine,
   formatRecentEventsForLine,
 } from "@/server/services/eventQueryService";
@@ -11,6 +12,8 @@ import {
   crawlAndGetNewEvents,
   formatCrawlerResultsForLine,
 } from "@/server/services/crawlerService";
+import { buildLineFlexMessage, type LineMessage } from "@/server/services/lineService";
+import { EVENTS_PAGE_URL } from "@/server/constants";
 import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +55,65 @@ async function replyMessage(replyToken: string, text: string) {
   }).catch((error) => {
     console.error("Reply message error:", error);
   });
+}
+
+// Reply with arbitrary LINE messages (e.g. a Flex carousel)
+async function replyWithMessages(replyToken: string, messages: LineMessage[]) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.error("LINE_CHANNEL_ACCESS_TOKEN not set");
+    return;
+  }
+
+  await fetch("https://api.line.me/v2/bot/message/reply", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ replyToken, messages }),
+  }).catch((error) => {
+    console.error("Reply message error:", error);
+  });
+}
+
+// Push arbitrary LINE messages to a user/group/room
+async function pushMessages(to: string, messages: LineMessage[]) {
+  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!token) {
+    console.error("LINE_CHANNEL_ACCESS_TOKEN not set");
+    return;
+  }
+
+  await fetch("https://api.line.me/v2/bot/message/push", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ to, messages }),
+  }).catch((error) => {
+    console.error("Push message error:", error);
+  });
+}
+
+// Build the [summary text, optional carousel] messages for 最新情報取得
+async function buildLatestInfoMessages(): Promise<LineMessage[]> {
+  const { newEvents, summary } = await crawlAndGetNewEvents();
+  const summaryText = formatCrawlerResultsForLine(newEvents, summary);
+  const messages: LineMessage[] = [{ type: "text", text: summaryText }];
+
+  if (newEvents.length > 0) {
+    const cards = await getEventCardsByIds(newEvents.map((e) => e.id));
+    if (cards.length > 0) {
+      messages.push(
+        buildLineFlexMessage(cards, EVENTS_PAGE_URL, {
+          altText: `🔄 新着イベントが${cards.length}件あります`,
+        })
+      );
+    }
+  }
+  return messages;
 }
 
 // Parse notification interval from explicit command
@@ -259,38 +321,36 @@ export async function POST(request: Request) {
           console.log("User requested latest info:", userId);
           await replyMessage(event.replyToken, "🔄 最新情報を取得中です...");
 
-          const { newEvents, summary } = await crawlAndGetNewEvents();
-          const message = formatCrawlerResultsForLine(newEvents, summary);
-
           // Send result as push message (can't use reply token twice)
-          const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-          if (token) {
-            await fetch("https://api.line.me/v2/bot/message/push", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                to: userId,
-                messages: [{ type: "text", text: message }],
-              }),
-            });
-          }
+          await pushMessages(userId, await buildLatestInfoMessages());
         }
         // 今週のイベント
         else if (/今週.*イベント|イベント.*今週/.test(text)) {
           console.log("User requested this week's events:", userId);
           const events = await getThisWeeksEvents();
-          const message = formatEventsForLine(events);
-          await replyMessage(event.replyToken, message);
+          if (events.length === 0) {
+            await replyMessage(event.replyToken, "今週のイベントが見つかりませんでした。");
+          } else {
+            await replyWithMessages(event.replyToken, [
+              buildLineFlexMessage(events, EVENTS_PAGE_URL, {
+                altText: formatEventsForLine(events),
+              }),
+            ]);
+          }
         }
         // イベント（直近5件表示）
         else if (/^イベント$/i.test(text)) {
           console.log("User requested recent events:", userId);
           const events = await getRecentEvents(5);
-          const message = formatRecentEventsForLine(events);
-          await replyMessage(event.replyToken, message);
+          if (events.length === 0) {
+            await replyMessage(event.replyToken, "現在登録されているイベントがありません。");
+          } else {
+            await replyWithMessages(event.replyToken, [
+              buildLineFlexMessage(events, EVENTS_PAGE_URL, {
+                altText: formatRecentEventsForLine(events),
+              }),
+            ]);
+          }
         }
         // 通知間隔の変更
         else {
@@ -341,38 +401,36 @@ export async function POST(request: Request) {
           console.log("Group requested latest info:", id);
           await replyMessage(event.replyToken, "🔄 最新情報を取得中です...");
 
-          const { newEvents, summary } = await crawlAndGetNewEvents();
-          const message = formatCrawlerResultsForLine(newEvents, summary);
-
           // Send result as push message
-          const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-          if (token) {
-            await fetch("https://api.line.me/v2/bot/message/push", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                to: id,
-                messages: [{ type: "text", text: message }],
-              }),
-            });
-          }
+          await pushMessages(id, await buildLatestInfoMessages());
         }
         // 今週のイベント
         else if (/今週.*イベント|イベント.*今週/.test(text)) {
           console.log("Group requested this week's events:", id);
           const events = await getThisWeeksEvents();
-          const message = formatEventsForLine(events);
-          await replyMessage(event.replyToken, message);
+          if (events.length === 0) {
+            await replyMessage(event.replyToken, "今週のイベントが見つかりませんでした。");
+          } else {
+            await replyWithMessages(event.replyToken, [
+              buildLineFlexMessage(events, EVENTS_PAGE_URL, {
+                altText: formatEventsForLine(events),
+              }),
+            ]);
+          }
         }
         // イベント（直近5件表示）
         else if (/^イベント$/i.test(text)) {
           console.log("Group requested recent events:", id);
           const events = await getRecentEvents(5);
-          const message = formatRecentEventsForLine(events);
-          await replyMessage(event.replyToken, message);
+          if (events.length === 0) {
+            await replyMessage(event.replyToken, "現在登録されているイベントがありません。");
+          } else {
+            await replyWithMessages(event.replyToken, [
+              buildLineFlexMessage(events, EVENTS_PAGE_URL, {
+                altText: formatRecentEventsForLine(events),
+              }),
+            ]);
+          }
         }
         // 通知間隔の変更
         else {

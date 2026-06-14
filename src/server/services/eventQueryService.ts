@@ -1,5 +1,6 @@
 import { prisma } from "@/server/db";
 import { APP_URL, EVENTS_PAGE_URL } from "@/server/constants";
+import type { LineEventCard } from "@/server/services/lineService";
 
 /**
  * Generate short URL for event (used in LINE messages)
@@ -7,6 +8,31 @@ import { APP_URL, EVENTS_PAGE_URL } from "@/server/constants";
  */
 export function getShortEventUrl(eventId: string): string {
   return `${APP_URL}/api/go?id=${eventId}`;
+}
+
+type EventWithSource = {
+  id: string;
+  title: string;
+  url: string;
+  sourceId: string;
+  imageUrl: string | null;
+  eventDate: Date | null;
+  eventEndDate: Date | null;
+  source: { name: string };
+};
+
+/** Map a Prisma event (with source) to the LINE carousel card shape. */
+function toLineEventCard(event: EventWithSource): LineEventCard {
+  return {
+    id: event.id,
+    title: event.title,
+    sourceId: event.sourceId,
+    sourceName: event.source.name,
+    url: event.url,
+    imageUrl: event.imageUrl,
+    eventDate: event.eventDate,
+    eventEndDate: event.eventEndDate,
+  };
 }
 
 /**
@@ -112,9 +138,7 @@ export async function getLatestEvents(
  * Get this week's events (upcoming events within 7 days)
  * Only from Beergirl calendar, sorted by event date, max 5 items
  */
-export async function getThisWeeksEvents(): Promise<
-  Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
-> {
+export async function getThisWeeksEvents(): Promise<LineEventCard[]> {
   const now = new Date();
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
@@ -138,13 +162,7 @@ export async function getThisWeeksEvents(): Promise<
     take: 5, // Max 5 events
   });
 
-  return events.map((event) => ({
-    id: event.id,
-    title: event.title,
-    url: event.url,
-    sourceName: event.source.name,
-    eventDate: event.eventDate || undefined,
-  }));
+  return events.map(toLineEventCard);
 }
 
 /**
@@ -152,9 +170,7 @@ export async function getThisWeeksEvents(): Promise<
  */
 export async function getRecentEvents(
   limit: number = 5
-): Promise<
-  Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
-> {
+): Promise<LineEventCard[]> {
   const now = new Date();
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
@@ -191,22 +207,34 @@ export async function getRecentEvents(
     take: limit,
   });
 
-  return events.map((event) => ({
-    id: event.id,
-    title: event.title,
-    url: event.url,
-    sourceName: event.source.name,
-    eventDate: event.eventDate || undefined,
-  }));
+  return events.map(toLineEventCard);
+}
+
+/**
+ * Get full carousel cards for a set of event IDs, preserving the given order.
+ * Used by the "最新情報取得" webhook path, where freshly-crawled events are
+ * known only by id and need image/date enrichment for rich cards.
+ */
+export async function getEventCardsByIds(ids: string[]): Promise<LineEventCard[]> {
+  if (ids.length === 0) return [];
+
+  const events = await prisma.event.findMany({
+    where: { id: { in: ids } },
+    include: { source: true },
+  });
+
+  const byId = new Map(events.map((e) => [e.id, e]));
+  return ids
+    .map((id) => byId.get(id))
+    .filter((e): e is NonNullable<typeof e> => e != null)
+    .map(toLineEventCard);
 }
 
 /**
  * Format events as LINE message text
  * Uses short URLs to prevent long URLs from breaking in LINE messages
  */
-export function formatEventsForLine(
-  events: Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
-): string {
+export function formatEventsForLine(events: LineEventCard[]): string {
   if (events.length === 0) {
     return "今週のイベントが見つかりませんでした。";
   }
@@ -233,9 +261,7 @@ export function formatEventsForLine(
  * Format recent events for "イベント" command
  * Uses short URLs to prevent long URLs from breaking in LINE messages
  */
-export function formatRecentEventsForLine(
-  events: Array<{ id: string; title: string; url: string; sourceName: string; eventDate?: Date }>
-): string {
+export function formatRecentEventsForLine(events: LineEventCard[]): string {
   if (events.length === 0) {
     return "現在登録されているイベントがありません。";
   }
