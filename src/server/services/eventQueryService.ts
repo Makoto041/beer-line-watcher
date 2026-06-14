@@ -1,6 +1,7 @@
 import { prisma } from "@/server/db";
 import { APP_URL, EVENTS_PAGE_URL } from "@/server/constants";
 import type { LineEventCard } from "@/server/services/lineService";
+import { filterDeliverableByRegion } from "@/server/utils/regionFilter";
 
 /**
  * Generate short URL for event (used in LINE messages)
@@ -159,10 +160,11 @@ export async function getThisWeeksEvents(): Promise<LineEventCard[]> {
     orderBy: {
       eventDate: "asc", // Sort by event date
     },
-    take: 5, // Max 5 events
+    take: 30, // Over-fetch so the post-region-filter list can still reach 5
   });
 
-  return events.map(toLineEventCard);
+  // LINE delivery: Kanto-area (or region-unknown) events only.
+  return filterDeliverableByRegion(events.map(toLineEventCard)).slice(0, 5);
 }
 
 /**
@@ -204,10 +206,11 @@ export async function getRecentEvents(
         createdAt: "desc",
       },
     ],
-    take: limit,
+    take: Math.max(limit * 6, 30), // Over-fetch for the region filter below
   });
 
-  return events.map(toLineEventCard);
+  // LINE delivery: Kanto-area (or region-unknown) events only.
+  return filterDeliverableByRegion(events.map(toLineEventCard)).slice(0, limit);
 }
 
 /**
