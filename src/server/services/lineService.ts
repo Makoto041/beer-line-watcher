@@ -86,6 +86,28 @@ function formatEventDate(start: Date | null, end: Date | null): string | null {
   return fmt(start);
 }
 
+// LINE Flex image requirements: HTTPS, JPEG/PNG, URL <= 2000 chars.
+const LINE_FLEX_IMAGE_MAX_URL = 2000;
+
+/**
+ * Whether a scraped imageUrl is safe to use as a Flex hero image.
+ * LINE rejects an unsupported image URL with a 400 for the ENTIRE
+ * multicast/push, so one bad og:image would block the whole batch.
+ * We only accept HTTPS JPEG/PNG and fall back to the text card otherwise.
+ */
+function isLineFlexImageUrl(imageUrl: string | null): imageUrl is string {
+  if (typeof imageUrl !== "string") return false;
+  if (!imageUrl.startsWith("https://")) return false;
+  if (imageUrl.length > LINE_FLEX_IMAGE_MAX_URL) return false;
+  let pathname: string;
+  try {
+    pathname = new URL(imageUrl).pathname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return /\.(jpe?g|png)$/.test(pathname);
+}
+
 /**
  * Build the carousel altText (shown in the notification banner / talk list
  * and as a fallback on clients that cannot render Flex messages).
@@ -108,9 +130,9 @@ function buildEventBubble(event: EventForNotification): unknown {
   const label = SOURCE_LABELS[event.sourceId] || event.source.name;
   const detailUrl = getShortEventUrl(event.id);
   const dateStr = formatEventDate(event.eventDate, event.eventEndDate);
-  // LINE requires HTTPS images; fall back to the text card otherwise.
-  const hasImage =
-    typeof event.imageUrl === "string" && event.imageUrl.startsWith("https://");
+  // Only use the hero image when it meets LINE's Flex image requirements
+  // (HTTPS JPEG/PNG); otherwise fall back to the text card.
+  const hasImage = isLineFlexImageUrl(event.imageUrl);
 
   const bodyContents: unknown[] = [
     {
