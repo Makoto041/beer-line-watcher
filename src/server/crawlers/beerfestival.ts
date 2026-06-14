@@ -6,8 +6,49 @@ const SOURCE_ID = "beerfestival-info";
 const BASE_URL = "https://www.beerfestival.info/";
 
 /**
+ * Parse a date range string from the event-schedule widget.
+ * Examples: "6月13日（土）〜6月14日（日）", "9月4日（金）〜9月6日（日）", "6月19日（金）".
+ * `year` comes from the section's month heading (e.g. "2026年11月のイベント").
+ */
+function parseDateRange(
+  text: string,
+  year: number | null
+): { start?: Date; end?: Date } {
+  const parts = text
+    .split(/[〜～~]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const startStr = parts[0];
+  let endStr = parts[1];
+
+  // End sometimes omits the month (e.g. "6月13日〜14日"); borrow it from start.
+  if (endStr && !/月/.test(endStr)) {
+    const mm = startStr?.match(/(\d{1,2})月/);
+    if (mm) endStr = `${mm[1]}月${endStr}`;
+  }
+
+  const withYear = (s: string) => (year ? `${year}年${s}` : s);
+  const start = startStr ? extractDateFromText(withYear(startStr)) : null;
+  let end = endStr ? extractDateFromText(withYear(endStr)) : null;
+
+  // A range that ends before it starts crossed into the next year.
+  if (start && end && end < start) {
+    end = new Date(end.getFullYear() + 1, end.getMonth(), end.getDate());
+  }
+
+  return { start: start || undefined, end: end || undefined };
+}
+
+/**
  * Crawler for beerfestival.info
- * This site lists beer festivals and events across Japan
+ * The site (東京ビールフェス＆イベント情報) lists upcoming Tokyo-area beer
+ * events in a WordPress "event schedule" widget, grouped by month:
+ *
+ *   <h3 class="ftn-es-month-heading">2026年11月のイベント</h3>
+ *   <li class="ftn-es-item">
+ *     <span class="ftn-es-date">11月6日（金）〜11月7日（土）</span>
+ *     <a class="ftn-es-name" href="...">ウイスキーフェスティバル2026 in 東京</a>
+ *   </li>
  */
 export async function crawlBeerfestival(): Promise<CrawledItem[]> {
   const items: CrawledItem[] = [];
@@ -27,94 +68,55 @@ export async function crawlBeerfestival(): Promise<CrawledItem[]> {
 
     const html = await res.text();
 
-    // Extract event links with titles and dates
-    // Pattern: dates followed by event link (with possible <br> tag between)
-    // Example: 1月28日（水）〜2月1日（日）<br><a href="...">Event Name</a>
-    const eventRegex =
-      /(\d{1,2}月\d{1,2}日[^<]*?)(?:<br\s*\/?>)?\s*<a[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi;
+    // Month headings give the year context for the items that follow them.
+    const headings: Array<{ index: number; year: number }> = [];
+    const headingRegex =
+      /<h3[^>]*class="ftn-es-month-heading"[^>]*>(\d{4})年(\d{1,2})月/gi;
+    let hMatch: RegExpExecArray | null;
+    while ((hMatch = headingRegex.exec(html)) !== null) {
+      headings.push({ index: hMatch.index, year: parseInt(hMatch[1]!) });
+    }
+    const yearForIndex = (idx: number): number | null => {
+      let year: number | null = null;
+      for (const h of headings) {
+        if (h.index < idx) year = h.year;
+        else break;
+      }
+      return year;
+    };
+
+    // Each event item: date span + named link.
+    const itemRegex =
+      /<li[^>]*class="ftn-es-item"[\s\S]*?<span[^>]*class="ftn-es-date"[^>]*>([^<]+)<\/span>\s*<a[^>]*class="ftn-es-name"[^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/gi;
     let match: RegExpExecArray | null;
 
-    while ((match = eventRegex.exec(html)) !== null) {
-      const dateTextRaw = match[1];
-      const url = match[2];
-      const titleRaw = match[3];
+    while ((match = itemRegex.exec(html)) !== null) {
+      const dateText = match[1]!.trim();
+      const url = match[2]!.trim();
+      const title = match[3]!.trim();
 
-      // Skip navigation links and non-event links
-      if (!dateTextRaw || !url || !titleRaw) continue;
+      if (!url || url.includes("javascript:") || title.length < 3) continue;
 
-      const dateText = dateTextRaw.trim();
-      const title = titleRaw.trim();
-
-      if (
-        url.includes("#") ||
-        url.includes("javascript:") ||
-        title.length < 5
-      ) {
-        continue;
-      }
-
-      // Skip archive links (year pages)
-      if (/^\d{4}$/.test(title)) continue;
-
-      // Skip city/region navigation links
-      if (/^(東京|大阪|名古屋|福岡|札幌|横浜|神戸|京都|全国)$/.test(title))
-        continue;
-
-      // Build absolute URL
       const absoluteUrl = url.startsWith("http")
         ? url
         : new URL(url, BASE_URL).toString();
 
-      // Extract event date
-      const eventDate = extractDateFromText(dateText) || extractDateFromText(title);
+      const { start, end } = parseDateRange(dateText, yearForIndex(match.index));
 
       items.push({
         externalId: absoluteUrl,
-        title: title,
+        title,
         url: absoluteUrl,
         sourceId: SOURCE_ID,
-        eventDate: eventDate || undefined,
+        eventDate: start,
+        eventEndDate: end,
       });
     }
 
-    // Also try to match simple list items without date prefix
-    const simpleLinkRegex =
-      /<li[^>]*><a[^>]+href="([^"]+)"[^>]*>([^<]{10,100})<\/a><\/li>/gi;
-    while ((match = simpleLinkRegex.exec(html)) !== null) {
-      const url = match[1];
-      const titleRaw = match[2];
-
-      if (!url || !titleRaw) continue;
-      const title = titleRaw.trim();
-
-      if (
-        url.includes("#") ||
-        url.includes("javascript:")
-      ) {
-        continue;
-      }
-
-      // Skip if already added
-      const absoluteUrl = url.startsWith("http")
-        ? url
-        : new URL(url, BASE_URL).toString();
-
-      if (items.some((i) => i.externalId === absoluteUrl)) continue;
-
-      // Check for event-related keywords
-      const eventKeywords =
-        /フェス|祭|イベント|開催|ビアガーデン|マルシェ|フェア|オクトーバー|beer|fest/i;
-      if (!eventKeywords.test(title)) continue;
-
-      const eventDate = extractDateFromText(title);
-
-      items.push({
-        externalId: absoluteUrl,
-        title: title,
-        url: absoluteUrl,
-        sourceId: SOURCE_ID,
-        eventDate: eventDate || undefined,
-      });
+    if (items.length === 0) {
+      console.warn(
+        "beerfestival.info: parsed 0 events — site markup may have changed"
+      );
     }
   } catch (error) {
     console.error("beerfestival.info crawl error:", error);
