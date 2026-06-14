@@ -33,9 +33,24 @@ interface EventForNotification {
 }
 
 // LINE message shapes used by the notification senders
-type LineMessage =
+export type LineMessage =
   | { type: "text"; text: string }
   | { type: "flex"; altText: string; contents: unknown };
+
+/**
+ * Canonical input for a single carousel card. All LINE event deliveries
+ * (cron notifications and webhook replies) build cards from this shape.
+ */
+export interface LineEventCard {
+  id: string;
+  title: string;
+  sourceId: string;
+  sourceName: string;
+  url: string;
+  imageUrl: string | null;
+  eventDate: Date | null;
+  eventEndDate: Date | null;
+}
 
 // Flex carousel constraints
 const MAX_CAROUSEL_BUBBLES = 12; // LINE hard limit
@@ -112,10 +127,15 @@ function isLineFlexImageUrl(imageUrl: string | null): imageUrl is string {
  * Build the carousel altText (shown in the notification banner / talk list
  * and as a fallback on clients that cannot render Flex messages).
  */
-function buildAltText(events: EventForNotification[]): string {
+function buildAltText(events: LineEventCard[]): string {
   const head = `🍺 新着ビールイベントが${events.length}件届きました`;
   const firstTitle = events[0]?.title;
   const text = firstTitle ? `${head}\n・${firstTitle} ほか` : head;
+  return clampAltText(text);
+}
+
+/** Clamp arbitrary altText to LINE's limit. */
+function clampAltText(text: string): string {
   return text.length > MAX_ALT_TEXT_CHARS
     ? text.slice(0, MAX_ALT_TEXT_CHARS - 1) + "…"
     : text;
@@ -125,9 +145,9 @@ function buildAltText(events: EventForNotification[]): string {
  * Build a single event bubble. Image-rich (hero) when imageUrl is a valid
  * HTTPS image, otherwise a text-only card with a thin separator (hybrid).
  */
-function buildEventBubble(event: EventForNotification): unknown {
+function buildEventBubble(event: LineEventCard): unknown {
   const emoji = SOURCE_EMOJIS[event.sourceId] || "📅";
-  const label = SOURCE_LABELS[event.sourceId] || event.source.name;
+  const label = SOURCE_LABELS[event.sourceId] || event.sourceName;
   const detailUrl = getShortEventUrl(event.id);
   const dateStr = formatEventDate(event.eventDate, event.eventEndDate);
   // Only use the hero image when it meets LINE's Flex image requirements
@@ -259,13 +279,30 @@ function buildSeeAllBubble(remaining: number, overflowUrl: string): unknown {
   };
 }
 
+/** Map a DB notification event to the canonical card shape. */
+function toLineEventCard(event: EventForNotification): LineEventCard {
+  return {
+    id: event.id,
+    title: event.title,
+    sourceId: event.sourceId,
+    sourceName: event.source.name,
+    url: event.url,
+    imageUrl: event.imageUrl,
+    eventDate: event.eventDate,
+    eventEndDate: event.eventEndDate,
+  };
+}
+
 /**
  * Build a LINE Flex carousel message from events (horizontal swipe).
  * Shows up to MAX_EVENT_CARDS event cards plus a trailing "see all" card.
+ * Pass `altText` to override the default notification-preview text
+ * (used by webhook replies such as 今週のイベント / イベント).
  */
-function buildLineFlexMessage(
-  events: EventForNotification[],
-  overflowUrl: string
+export function buildLineFlexMessage(
+  events: LineEventCard[],
+  overflowUrl: string,
+  options?: { altText?: string }
 ): LineMessage {
   const shown = events.slice(0, MAX_EVENT_CARDS);
   const remaining = events.length - shown.length;
@@ -275,7 +312,7 @@ function buildLineFlexMessage(
 
   return {
     type: "flex",
-    altText: buildAltText(events),
+    altText: options?.altText ? clampAltText(options.altText) : buildAltText(events),
     contents: { type: "carousel", contents: bubbles },
   };
 }
@@ -379,7 +416,7 @@ export async function sendLineNotifications(): Promise<{
     const newestEventCreatedAt = events[0]!.createdAt;
 
     maxEventsNotified = Math.max(maxEventsNotified, events.length);
-    const message = buildLineFlexMessage(events, EVENTS_PAGE_URL);
+    const message = buildLineFlexMessage(events.map(toLineEventCard), EVENTS_PAGE_URL);
     const userIds = subs.map((s) => s.userId);
 
     console.log(`Sending ${events.length} events to ${userIds.length} users (lastNotifiedAt=${lastNotifiedAt?.toISOString() ?? "null"})`);
@@ -426,7 +463,7 @@ export async function sendLineNotifications(): Promise<{
     const newestEventCreatedAt = events[0]!.createdAt;
 
     maxEventsNotified = Math.max(maxEventsNotified, events.length);
-    const message = buildLineFlexMessage(events, EVENTS_PAGE_URL);
+    const message = buildLineFlexMessage(events.map(toLineEventCard), EVENTS_PAGE_URL);
 
     console.log(`Sending ${events.length} events to ${group.type} ${group.id}`);
 
