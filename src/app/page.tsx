@@ -49,8 +49,16 @@ export default async function Page({
   const source = params?.source ?? "";
   const q = params?.q ?? "";
 
-  // Use JST for all date comparisons
+  // Use JST for all date comparisons.
+  // Timed iCal rows store eventDate/eventEndDate as true UTC instants, so we
+  // compare against the real-UTC instant of JST today's 00:00 (the date-only
+  // JST boundary shifted back by the +9h offset). This keeps date-only events
+  // (stored at UTC midnight) working while preserving events still running in
+  // the early JST hours of today.
   const startOfTodayJST = getStartOfTodayJST();
+  const jstTodayStartUtc = new Date(
+    startOfTodayJST.getTime() - 9 * 60 * 60 * 1000
+  );
 
   // New arrivals: events created within last 3 days
   const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
@@ -61,9 +69,9 @@ export default async function Page({
   const baseWhere: Prisma.EventWhereInput = {
     OR: [
       // 複数日イベント: 終了日が今日以降＝開催中／未来なら表示（終了済みは非表示）
-      { eventEndDate: { gte: startOfTodayJST } },
+      { eventEndDate: { gte: jstTodayStartUtc } },
       // 単日イベント: 終了日が無く、開始日が今日以降
-      { eventEndDate: null, eventDate: { gte: startOfTodayJST } },
+      { eventEndDate: null, eventDate: { gte: jstTodayStartUtc } },
       // 日付未取得イベント: 直近14日以内に取得したもののみ
       {
         eventDate: null,
