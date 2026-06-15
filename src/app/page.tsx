@@ -7,7 +7,7 @@ import { PickupCard } from "./components/PickupCard";
 import { PickupCarousel } from "./components/PickupCarousel";
 import { LineBotBanner, LineBotFooterLink } from "./components/LineBotBanner";
 import { Icon, SourceIcon } from "./components/Icon";
-import { getStartOfTodayJST, getDaysFromTodayJST, formatDateTimeJST } from "@/lib/date-utils";
+import { getStartOfTodayJST, formatDateTimeJST, getEventStatusJST } from "@/lib/date-utils";
 import { removeDuplicates } from "@/server/utils/duplicateDetector";
 
 export const dynamic = "force-dynamic";
@@ -49,17 +49,30 @@ export default async function Page({
   const source = params?.source ?? "";
   const q = params?.q ?? "";
 
-  // Use JST for all date comparisons
+  // Use JST for all date comparisons.
+  // Timed iCal rows store eventDate/eventEndDate as true UTC instants, so we
+  // compare against the real-UTC instant of JST today's 00:00 (the date-only
+  // JST boundary shifted back by the +9h offset). This keeps date-only events
+  // (stored at UTC midnight) working while preserving events still running in
+  // the early JST hours of today.
   const startOfTodayJST = getStartOfTodayJST();
+  const jstTodayStartUtc = new Date(
+    startOfTodayJST.getTime() - 9 * 60 * 60 * 1000
+  );
 
   // New arrivals: events created within last 3 days
   const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
   const isNewArrivalsFilter = source === 'new';
 
-  // Base where clause for upcoming events (without source filter)
+  // Base where clause for upcoming events (without source filter).
+  // Hide events that have already ended, but keep ongoing multi-day events.
   const baseWhere: Prisma.EventWhereInput = {
     OR: [
-      { eventDate: { gte: startOfTodayJST } },
+      // 複数日イベント: 終了日が今日以降＝開催中／未来なら表示（終了済みは非表示）
+      { eventEndDate: { gte: jstTodayStartUtc } },
+      // 単日イベント: 終了日が無く、開始日が今日以降
+      { eventEndDate: null, eventDate: { gte: jstTodayStartUtc } },
+      // 日付未取得イベント: 直近14日以内に取得したもののみ
       {
         eventDate: null,
         createdAt: { gte: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) },
@@ -107,33 +120,22 @@ export default async function Page({
 
   const sources = await prisma.source.findMany();
 
-  // Calculate stats using JST-based day differences
-  const thisWeekEvents = events.filter((e) => {
-    if (!e.eventDate) return false;
-    const days = getDaysFromTodayJST(e.eventDate);
-    return days >= 0 && days <= 7;
-  });
+  // Categorize using the multi-day-aware status helper so that ongoing
+  // events (started earlier, not yet ended) are treated as happening now.
+  const todayEvents = events.filter(
+    (e) => getEventStatusJST(e.eventDate, e.eventEndDate) === "today"
+  );
+  const within3DaysEvents = events.filter(
+    (e) => getEventStatusJST(e.eventDate, e.eventEndDate) === "soon"
+  );
+  const within1WeekEvents = events.filter(
+    (e) => getEventStatusJST(e.eventDate, e.eventEndDate) === "upcoming"
+  );
 
-  // Pickup events categorized by time (using JST)
-  // Today's events (days = 0)
-  const todayEvents = events.filter((e) => {
-    if (!e.eventDate) return false;
-    return getDaysFromTodayJST(e.eventDate) === 0;
-  });
-
-  // Within 3 days (days = 1, 2)
-  const within3DaysEvents = events.filter((e) => {
-    if (!e.eventDate) return false;
-    const days = getDaysFromTodayJST(e.eventDate);
-    return days >= 1 && days <= 2;
-  });
-
-  // Within 1 week (days = 3, 4, 5, 6)
-  const within1WeekEvents = events.filter((e) => {
-    if (!e.eventDate) return false;
-    const days = getDaysFromTodayJST(e.eventDate);
-    return days >= 3 && days <= 6;
-  });
+  // "今週開催" stat: happening now or starting within a week.
+  const thisWeekEvents = events.filter(
+    (e) => getEventStatusJST(e.eventDate, e.eventEndDate) !== null
+  );
 
   const hasPickupEvents = todayEvents.length > 0 || within3DaysEvents.length > 0 || within1WeekEvents.length > 0;
 
