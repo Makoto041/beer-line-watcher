@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { formatDateJST, formatDateRangeJST, getEventStatusJST } from "@/lib/date-utils";
+import { formatDateJST, formatDateRangeJST, getEventStatusJST, getDaysFromTodayJST } from "@/lib/date-utils";
 import { Icon, SourceIcon } from "./Icon";
 
 interface Event {
@@ -38,6 +38,14 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
     ? formatDateRangeJST(event.eventDate, event.eventEndDate)
     : null;
   const status = getEventStatusJST(event.eventDate, event.eventEndDate);
+  // Distinguish an ongoing multi-day event (already started, not yet ended)
+  // from one starting today.
+  const isOngoing =
+    status === "today" &&
+    !!event.eventEndDate &&
+    !!event.eventDate &&
+    getDaysFromTodayJST(event.eventDate) < 0;
+  const todayLabel = isOngoing ? "開催中" : "今日";
 
   const defaultConfig: SourceConfig = {
     icon: 'calendar',
@@ -77,7 +85,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
                     ? 'badge-soon'
                     : 'badge-week'
               }`}>
-                {status === 'today' ? '今日' : status === 'soon' ? 'まもなく' : '今週'}
+                {status === 'today' ? todayLabel : status === 'soon' ? 'まもなく' : '今週'}
               </div>
             )}
             {/* Date overlay */}
@@ -132,7 +140,7 @@ export function EventCard({ event, index, sourceConfig }: EventCardProps) {
                       ? 'badge-soon'
                       : 'badge-week'
                 }`}>
-                  {status === 'today' ? '今日' : status === 'soon' ? 'まもなく' : '今週'}
+                  {status === 'today' ? todayLabel : status === 'soon' ? 'まもなく' : '今週'}
                 </div>
               )}
             </div>

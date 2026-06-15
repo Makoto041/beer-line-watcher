@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { formatDateJST, formatDateRangeJST } from "@/lib/date-utils";
+import { formatDateJST, formatDateRangeJST, getDaysFromTodayJST } from "@/lib/date-utils";
 import { Icon, SourceIcon } from "./Icon";
 
 interface Event {
@@ -57,6 +57,13 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
     ? formatDateRangeJST(event.eventDate, event.eventEndDate)
     : null;
   const styles = variantStyles[variant];
+  // Ongoing multi-day event (already started, not yet ended) → "開催中"
+  const isOngoing =
+    variant === "today" &&
+    !!event.eventEndDate &&
+    !!event.eventDate &&
+    getDaysFromTodayJST(event.eventDate) < 0;
+  const badgeLabel = isOngoing ? "開催中" : styles.badge;
 
   const defaultConfig: SourceConfig = {
     icon: 'calendar',
@@ -92,7 +99,7 @@ export function PickupCard({ event, sourceConfig, variant = 'week' }: PickupCard
         {/* Badge */}
         <div className="absolute top-3 right-3 z-10">
           <span className={`badge ${styles.badgeClass}`}>
-            {styles.badge}
+            {badgeLabel}
           </span>
         </div>
 
