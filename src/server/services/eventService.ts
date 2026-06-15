@@ -6,6 +6,19 @@ import { calculateDuplicateScore } from "../utils/duplicateDetector";
 // Threshold for duplicate detection (0.6 = 60% similarity)
 const DUPLICATE_THRESHOLD = 0.6;
 
+// Source priority (lower index = higher priority). Mirrors removeDuplicates()
+// in duplicateDetector so the preferred source "owns" a shared event.
+const SOURCE_PRIORITY = [
+  "beergirl-calendar",
+  "walkerplus-liquor-kanto",
+  "beerfestival-info",
+  "alwayslovebeer-calendar",
+];
+function sourceRank(sourceId: string): number {
+  const i = SOURCE_PRIORITY.indexOf(sourceId);
+  return i === -1 ? 999 : i;
+}
+
 export interface UpsertResult {
   newEvents: Array<{ id: string; title: string; url: string; sourceId: string }>;
   updatedEvents: Array<{ id: string; title: string; url: string; sourceId: string }>;
@@ -34,6 +47,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
       sourceId: true,
       eventDate: true,
       eventEndDate: true,
+      createdAt: true,
     },
   });
 
@@ -87,10 +101,21 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
     }
 
     // Check for duplicate events from other sources
-    const isDuplicate = checkForDuplicate(item, existingEvents);
-    if (isDuplicate) {
-      skippedDuplicates++;
-      continue;
+    const dupMatch = findDuplicateMatch(item, existingEvents);
+    let createdAtOverride: Date | undefined;
+    if (dupMatch) {
+      if (sourceRank(dupMatch.existing.sourceId) <= sourceRank(item.sourceId)) {
+        // Existing event is from an equal/higher-priority source → skip.
+        skippedDuplicates++;
+        continue;
+      }
+      // Incoming source is preferred (e.g. beergirl over alwayslovebeer):
+      // store it so the preferred source owns the event, but inherit the
+      // existing row's createdAt so subscribers aren't re-notified.
+      createdAtOverride = dupMatch.existing.createdAt;
+      console.log(
+        `Preferred-source duplicate kept: "${item.title}" (${item.sourceId} > ${dupMatch.existing.sourceId})`
+      );
     }
 
     // Create new Event
@@ -103,6 +128,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
         imageUrl: item.imageUrl,
         eventDate: item.eventDate,
         eventEndDate: item.eventEndDate,
+        ...(createdAtOverride ? { createdAt: createdAtOverride } : {}),
       },
     });
 
@@ -114,6 +140,7 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
       sourceId: item.sourceId,
       eventDate: item.eventDate || null,
       eventEndDate: item.eventEndDate || null,
+      createdAt: createdAtOverride ?? new Date(),
     });
 
     newEvents.push({
@@ -128,20 +155,27 @@ export async function upsertEventsAndGetNewOnes(items: CrawledItem[]): Promise<U
   return { newEvents, updatedEvents, skippedDuplicates, skippedExisting };
 }
 
+type ExistingEvent = {
+  id: string;
+  title: string;
+  url: string;
+  sourceId: string;
+  eventDate: Date | null;
+  eventEndDate: Date | null;
+  createdAt: Date;
+};
+
 /**
- * Check if an item is a duplicate of any existing event
+ * Find the best cross-source duplicate of an item among existing events.
+ * Returns the highest-scoring match (>= threshold) from a different source,
+ * or null. The caller decides whether to skip based on source priority.
  */
-function checkForDuplicate(
+function findDuplicateMatch(
   item: CrawledItem,
-  existingEvents: Array<{
-    id: string;
-    title: string;
-    url: string;
-    sourceId: string;
-    eventDate: Date | null;
-    eventEndDate: Date | null;
-  }>
-): boolean {
+  existingEvents: ExistingEvent[]
+): { existing: ExistingEvent; score: number } | null {
+  let best: { existing: ExistingEvent; score: number } | null = null;
+
   for (const existing of existingEvents) {
     // Skip same source (already handled by ID dedup)
     if (item.sourceId === existing.sourceId) continue;
@@ -161,14 +195,12 @@ function checkForDuplicate(
       }
     );
 
-    if (score >= DUPLICATE_THRESHOLD) {
-      console.log(
-        `Duplicate detected (${(score * 100).toFixed(1)}%): "${item.title}" ≈ "${existing.title}"`
-      );
-      return true;
+    if (score >= DUPLICATE_THRESHOLD && (!best || score > best.score)) {
+      best = { existing, score };
     }
   }
-  return false;
+
+  return best;
 }
 
 /**
